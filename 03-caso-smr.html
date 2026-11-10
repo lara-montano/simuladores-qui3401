@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  El caso SMR: dos equilibrios acoplados — Dashboard paramétrico
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401 (Termodinámica del Equilibrio
+  Químico). Se permite su uso en el aula citando al autor. Prohibido
+  redistribuir este archivo sin la atribución visible del autor.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>El caso SMR: equilibrios acoplados · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#3a744f;
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --green:#008300; --violet:#4a3aa7; --red-text:#c93636;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(11,11,11,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(42,120,214,.05);
+    border:1px solid rgba(42,120,214,.22);border-left:3px solid var(--blue);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  .rxns{font-size:14.5px;font-weight:700;margin:0 0 2px;display:flex;flex-direction:column;gap:2px}
+  .rxns .tag{font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px;margin-left:8px}
+  .tag-endo{color:var(--blue-deep);background:rgba(42,120,214,.1)}
+  .tag-exo{color:var(--red-text);background:rgba(227,73,72,.1)}
+  .plot-caption{font-size:12px;color:var(--muted);margin:4px 0 8px}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  #cv{width:100%;height:320px;display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface);cursor:crosshair;
+    touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  /* flujo entrada → salida */
+  .flow{display:flex;flex-direction:column;gap:7px}
+  .flow-row{display:flex;align-items:center;gap:9px}
+  .flow-row .lbl{flex:0 0 64px;font-size:12px;font-weight:650;color:var(--ink2);text-align:right}
+  .fbar-wrap{flex:1 1 auto}
+  .fbar{display:flex;height:24px;gap:2px}
+  .fbar .seg{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:650;overflow:hidden;white-space:nowrap;min-width:0;flex:0 0 auto}
+  .comp-legend{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--ink2)}
+  .comp-legend .item{display:inline-flex;align-items:center;gap:6px}
+  .comp-legend .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  /* controles */
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f4f3f0}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .valid{font-size:12px;font-weight:650;color:var(--aqua-deep);background:rgba(27,175,122,.09);border:1px solid rgba(27,175,122,.3);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em;font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .vh-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12.5px;font-weight:650;color:var(--ink2);margin:14px 0 6px}
+  .vh-head span{font-weight:500;font-size:10.5px;color:var(--muted)}
+  #cvK{width:100%;height:150px;display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface)}
+  /* explicación */
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:1fr}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain li::marker{color:var(--muted)}
+  .explain b{color:var(--ink)}
+  /* créditos */
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(249,249,247,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(11,11,11,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+  /* --- Ajuste táctil (teléfono / puntero grueso): blancos de al menos 40 px --- */
+  @media (max-width:720px),(pointer:coarse){
+    .btn{min-height:40px}
+    details.pista summary{padding:12px 0}
+    .topnav a{display:inline-flex;align-items:center;min-height:40px}
+    input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+    input[type=range]::-moz-range-thumb{width:19px;height:19px}
+  }
+  @media (max-width:720px){
+    .rxns .tag{display:inline-block;margin-left:0}     /* la etiqueta ΔH°/Δν baja entera a su renglón, sin partirse */
+  }
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 2</p>
+    <h1>El caso SMR: dos equilibrios acoplados</h1>
+    <p class="sub">El reformado de metano con vapor produce el hidrógeno industrial del mundo.
+      Dos reacciones comparten especies, así que necesitas <em>dos</em> grados de avance y un
+      sistema no lineal — el mismo que resolviste con Python en clase. Aquí el solver corre en
+      vivo: mueve T, P y la relación vapor/carbono y mira el proceso responder.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ======== panel principal (protagonista) ======== -->
+    <section class="card hero">
+      <div class="rxns">
+        <span>R1 · CH₄ + H₂O ⇌ CO + 3 H₂ <span class="tag tag-endo">endotérmica · ΔH° = +206.1 kJ/mol · Δν = +2</span></span>
+        <span>R2 · CO + H₂O ⇌ CO₂ + H₂ <span class="tag tag-exo">exotérmica · ΔH° = −41.2 kJ/mol · Δν = 0</span></span>
+      </div>
+      <p class="plot-caption">Alimentación: 1 mol de CH₄ + S mol de H₂O. Balances:
+        n(CH₄) = 1−ξ₁ · n(H₂O) = S−ξ₁−ξ₂ · n(CO) = ξ₁−ξ₂ · n(H₂) = 3ξ₁+ξ₂ · n(CO₂) = ξ₂ ·
+        n<sub>total</sub> = 1+S+2ξ₁.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Pulsa «Caso de clase» y compara ξ₁ y ξ₂ con tu solución de Python.</li>
+          <li>Mueve T: el marcador recorre las curvas; nota el máximo de ξ₂.</li>
+          <li>Cambia P y S/C: las curvas completas se recalculan (análisis paramétrico).</li>
+          <li>Pasa el cursor sobre la gráfica para leer valores exactos a cualquier T.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr" aria-live="polite">Mueve T, P o S/C y aquí verás la cadena causal: qué le pasa al reformado, al shift y al H₂.</div>
+
+      <div class="sec-head">Barrido en temperatura (a la P y S/C actuales)
+        <span class="s-sub">arriba: ξ₁ y ξ₂ · abajo: H₂ producido (mol por mol de CH₄)</span></div>
+      <canvas id="cv" aria-label="Curvas de los grados de avance xi uno y xi dos, y del hidrógeno producido, contra la temperatura"></canvas>
+
+      <div class="sec-head">Del reformador: entrada → salida
+        <span class="s-sub">ancho ∝ moles · la salida es más ancha porque Δν₁ = +2</span></div>
+      <div class="flow">
+        <div class="flow-row"><span class="lbl">Entrada</span>
+          <div class="fbar-wrap"><div class="fbar" id="bar-in"></div></div></div>
+        <div class="flow-row"><span class="lbl" id="lbl-out">Salida</span>
+          <div class="fbar-wrap"><div class="fbar" id="bar-out"></div></div></div>
+      </div>
+      <div class="comp-legend" id="comp-legend"></div>
+
+      <p class="modelnote">Gases ideales; K(T) con ΔH° dependiente de T: Kirchhoff y Van't Hoff integrados
+        con C<sub>p</sub>°(T) de Shomate (NIST), ajustados a ln K = a + b/T + c·ln T entre 800 y 1300 K
+        (a 1100 K: K₁ = 311 y K₂ = 0.988); P° = 1 bar.
+        Solver: bisección anidada sobre (ξ₁, ξ₂) — el equivalente en vivo de scipy.optimize.fsolve.</p>
+    </section>
+
+    <!-- ======== controles ======== -->
+    <aside class="card">
+      <h2>Condiciones de operación</h2>
+
+      <div class="row">
+        <label class="top" for="sT">Temperatura <span class="val" id="vT">1100 K</span></label>
+        <input type="range" id="sT" min="800" max="1300" step="5" value="1100">
+      </div>
+      <div class="row">
+        <label class="top" for="sP">Presión total <span class="val" id="vP">30 bar</span></label>
+        <input type="range" id="sP" min="0" max="1.602" step="0.005" value="1.477">
+      </div>
+      <div class="row">
+        <label class="top" for="sS">Relación vapor/carbono S/C <span class="val" id="vS">3.0</span></label>
+        <input type="range" id="sS" min="1" max="6" step="0.1" value="3">
+      </div>
+
+      <div class="btns">
+        <button class="btn btn-primary" id="bCase">Caso de clase: 1100 K · 30 bar · S/C = 3</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bChallenge" title="Se oculta ξ₁: introduce la conversión de CH₄ a esta T y el simulador calcula el error">🎯 Reto: predice la conversión</button>
+      </div>
+      <div class="valid" id="valid" hidden>✓ Condiciones del caso de clase — el solver dio
+        ξ₁ = 0.7109 y ξ₂ = 0.3152 (X(CH₄) = 71.1 %). Compara con las lecturas.</div>
+
+      <h2>Lecturas (por mol de CH₄ alimentado)</h2>
+      <div class="stats">
+        <div class="stat" title="Grado de avance del reformado (R1)"><div class="k">ξ₁ — reformado (mol)</div><div class="v" id="rX1">—</div></div>
+        <div class="stat" title="Grado de avance del shift (R2)"><div class="k">ξ₂ — WGS (mol)</div><div class="v" id="rX2">—</div></div>
+        <div class="stat" title="X = ξ₁ / 1 mol de CH₄ alimentado"><div class="k">Conversión de CH₄</div><div class="v" id="rConv">—</div></div>
+        <div class="stat" title="n(H₂) = 3ξ₁ + ξ₂"><div class="k">H₂ producido (mol)</div><div class="v" id="rH2">—</div></div>
+        <div class="stat" title="Fracción de H₂ quitando el agua (como se reporta industrialmente)"><div class="k">y(H₂) base seca</div><div class="v" id="rH2d">—</div></div>
+        <div class="stat" title="Fracción de CO en base seca: lo que la purificación debe remover"><div class="k">y(CO) base seca</div><div class="v" id="rCOd">—</div></div>
+      </div>
+
+      <div class="vh-head">K₁ y K₂ vs T <span>dependencia opuesta (Van't Hoff)</span></div>
+      <canvas id="cvK" aria-label="Logaritmo de K de ambas reacciones contra temperatura: el reformado sube y el shift baja"></canvas>
+    </aside>
+  </div>
+
+  <!-- ======== explicación ======== -->
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li><b>Dos reacciones, especies compartidas</b> (H₂O, CO, H₂): por eso hacen falta dos
+            grados de avance y las ecuaciones quedan acopladas — no puedes resolver una sin la otra.</li>
+        <li>El equilibrio del sistema es el punto (ξ₁, ξ₂) donde <b>ambos cocientes igualan a su K
+            al mismo tiempo</b>: f₁ = 0 y f₂ = 0. Eso es lo que scipy (y el solver de esta página)
+            resuelve numéricamente.</li>
+        <li><b>Dependencia opuesta:</b> R1 es endotérmica (K₁ sube con T) y R2 exotérmica
+            (K₂ baja). El máximo de ξ₂ a media rampa nace de esa competencia: más CO disponible,
+            pero un shift cada vez menos favorable.</li>
+        <li>La salida tiene <b>más moles que la entrada</b> (n = 1+S+2ξ₁): Δν₁ = +2. Por eso la
+            presión juega en contra del reformado.</li>
+        <li>La <b>base seca</b> (sin H₂O) es como la industria reporta la pureza del gas de síntesis.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>Valida tu Python:</b> pulsa «Caso de clase» y verifica ξ₁ y ξ₂. Con los balances,
+            calcula a mano y(H₂) en base seca y compárala con la lectura.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Con ξ₁ = 0.711 y ξ₂ = 0.315: n(H₂) = 2.448, y el total seco es
+               n<sub>tot</sub> − n(H₂O) = 5.422 − 1.974 = 3.448. Entonces y(H₂) seca =
+               2.448/3.448 ≈ 71.0 %, igual que en clase.</p>
+          </details></li>
+        <li><b>El máximo de ξ₂:</b> recorre T de 800 a 1300 K. ¿Por qué ξ₂ sube, alcanza un
+            máximo (~1060 K a 30 bar y S/C = 3) y luego baja, si ξ₁ nunca deja de subir?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Al subir T hay más CO disponible (R1 avanza), lo que empuja al shift; pero K₂ cae
+               por ser exotérmica. Al principio gana el CO extra; después gana la K₂ que se
+               desploma. El acoplamiento crea el máximo.</p>
+          </details></li>
+        <li><b>La presión estorba… ¿y aun así 30 bar?</b> Baja P a 1 bar: la conversión sube
+            mucho. ¿Por qué la industria opera a 20–30 bar de todos modos?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Porque el H₂ se usa y transporta a presión: comprimir la alimentación (pocos moles)
+               es más barato que comprimir el producto (muchos moles, Δν = +2), y los equipos a
+               presión son más compactos. La pérdida termodinámica se recupera subiendo T y S/C:
+               ingeniería = termodinámica + economía.</p>
+          </details></li>
+        <li><b>El precio del vapor:</b> sube S/C de 3 a 6. ¿Qué mejora y qué empeora?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Más vapor desplaza ambas reacciones hacia productos (más conversión, más H₂) y de
+               paso evita depósitos de carbón. Pero vaporizar agua cuesta energía: por eso la
+               práctica industrial ronda S/C ≈ 3, no 6.</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ======== créditos (protegidos) ======== -->
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución del autor fue ocultada o eliminada. Recarga la página para restaurarla
+      y seguir usando el simulador.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+/* ================= constantes ================= */
+const COLORS = {
+  ink:"#0b0b0b", ink2:"#52514e", muted:"#898781", grid:"#e1e0d9", axis:"#c3c2b7",
+  surface:"#fcfcfb", blue:"#2a78d6", blueDeep:"#1c5cab", aqua:"#1baf7a",
+  aquaDeep:"#0e7a54", yellow:"#eda100"
+};
+/* especies en orden de paleta categórica fija */
+const SP = [
+  {f:"CH₄", bg:"#2a78d6", fg:"#ffffff"},
+  {f:"H₂O", bg:"#1baf7a", fg:"#053022"},
+  {f:"CO",  bg:"#eda100", fg:"#3d2a00"},
+  {f:"H₂",  bg:"#008300", fg:"#ffffff"},
+  {f:"CO₂", bg:"#4a3aa7", fg:"#ffffff"}
+];
+/* K(T): Kirchhoff + van't Hoff INTEGRADOS sobre Cp°(T) de Shomate (NIST).
+   El cálculo anterior suponía ΔH° constante desde 298 K, lo que subestimaba
+   K₁(1100 K) por un factor ≈ 11 (daba 28.9 en vez de 311.6).
+   Ajuste ln K = a + b/T + c·ln T sobre 800–1300 K; error máximo 0.4 % en K
+   y coincidencia exacta en 1100 K. Fuente única de verdad:
+   ../laminas/herramientas/termodinamica_smr.py
+   (1100 K: K₁ = 311.6 · K₂ = 0.988) */
+const lnK1 = T => 20.856118 - 25914.622035/T + 1.205553*Math.log(T);
+const lnK2 = T => -13.287971 +  5381.631926/T + 1.197097*Math.log(T);
+
+/* ================= estado ================= */
+const state = { T:1100, P:30, S:3, challenge:null };
+let sweep = null;          // {Ts,x1s,x2s,h2s,imax} — depende de P y S
+let sweepDirty = true;
+let hoverT = null;
+let narrSnap = null;       // {T,P,S,x1} del último estado narrado
+const PA = {top:12, bot:196};   // geometría del panel superior (ξ) — compartida draw ↔ reto
+const $ = id => document.getElementById(id);
+
+/* ================= solver (bisección anidada) ================= */
+function xi2of(x1,S,k2){
+  let lo=1e-10, hi=Math.min(x1,S-x1)-1e-10;
+  if(hi<=lo) return 0;
+  const f=x2=>Math.log(x2*(3*x1+x2))-Math.log((x1-x2)*(S-x1-x2))-k2;
+  for(let i=0;i<55;i++){ const m=(lo+hi)/2; if(f(m)<0) lo=m; else hi=m; }
+  return (lo+hi)/2;
+}
+function solveSMR(T,P,S){
+  const k1=lnK1(T), k2=lnK2(T), lnP=Math.log(P);
+  const g=x1=>{
+    const x2=xi2of(x1,S,k2);
+    const nt=1+S+2*x1;
+    const lnQ=Math.log(Math.max(x1-x2,1e-300))+3*Math.log(3*x1+x2)
+             -Math.log(Math.max(1-x1,1e-300))-Math.log(Math.max(S-x1-x2,1e-300))
+             -2*Math.log(nt)+2*lnP;
+    return lnQ-k1;
+  };
+  let lo=1e-8, hi=Math.min(1,S)-1e-8;
+  for(let i=0;i<62;i++){ const m=(lo+hi)/2; if(g(m)<0) lo=m; else hi=m; }
+  const x1=(lo+hi)/2, x2=xi2of(x1,S,k2);
+  return {x1,x2};
+}
+function moles(x1,x2,S){
+  return [1-x1, S-x1-x2, x1-x2, 3*x1+x2, x2];
+}
+function computeSweep(){
+  const Ts=[], x1s=[], x2s=[], h2s=[];
+  for(let T=800;T<=1300.01;T+=10){
+    const s=solveSMR(T,state.P,state.S);
+    Ts.push(T); x1s.push(s.x1); x2s.push(s.x2); h2s.push(3*s.x1+s.x2);
+  }
+  let imax=0;
+  for(let i=1;i<x2s.length;i++) if(x2s[i]>x2s[imax]) imax=i;
+  sweep={Ts,x1s,x2s,h2s,imax};
+}
+
+/* ================= gráfica principal ================= */
+const cv=$("cv"), ctx=cv.getContext("2d");
+let W=700, H=320, DPR=1;
+const CM={l:46,r:16};            // márgenes laterales (los comparten el trazo y el puntero)
+const CL={wm:null, stack:false}; // pie del lienzo: marca de agua y título del eje
+let cvDirty=true, hoverUntil=0;
+new ResizeObserver(()=>{ cvDirty=true; }).observe(cv);
+/* geometría según el ancho CSS real. En ancho, «temperatura (K)» y la marca de agua comparten renglón;
+   en teléfono no caben: se apilan (y la marca se parte en dos si hace falta) y el lienzo crece lo justo */
+function layoutMain(){
+  const r=cv.getBoundingClientRect();
+  W=Math.max(220,r.width);
+  DPR=window.devicePixelRatio||1;
+  const c=_cd();
+  const full = c ? ("© "+c.y+" "+c.n+" · @"+c.ig.split("/").pop()) : "atribución requerida";
+  let font="10.5px system-ui, sans-serif", lines=[full], x=W-CM.r-4;
+  ctx.font=font; let ww=ctx.measureText(full).width;
+  ctx.font="600 10.5px system-ui, sans-serif";
+  const stack = CM.l+ctx.measureText("temperatura (K)").width+12 > x-ww;
+  if(stack){
+    x=W-6;
+    if(ww>x-4){
+      font="10px system-ui, sans-serif"; ctx.font=font; ww=ctx.measureText(full).width;
+      if(c && ww>x-4) lines=["© "+c.y+" "+c.n, "@"+c.ig.split("/").pop()];
+    }
+  }
+  H = stack ? (lines.length>1 ? 346 : 334) : 320;
+  CL.wm={x,font,lines}; CL.stack=stack;
+  if(cv.style.height!==H+"px") cv.style.height=H+"px";
+  const pw=Math.round(W*DPR), ph=Math.round(H*DPR);
+  if(cv.width!==pw) cv.width=pw;
+  if(cv.height!==ph) cv.height=ph;
+  cvDirty=false;
+}
+/* texto con halo del color del fondo: la línea de T y la rejilla no lo cortan */
+function haloText(t,x,y){
+  ctx.save(); ctx.lineJoin="round"; ctx.lineWidth=3; ctx.strokeStyle=COLORS.surface; ctx.strokeText(t,x,y); ctx.restore();
+  ctx.fillText(t,x,y);
+}
+
+function draw(){
+  if(cvDirty) layoutMain();
+  if(hoverUntil && performance.now()>hoverUntil){ hoverT=null; hoverUntil=0; }
+  if(sweepDirty){ computeSweep(); sweepDirty=false; }
+  const M=CM;
+  const A={top:PA.top,bot:PA.bot}, B={top:224,bot:288};
+  const X=T=>M.l+(T-800)/500*(W-M.l-M.r);
+  const YA=v=>A.top+(1-v)*(A.bot-A.top);
+  let hmax=4;
+  const YB=v=>B.top+(1-v/hmax)*(B.bot-B.top);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.clearRect(0,0,W,H);
+  ctx.font="10px system-ui, sans-serif";
+
+  /* rejilla */
+  ctx.strokeStyle=COLORS.grid; ctx.lineWidth=1;
+  ctx.fillStyle=COLORS.muted; ctx.textAlign="right"; ctx.textBaseline="middle";
+  for(let v=0;v<=1.001;v+=0.25){
+    ctx.beginPath(); ctx.moveTo(M.l,YA(v)); ctx.lineTo(W-M.r,YA(v)); ctx.stroke();
+    ctx.fillText(v.toFixed(2), M.l-6, YA(v));
+  }
+  for(let v=0;v<=hmax;v+=1){
+    ctx.beginPath(); ctx.moveTo(M.l,YB(v)); ctx.lineTo(W-M.r,YB(v)); ctx.stroke();
+    ctx.fillText(v.toFixed(0), M.l-6, YB(v));
+  }
+  ctx.textAlign="center"; ctx.textBaseline="top";
+  for(let T=800;T<=1300;T+=100){
+    const x=X(T);
+    ctx.fillText(T.toFixed(0), x, B.bot+5);
+    ctx.strokeStyle=COLORS.grid;
+    ctx.beginPath(); ctx.moveTo(x,A.top); ctx.lineTo(x,A.bot); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,B.top); ctx.lineTo(x,B.bot); ctx.stroke();
+  }
+  ctx.strokeStyle=COLORS.axis; ctx.lineWidth=1.2;
+  ctx.strokeRect(M.l,A.top,W-M.l-M.r,A.bot-A.top);
+  ctx.strokeRect(M.l,B.top,W-M.l-M.r,B.bot-B.top);
+  ctx.fillStyle=COLORS.ink2; ctx.font="600 10.5px system-ui, sans-serif";
+  ctx.textBaseline="bottom";     // el título girado queda a la izquierda de las cifras del eje (antes las pisaba)
+  ctx.save(); ctx.translate(12,(A.top+A.bot)/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign="center"; ctx.fillText("ξ (mol)",0,0); ctx.restore();
+  ctx.save(); ctx.translate(12,(B.top+B.bot)/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign="center"; ctx.fillText("H₂ (mol)",0,0); ctx.restore();
+  ctx.textAlign="left"; ctx.textBaseline="top";
+  ctx.fillText("temperatura (K)", M.l, B.bot+19);
+
+  /* curvas */
+  function line(arr, Y, col, wdt){
+    ctx.strokeStyle=col; ctx.lineWidth=wdt;
+    ctx.beginPath();
+    for(let i=0;i<sweep.Ts.length;i++){
+      const x=X(sweep.Ts[i]), y=Y(arr[i]);
+      i?ctx.lineTo(x,y):ctx.moveTo(x,y);
+    }
+    ctx.stroke();
+  }
+  line(sweep.x1s, YA, COLORS.blue, 2.4);
+  line(sweep.x2s, YA, COLORS.aqua, 2.4);
+  line(sweep.h2s, YB, COLORS.yellow, 2.4);
+
+  /* marcador de T actual: la línea va antes que los rótulos para que estos (con halo) queden encima */
+  const hideAns = state.challenge && !state.challenge.revealed;
+  const xT=X(state.T);
+  ctx.strokeStyle="rgba(11,11,11,.4)"; ctx.setLineDash([5,4]); ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(xT,A.top); ctx.lineTo(xT,B.bot); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* etiquetas directas al final de cada curva: encima o debajo según dónde haya sitio, para no pisar
+     ni la curva ni el marco (el recorrido de la curva bajo el rótulo se mide con ext) */
+  const ext=(arr,Y,xa,xb)=>{                       // extremos verticales (px) de una curva entre dos abscisas
+    const n=sweep.Ts.length-1, idx=x=>(x-M.l)/(W-M.l-M.r)*n;
+    const i0=Math.max(0,Math.floor(idx(xa))), i1=Math.min(n,Math.ceil(idx(xb)));
+    let top=Infinity, bot=-Infinity;
+    for(let i=i0;i<=i1;i++){ const y=Y(arr[i]); if(y<top) top=y; if(y>bot) bot=y; }
+    return {top,bot};
+  };
+  ctx.font="700 10.5px system-ui, sans-serif"; ctx.textAlign="right"; ctx.textBaseline="top";
+  const xr=W-M.r-4, LBH=11;
+  /* borde derecho del rótulo: el extremo de la curva, salvo que la línea de T lo cruzaría: entonces se corre a su izquierda */
+  const edge = w => (xT>xr-w-5 && xT<xr+4 && xT-7-w>=M.l+30) ? xT-7 : xr;
+  const endBoxes=[];             // cajas de los rótulos de extremo (las esquiva «máx ξ₂»)
+  {
+    const t1="ξ₁ (reformado)", w1=ctx.measureText(t1).width, x1=edge(w1), e1=ext(sweep.x1s,YA,x1-w1-3,x1+3);
+    const t2="ξ₂ (WGS)",       w2=ctx.measureText(t2).width, x2=edge(w2), e2=ext(sweep.x2s,YA,x2-w2-3,x2+3);
+    const e12=ext(sweep.x2s,YA,x1-w1-3,x1+3), e21=ext(sweep.x1s,YA,x2-w2-3,x2+3);
+    /* ξ₁: encima de la curva si cabe bajo el marco; si no, debajo (sin llegar a ξ₂) */
+    let y1=e1.top-6-LBH;
+    if(y1<A.top+3){ y1=e1.bot+6; if(y1+LBH>e12.top-4) y1=Math.max(A.top+3,e1.top-6-LBH); }
+    /* ξ₂: debajo de la curva si cabe en el panel; si no, encima (sin llegar a ξ₁ ni a su rótulo) */
+    let y2=e2.bot+6;
+    if(y2+LBH>A.bot-2){
+      const up=e2.top-6-LBH;
+      y2 = (up>=e21.bot+4 && up>=y1+LBH+2) ? up : A.bot-2-LBH;
+    }
+    if(y2<y1+LBH+1 && y2+LBH>y1-1) y2=y1+LBH+1;    // nunca uno sobre otro
+    ctx.fillStyle=COLORS.blue; haloText(t1,x1,y1);
+    ctx.fillStyle=COLORS.aqua; haloText(t2,x2,y2);
+    endBoxes.push({x0:x1-w1,x1:x1,y0:y1,y1:y1+LBH},{x0:x2-w2,x1:x2,y0:y2,y1:y2+LBH});
+    const t3="H₂", w3=ctx.measureText(t3).width, x3=edge(w3), e3=ext(sweep.h2s,YB,x3-w3-3,x3+3);
+    let y3=e3.top-5-LBH;
+    if(y3<B.top+2){ y3=e3.bot+5; if(y3+LBH>B.bot-2) y3=B.top+2; }
+    ctx.fillStyle="#8a5e00"; haloText(t3,x3,y3);
+  }
+
+  /* máximo de ξ₂ */
+  const im=sweep.imax;
+  if(im>0 && im<sweep.Ts.length-1){
+    const mx=X(sweep.Ts[im]), my=YA(sweep.x2s[im]);
+    ctx.beginPath(); ctx.arc(mx,my,3.5,0,7);
+    ctx.fillStyle=COLORS.aquaDeep; ctx.fill();
+    ctx.font="600 10px system-ui, sans-serif"; ctx.textBaseline="top";
+    const tm="máx ξ₂", wm2=ctx.measureText(tm).width;
+    let lx=mx-wm2/2;                                // centrado sobre el punto…
+    if(xT>lx-5 && xT<lx+wm2+5) lx = xT>=mx ? xT-6-wm2 : xT+6;   // …salvo que lo cruce la línea de T: se aparta
+    lx=Math.min(Math.max(lx,M.l+3),W-M.r-3-wm2);
+    const roomUp = YA(sweep.x1s[im]) < my-6-LBH-5;  // ¿cabe entre ξ₂ y ξ₁?
+    const libre = y => endBoxes.every(b=> lx>b.x1+2 || lx+wm2<b.x0-2 || y>b.y1+2 || y+LBH<b.y0-2);
+    const yUp=my-6-LBH, yDn=my+7;
+    ctx.textAlign="left";
+    haloText(tm, lx, (roomUp && libre(yUp)) ? yUp : (libre(yDn) ? yDn : yUp));
+  }
+
+  const cur=solveSMR(state.T,state.P,state.S);
+  if(!hideAns){
+    for(const [v,Y,col] of [[cur.x1,YA,COLORS.blue],[cur.x2,YA,COLORS.aqua],[3*cur.x1+cur.x2,YB,COLORS.yellow]]){
+      ctx.beginPath(); ctx.arc(xT,Y(v),4.5,0,7);
+      ctx.fillStyle=col; ctx.fill();
+      ctx.lineWidth=2; ctx.strokeStyle="#fff"; ctx.stroke();
+    }
+  }
+
+  /* reto "predice la conversión": valor estimado por el estudiante sobre la línea de T */
+  if(state.challenge){
+    const g=state.challenge.guess;
+    if(g!=null){
+      ctx.beginPath(); ctx.arc(xT,YA(g),5.5,0,7);
+      ctx.fillStyle="rgba(74,58,167,.85)"; ctx.fill();
+      ctx.lineWidth=2; ctx.strokeStyle="#fff"; ctx.stroke();
+      ctx.fillStyle="#4a3aa7"; ctx.font="700 10px system-ui, sans-serif";
+      const tp="tu predicción", tpw=ctx.measureText(tp).width, toLeft = state.T>1150 || xT+9+tpw > W-M.r-2;
+      const ta = toLeft ? xT-9-tpw : xT+9;
+      let ty=YA(g);                                 // a la altura del punto; se aparta unos px si pisaría una curva
+      for(const arr of [sweep.x1s,sweep.x2s]){
+        const e=ext(arr,YA,ta-2,ta+tpw+2);
+        if(ty+7>e.top-2 && ty-7<e.bot+2){
+          const up=ty+7-(e.top-3), dn=(e.bot+3)-(ty-7);
+          if(up<=dn && up<=14 && ty-up-7>=A.top+2) ty-=up; else if(dn<=14 && ty+dn+7<=A.bot-2) ty+=dn;
+        }
+      }
+      ctx.textAlign = toLeft?"right":"left"; ctx.textBaseline="middle";
+      haloText(tp, xT+(toLeft?-9:9), ty);
+    }
+    if(state.challenge.revealed){
+      ctx.beginPath(); ctx.arc(xT,YA(cur.x1),4.5,0,7);
+      ctx.fillStyle=COLORS.blue; ctx.fill(); ctx.lineWidth=2; ctx.strokeStyle="#fff"; ctx.stroke();
+    }
+  }
+
+  /* hover (se desactiva durante el reto sin revelar para no delatar la respuesta) */
+  if(hoverT!==null && hoverT>=800 && hoverT<=1300 && !hideAns){
+    const s=solveSMR(hoverT,state.P,state.S);
+    const hx=X(hoverT);
+    ctx.strokeStyle="rgba(11,11,11,.22)"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(hx,A.top); ctx.lineTo(hx,B.bot); ctx.stroke();
+    const lines=[
+      "T = "+hoverT.toFixed(0)+" K",
+      "ξ₁ = "+s.x1.toFixed(3)+" · ξ₂ = "+s.x2.toFixed(3),
+      "X(CH₄) = "+(100*s.x1).toFixed(1)+" %",
+      "H₂ = "+(3*s.x1+s.x2).toFixed(2)+" mol"
+    ];
+    ctx.font="10.5px system-ui, sans-serif";
+    const tw=Math.max(...lines.map(t=>ctx.measureText(t).width));
+    let bx=hx+10; if(bx+tw+16>W-M.r) bx=hx-tw-26;
+    ctx.fillStyle="rgba(255,255,255,.96)"; ctx.strokeStyle=COLORS.grid;
+    ctx.beginPath(); ctx.rect(bx,A.top+6,tw+16,lines.length*14+10); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=COLORS.ink2; ctx.textAlign="left"; ctx.textBaseline="top";
+    lines.forEach((t,i)=>ctx.fillText(t,bx+8,A.top+11+i*14));
+  }
+
+  /* marca de agua (parte de la atribución del autor) */
+  const wm=CL.wm;
+  ctx.font=wm.font; ctx.fillStyle="rgba(137,135,129,.9)";
+  ctx.textAlign="right"; ctx.textBaseline="alphabetic";
+  if(wm.lines.length>1){ ctx.fillText(wm.lines[0], wm.x, H-16); ctx.fillText(wm.lines[1], wm.x, H-4); }
+  else ctx.fillText(wm.lines[0], wm.x, H-4);
+}
+/* lectura con cursor; en táctil, tocar o deslizar en horizontal muestra la lectura (unos segundos tras
+   soltar) y el desplazamiento vertical de la página sigue libre (touch-action: pan-y) */
+function cvHover(ev){
+  const r=cv.getBoundingClientRect();
+  hoverT=800+(ev.clientX-r.left-CM.l)/(W-CM.l-CM.r)*500;
+  hoverUntil=0;
+}
+function cvGuess(ev){                                  // en el reto, el clic/toque fija la predicción de ξ₁
+  const r=cv.getBoundingClientRect();
+  const py=(ev.clientY-r.top);
+  challengeGuess(Math.max(0,Math.min(1, 1-(py-PA.top)/(PA.bot-PA.top))));
+}
+const retoAbierto = () => !!(state.challenge && !state.challenge.revealed);
+let tapPend=false;                                     // en táctil la predicción se fija al SOLTAR (un gesto de desplazar no cuenta)
+cv.addEventListener("pointermove",cvHover);
+cv.addEventListener("pointerdown",ev=>{
+  if(retoAbierto()){ if(ev.pointerType==="touch") tapPend=true; else cvGuess(ev); return; }
+  cvHover(ev);
+});
+cv.addEventListener("pointerup",ev=>{
+  if(tapPend){ tapPend=false; hoverT=null; if(retoAbierto()) cvGuess(ev); return; }
+  if(ev.pointerType==="touch") hoverUntil=performance.now()+4000;
+});
+cv.addEventListener("pointerleave",ev=>{ if(ev.pointerType!=="touch") hoverT=null; });
+cv.addEventListener("pointercancel",()=>{ tapPend=false; hoverT=null; });
+
+/* ================= gráfica K₁/K₂ ================= */
+const cvK=$("cvK"), kctx=cvK.getContext("2d");
+let kW=300, kH=150, kDPR=1;
+new ResizeObserver(()=>{
+  const r=cvK.getBoundingClientRect();
+  kW=Math.max(200,r.width); kH=150;
+  kDPR=window.devicePixelRatio||1;
+  cvK.width=Math.round(kW*kDPR); cvK.height=Math.round(kH*kDPR);
+}).observe(cvK);
+
+function drawK(){
+  const m={l:40,r:12,t:10,b:26};
+  const ymin=-5, ymax=11.5;      // encuadre de ln K₁ (−3.5 a 9.6) y ln K₂: con ±8 la curva de R1 se truncaba y su rótulo quedaba fuera
+  const X=T=>m.l+(T-800)/500*(kW-m.l-m.r);
+  const Y=v=>m.t+(ymax-v)/(ymax-ymin)*(kH-m.t-m.b);
+  kctx.setTransform(kDPR,0,0,kDPR,0,0);
+  kctx.clearRect(0,0,kW,kH);
+  kctx.font="10px system-ui, sans-serif";
+  /* K = 1 (el rótulo va a la derecha, sobre la línea: a la izquierda lo pisaba la curva de R2) */
+  kctx.strokeStyle=COLORS.grid; kctx.setLineDash([4,4]); kctx.lineWidth=1;
+  kctx.beginPath(); kctx.moveTo(m.l,Y(0)); kctx.lineTo(kW-m.r,Y(0)); kctx.stroke();
+  kctx.setLineDash([]);
+  kctx.fillStyle=COLORS.muted; kctx.textAlign="right"; kctx.textBaseline="bottom";
+  kctx.fillText("K = 1", kW-m.r-12, Y(0)-2);
+  /* marco */
+  kctx.strokeStyle=COLORS.axis; kctx.lineWidth=1.2;
+  kctx.beginPath(); kctx.moveTo(m.l,m.t); kctx.lineTo(m.l,kH-m.b); kctx.lineTo(kW-m.r,kH-m.b); kctx.stroke();
+  /* curvas ln K (rectas en 1/T, suaves en T) */
+  for(const [fn,col] of [[lnK1,COLORS.blue],[lnK2,COLORS.aqua]]){
+    kctx.strokeStyle=col; kctx.lineWidth=2;
+    kctx.beginPath();
+    for(let T=800;T<=1300;T+=10){
+      const y=Math.max(ymin,Math.min(ymax,fn(T)));
+      T===800?kctx.moveTo(X(T),Y(y)):kctx.lineTo(X(T),Y(y));
+    }
+    kctx.stroke();
+  }
+  /* puntos actuales */
+  for(const [fn,col] of [[lnK1,COLORS.blue],[lnK2,COLORS.aqua]]){
+    kctx.beginPath(); kctx.arc(X(state.T),Y(Math.max(ymin,Math.min(ymax,fn(state.T)))),4,0,7);
+    kctx.fillStyle=col; kctx.fill();
+    kctx.lineWidth=1.8; kctx.strokeStyle="#fff"; kctx.stroke();
+  }
+  /* etiquetas */
+  kctx.font="700 10px system-ui, sans-serif"; kctx.textAlign="right"; kctx.textBaseline="middle";
+  kctx.fillStyle=COLORS.blue; kctx.fillText("R1 reformado (endo) ↑", kW-m.r-2, Y(lnK1(1300))-12);
+  kctx.fillStyle=COLORS.aquaDeep; kctx.fillText("R2 WGS (exo) ↓", kW-m.r-2, Y(lnK2(1300))+13);
+  kctx.fillStyle=COLORS.ink2; kctx.font="600 10px system-ui, sans-serif"; kctx.textAlign="center"; kctx.textBaseline="top";
+  kctx.fillText("temperatura (K)", m.l+(kW-m.l-m.r)/2, kH-12);
+  kctx.save(); kctx.translate(10,m.t+(kH-m.t-m.b)/2); kctx.rotate(-Math.PI/2);
+  kctx.fillText("ln K",0,0); kctx.restore();
+}
+
+/* ================= lecturas + barras ================= */
+function updateReadouts(){
+  const s=solveSMR(state.T,state.P,state.S);
+  const n=moles(s.x1,s.x2,state.S);
+  const ntot=1+state.S+2*s.x1;
+  const nsec=ntot-n[1];
+  const oculto = state.challenge && !state.challenge.revealed;   // no delatar la respuesta durante el reto
+  $("rX1").textContent  = oculto ? "?" : s.x1.toFixed(3);
+  $("rX2").textContent  = s.x2.toFixed(3);
+  $("rConv").textContent= oculto ? "?" : (100*s.x1).toFixed(1)+" %";
+  $("rH2").textContent  = oculto ? "?" : n[3].toFixed(2);
+  $("rH2d").textContent = oculto ? "?" : (100*n[3]/nsec).toFixed(1)+" %";
+  $("rCOd").textContent = (100*n[2]/nsec).toFixed(1)+" %";
+  $("valid").hidden = !(Math.abs(state.T-1100)<=2 && Math.abs(state.P-30)<0.7 && Math.abs(state.S-3)<0.06);
+
+  /* barras entrada → salida (escala común en mol) */
+  const scale=1+state.S+2;          // ancho de referencia
+  const inBar=$("bar-in"), outBar=$("bar-out");
+  function fill(bar, vals){
+    if(bar.childElementCount!==vals.length){
+      bar.innerHTML="";
+      for(let i=0;i<vals.length;i++){
+        const d=document.createElement("div"); d.className="seg";
+        bar.appendChild(d);
+      }
+    }
+    for(let i=0;i<vals.length;i++){
+      const [si,v]=vals[i];
+      const d=bar.children[i];
+      d.style.background=SP[si].bg; d.style.color=SP[si].fg;
+      d.style.width="calc((100% - 8px)*"+(v/scale).toFixed(5)+")";              // se descuentan los huecos: la barra llena ya no se sale
+      d.textContent = (100*v/scale>=9 && v/scale*(W-81)>=28) ? v.toFixed(2) : "";   // la cifra solo si cabe en su rebanada
+      d.title=SP[si].f+" = "+v.toFixed(3)+" mol";
+    }
+  }
+  fill(inBar, [[0,1],[1,state.S]]);
+  fill(outBar, n.map((v,i)=>[i,v]).filter(p=>p[1]>1e-4));
+  $("lbl-out").textContent="Salida ("+ntot.toFixed(2)+" mol)";
+
+  const leg=$("comp-legend");
+  if(!leg.childElementCount){
+    for(const sp of SP){
+      const it=document.createElement("span"); it.className="item";
+      it.innerHTML='<span class="dot" style="background:'+sp.bg+'"></span><span>'+sp.f+'</span>';
+      leg.appendChild(it);
+    }
+  }
+}
+
+/* ================= controles ================= */
+function syncLabels(){
+  $("vT").textContent=Math.round(state.T)+" K";
+  $("vP").textContent=state.P.toFixed(state.P<10?1:0)+" bar";
+  $("vS").textContent=state.S.toFixed(1);
+}
+$("sT").addEventListener("input",e=>{ state.T=+e.target.value; syncLabels(); });
+$("sP").addEventListener("input",e=>{ state.P=Math.pow(10,+e.target.value); sweepDirty=true; syncLabels(); });
+$("sS").addEventListener("input",e=>{ state.S=+e.target.value; sweepDirty=true; syncLabels(); });
+$("bCase").addEventListener("click",()=>{
+  state.T=1100; state.P=30; state.S=3;
+  $("sT").value=1100; $("sP").value=Math.log10(30).toFixed(3); $("sS").value=3;
+  state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice la conversión";
+  sweepDirty=true; syncLabels(); narrate("case");
+});
+
+/* ================= narración causal + reto "predice la conversión" ================= */
+function curState(){ const s=solveSMR(state.T,state.P,state.S); return {x1:s.x1,x2:s.x2,h2:3*s.x1+s.x2}; }
+function narrate(kind){
+  if(state.challenge){
+    if(!state.challenge.revealed) return;
+    state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice la conversión";
+  }
+  const now=curState();
+  const prev=narrSnap||Object.assign({T:state.T,P:state.P,S:state.S},now);
+  const el=$("narr"); el.className="narr";
+  const arrow=(a,b)=> a>b+1e-3?'<span class="up">subió</span>':a<b-1e-3?'<span class="dn">bajó</span>':'casi no cambió';
+  let msg="";
+  if(kind==="T"){
+    msg=(state.T>prev.T?"Subiste":"Bajaste")+" T a <b>"+Math.round(state.T)+" K</b> → el reformado (R1, <b>endo</b>) "
+      +arrow(now.x1,prev.x1)+" a ξ₁ = <b>"+now.x1.toFixed(3)+"</b> ("+(100*now.x1).toFixed(0)+"% conversión); el shift (R2, <b>exo</b>) "
+      +arrow(now.x2,prev.x2)+" a ξ₂ = <b>"+now.x2.toFixed(3)+"</b> → H₂ = <b>"+now.h2.toFixed(2)+" mol</b>. Más T favorece R1 pero debilita R2.";
+  } else if(kind==="P"){
+    msg="Cambiaste P a <b>"+state.P.toFixed(0)+" bar</b> → con <b>Δν₁ = +2</b>, la presión juega en contra del reformado: la conversión "
+      +arrow(now.x1,prev.x1)+" a <b>"+(100*now.x1).toFixed(0)+"%</b> (el shift, Δν = 0, casi no siente la presión).";
+  } else if(kind==="S"){
+    msg="Cambiaste S/C a <b>"+state.S.toFixed(1)+"</b> → más vapor empuja ambas reacciones hacia productos: la conversión "
+      +arrow(now.x1,prev.x1)+" a <b>"+(100*now.x1).toFixed(0)+"%</b> y el H₂ = <b>"+now.h2.toFixed(2)+" mol</b>.";
+  } else {
+    msg="A <b>"+Math.round(state.T)+" K · "+state.P.toFixed(0)+" bar · S/C "+state.S.toFixed(1)
+      +"</b>: conversión = <b>"+(100*now.x1).toFixed(0)+"%</b>, H₂ = <b>"+now.h2.toFixed(2)+" mol</b>. Mueve T, P o S/C.";
+  }
+  el.innerHTML=msg;
+  narrSnap=Object.assign({T:state.T,P:state.P,S:state.S},now);
+}
+function challengeStart(){
+  state.challenge={guess:null, revealed:false};
+  $("bChallenge").textContent="✕ Salir del reto";
+  const el=$("narr"); el.className="narr reto";
+  el.innerHTML="🎯 <b>Predice la conversión.</b> Se oculta ξ₁. A esta T (<b>"+Math.round(state.T)
+    +" K</b>) haz clic sobre la gráfica, a la altura donde crees que está ξ₁ (el reformado).";
+}
+function challengeGuess(gxi){
+  const real=solveSMR(state.T,state.P,state.S).x1;
+  const err=Math.abs(gxi-real);
+  state.challenge.guess=gxi; state.challenge.revealed=true;
+  const v=err<0.03?'<span class="eq">¡Excelente!</span>':err<0.08?'<span class="dn">Muy cerca.</span>':'Sigue practicando.';
+  const el=$("narr"); el.className="narr reto"+(err<0.08?" ok":"");
+  el.innerHTML="🎯 Tu predicción: ξ₁ = <b>"+gxi.toFixed(3)+"</b> ("+(100*gxi).toFixed(0)+"%) · Valor real: ξ₁ = <b>"+real.toFixed(3)
+    +"</b> ("+(100*real).toFixed(0)+"%) · Error: <b>"+err.toFixed(3)+"</b>. "+v+" Cambia T, P o S/C y vuelve a intentar.";
+  $("bChallenge").textContent="🎯 Otra vez";
+}
+function challengeExit(){
+  state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice la conversión"; narrate("reset");
+}
+$("bChallenge").addEventListener("click",()=>{
+  if(state.challenge && !state.challenge.revealed) challengeExit();
+  else challengeStart();
+});
+$("sT").addEventListener("change",()=>narrate("T"));
+$("sP").addEventListener("change",()=>narrate("P"));
+$("sS").addEventListener("change",()=>narrate("S"));
+
+/* ================= atribución protegida =================
+   La identidad del autor viaja codificada y se verifica en vivo:
+   si la barra de créditos se elimina o se altera, se reconstruye;
+   si está oculta y no puede verse, el simulador se pausa. */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML =
+    '<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+function frame(){
+  draw();
+  drawK();
+  updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+syncLabels();
+narrSnap=Object.assign({T:state.T,P:state.P,S:state.S},curState());
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("sT").closest(".row"), $("sP").closest(".row"), $("sS").closest(".row") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+</script>
+</body>
+</html>

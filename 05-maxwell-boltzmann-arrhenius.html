@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  Maxwell–Boltzmann, la barrera Eₐ y Arrhenius — Simulador de cinética
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401 (Termodinámica del Equilibrio
+  Químico). Se permite su uso en el aula citando al autor. Prohibido
+  redistribuir este archivo sin la atribución visible del autor.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>Maxwell–Boltzmann y Arrhenius · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#654a74;
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --green:#008300; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(11,11,11,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em}
+  #rxn{font-size:17px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
+  .plot-caption{font-size:12px;color:var(--muted);margin:0 0 8px}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(42,120,214,.05);
+    border:1px solid rgba(42,120,214,.22);border-left:3px solid var(--blue);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  canvas{display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface)}
+  #cvMB{width:100%;height:250px;cursor:crosshair}
+  #cvColl{width:100%;height:158px;cursor:default}
+  #cvArr{width:100%;height:200px;cursor:crosshair}
+  .coll-tally{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .coll-tally .t{flex:1 1 30%;min-width:120px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;padding:5px 9px}
+  .coll-tally .t .k{font-size:10.5px;color:var(--muted);font-weight:650}
+  .coll-tally .t .v{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+  .coll-tally .t.en{border-left:3px solid var(--yellow)} .coll-tally .t.ok{border-left:3px solid var(--green)} .coll-tally .t.z{border-left:3px solid var(--blue)}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 0 2px}
+  .lg{display:inline-flex;align-items:center;gap:6px}
+  .lg .sw{display:inline-block;width:18px;height:10px;border-radius:3px}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  select{width:100%;font:inherit;font-size:13.5px;font-weight:600;padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink)}
+  .nota{font-size:11.5px;color:var(--muted);margin-top:5px;min-height:15px}
+  .toggles{display:flex;flex-direction:column;gap:6px;margin-bottom:13px}
+  .toggles label{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink2);cursor:pointer}
+  .toggles input{accent-color:var(--green);width:15px;height:15px}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f4f3f0}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .valid{font-size:12px;font-weight:650;color:var(--aqua-deep);background:rgba(27,175,122,.09);border:1px solid rgba(27,175,122,.3);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em;font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:1fr}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain li::marker{color:var(--muted)}
+  .explain b{color:var(--ink)}
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(249,249,247,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(11,11,11,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+
+  /* --- Ajuste para teléfono: una columna sin desbordes, objetivos táctiles ≥ 40 px --- */
+  @media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{min-width:0}
+  canvas{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  #cvMB{touch-action:pan-y pinch-zoom}        /* lectura al tocar: el dedo recorre la curva en horizontal; en vertical desplaza la página */
+  #cvArr,#cvColl{touch-action:manipulation}   /* solo toques (reto «predice ln k» y «Mide Eₐ») */
+  @media (max-width:720px),(pointer:coarse){
+    .topnav a{display:inline-flex;align-items:center;min-height:40px}
+    .btn{min-height:44px}
+    select{min-height:44px;font-size:16px}     /* 16 px: iOS no hace zoom al enfocar */
+    .toggles label{min-height:44px}
+    .toggles input{width:22px;height:22px;flex:none}
+    details.pista summary{padding:12px 0}
+    input[type=range]{margin:11px 0 9px}
+    input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
+    input[type=range]::-moz-range-thumb{width:21px;height:21px}
+  }
+  /* en táctil el :hover se queda «pegado» tras tocar: sin tinte residual; y el botón primario conserva
+     su fondo al pasar el cursor (.btn:hover lo aclaraba y dejaba el texto blanco ilegible) */
+  @media (hover:none){.btn:hover{background:#fff} .btn-primary:hover{filter:none}}
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (max-width:720px){
+    .page{padding:16px 14px 10px}
+    .card{padding:13px 13px}
+    /* en un reto la consigna y el resultado acompañan a la gráfica (que queda lejos del texto) */
+    .narr.reto{position:sticky;top:6px;z-index:5;box-shadow:0 3px 10px rgba(41,39,34,.10);
+      background:linear-gradient(rgba(237,161,0,.08),rgba(237,161,0,.08)),var(--card)}
+    .narr.reto.ok{background:linear-gradient(rgba(27,175,122,.08),rgba(27,175,122,.08)),var(--card)}
+  }
+
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  .dock-body .toggles{margin-bottom:2px}      /* la casilla del catalizador viaja al muelle */
+  /* accesos rápidos 25 °C / 45 °C del preset N₂O₅: van dentro de la fila de Temperatura (y con ella al muelle) */
+  .tquick{margin:8px 0 0}
+  .dock-body .tquick{margin:4px 0 0}
+  .tquick .btn[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 4</p>
+    <h1>Maxwell–Boltzmann, la barrera Eₐ y Arrhenius</h1>
+    <p class="sub">Una reacción ocurre solo cuando las moléculas chocan con energía suficiente para
+      superar la barrera de activación E<sub>a</sub>. Sube la temperatura y mira crecer la fracción
+      de moléculas «energéticas»; agrega un catalizador y baja la barrera. En paralelo, la recta de
+      Arrhenius (ln k vs 1/T) traduce todo eso en la constante de rapidez.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ======== panel principal (protagonista) ======== -->
+    <section class="card hero">
+      <p id="rxn">Reacción modelo (Eₐ ajustable)</p>
+      <p class="plot-caption">Distribución de energías de Maxwell–Boltzmann: cuántas moléculas tienen
+        cada energía a la temperatura actual. Solo las de E ≥ E<sub>a</sub> pueden reaccionar.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Sube la temperatura: la curva se ensancha y el área sombreada (E ≥ E<sub>a</sub>) crece.</li>
+          <li>Mueve E<sub>a</sub> o activa el catalizador: la barrera se corre y cambia el área.</li>
+          <li>Mira la recta de Arrhenius: su pendiente es −E<sub>a</sub>/R.</li>
+          <li>Usa el reto para predecir ln k antes de verlo.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr" aria-live="polite">Mueve T, E<sub>a</sub> o el catalizador y aquí verás la cadena: barrera → fracción con energía → rapidez.</div>
+
+      <div class="legend">
+        <span class="lg"><span class="sw" style="background:#2a78d6"></span>distribución a T</span>
+        <span class="lg"><span class="sw" style="background:rgba(227,73,72,.35)"></span><span>E ≥ E<sub>a</sub> (reaccionan)</span></span>
+        <span class="lg" id="lg-cat" hidden><span class="sw" style="background:rgba(0,131,0,.3)"></span>ganancia por catalizador</span>
+      </div>
+      <canvas id="cvMB" aria-label="Distribución de energías de Maxwell-Boltzmann con la barrera de activación y el área de moléculas que reaccionan"></canvas>
+
+      <div class="sec-head">Colisiones: los tres requisitos
+        <span class="s-sub">chocar (Z) · con energía (e^−Eₐ/RT) · bien orientadas (p) · verde = reacciona · ámbar = energía pero mal orientada</span></div>
+      <canvas id="cvColl" aria-label="Caja de moléculas que chocan; los choques exitosos requieren energía suficiente y buena orientación"></canvas>
+      <div class="coll-tally" id="collTally">
+        <div class="t z"><div class="k">Frecuencia Z (choques/s)</div><div class="v" id="cZ">—</div></div>
+        <div class="t en"><div class="k">Con energía (≈ e^−Eₐ/RT)</div><div class="v" id="cEn">—</div></div>
+        <div class="t ok"><div class="k">Exitosas (≈ p·e^−Eₐ/RT)</div><div class="v" id="cOk">—</div></div>
+      </div>
+
+      <div class="sec-head">Recta de Arrhenius (ln k vs 1000/T)
+        <span class="s-sub">pendiente = −E<sub>a</sub>/R · el punto marca tu temperatura actual</span></div>
+      <canvas id="cvArr" aria-label="Recta de Arrhenius: logaritmo de k contra 1000 entre T"></canvas>
+      <p class="modelnote">Maxwell–Boltzmann de energías: f(E) ∝ √E·e^(−E/RT). El <b>área sombreada</b> es la
+        <b>población</b> de moléculas con E ≥ E<sub>a</sub>; lo que entra en la rapidez es el
+        <b>factor de Boltzmann</b> e^(−E<sub>a</sub>/RT) (la fracción de colisiones con energía suficiente
+        a lo largo de la línea de centros), menor que esa área por un prefactor. El corazón de
+        k = A·e^(−E<sub>a</sub>/RT). El catalizador baja E<sub>a</sub> sin cambiar el equilibrio. R = 8.314 J/(mol·K).</p>
+    </section>
+
+    <!-- ======== controles ======== -->
+    <aside class="card">
+      <h2>Controles</h2>
+      <div class="row">
+        <label class="top" for="preset">Reacción</label>
+        <select id="preset">
+          <option value="generic" selected>Reacción modelo (Eₐ ajustable)</option>
+          <option value="n2o5">N₂O₅ → productos (ejemplo de clase)</option>
+        </select>
+        <p class="nota" id="preset-nota"></p>
+      </div>
+      <div class="row">
+        <label class="top" for="sT">Temperatura <span class="val" id="vT">850 K</span></label>
+        <input type="range" id="sT" min="300" max="1500" step="5" value="850">
+        <div class="btns tquick" id="tQuick" hidden>
+          <button type="button" class="btn" data-t="298.15" aria-pressed="false" title="Fija T = 298.15 K (25 °C exactos), punto de control del ejemplo de clase">25 °C</button>
+          <button type="button" class="btn" data-t="318.15" aria-pressed="false" title="Fija T = 318.15 K (45 °C exactos), punto de control del ejemplo de clase">45 °C</button>
+        </div>
+      </div>
+      <div class="row" id="ea-row">
+        <label class="top" for="sEa"><span>Energía de activación E<sub>a</sub></span> <span class="val" id="vEa">30 kJ/mol</span></label>
+        <input type="range" id="sEa" min="10" max="160" step="1" value="30">
+      </div>
+      <div class="row">
+        <label class="top" for="sSter">Factor de orientación p <span class="val" id="vSter">0.30</span></label>
+        <input type="range" id="sSter" min="0.02" max="1" step="0.01" value="0.30">
+        <p class="nota">Fracción de choques energéticos con la orientación correcta (factor estérico).</p>
+      </div>
+      <div class="toggles">
+        <label><input type="checkbox" id="tCat"> <span>Agregar catalizador (baja E<sub>a</sub> en 40 kJ/mol)</span></label>
+      </div>
+
+      <div class="btns">
+        <button class="btn" id="bChallenge" title="Ocultamos ln k; predícelo haciendo clic en la recta de Arrhenius">🎯 Reto: predice ln k</button>
+        <button class="btn" id="bMeasure" title="Marca dos temperaturas sobre la recta y calcula Eₐ de la pendiente, como en el examen">📏 Mide Eₐ (2 puntos)</button>
+      </div>
+      <div class="valid" id="valid" hidden>✓ Ejemplo de clase — a 25 °C k = 3.46×10⁻⁵ s⁻¹; a 45 °C
+        k = 4.98×10⁻⁴ s⁻¹, de donde E<sub>a</sub> ≈ 105 kJ/mol. Compara con las lecturas.</div>
+
+      <h2>Lecturas</h2>
+      <div class="stats">
+        <div class="stat" title="Energía de activación efectiva (con catalizador si está activo)"><div class="k">E<sub>a</sub> efectiva</div><div class="v" id="rEa">—</div></div>
+        <div class="stat" title="El factor de Boltzmann e^(−Ea/RT): la fracción de colisiones con energía suficiente que entra en k = A·e^(−Ea/RT). No es lo mismo que el área sombreada (la población de moléculas con E ≥ Ea), que es mayor por un prefactor."><div class="k">Factor Boltzmann e^(−Eₐ/RT)</div><div class="v" id="rFrac">—</div></div>
+        <div class="stat" title="k = A·e^(−Ea/RT)"><div class="k">k (s⁻¹)</div><div class="v" id="rK">—</div></div>
+        <div class="stat" title="Cuántas veces se multiplica k al subir 10 K desde la T actual"><div class="k">k(T+10)/k(T)</div><div class="v" id="rQ10">—</div></div>
+        <div class="stat" title="Energía media de las moléculas = (3/2)RT"><div class="k">Energía media (kJ/mol)</div><div class="v" id="rEm">—</div></div>
+        <div class="stat" title="Cuántas veces más rápido va la reacción por el catalizador"><div class="k">Aceleración catalizador</div><div class="v" id="rCat">—</div></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ======== explicación ======== -->
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li><b>La curva</b> reparte las moléculas por su energía cinética: la mayoría tiene poca,
+            unas pocas tienen mucha. La media es (3/2)RT.</li>
+        <li><b>Solo la cola tiene energía para reaccionar</b>: las moléculas con E ≥ E<sub>a</sub>
+            (área sombreada). Al subir T la curva se ensancha y esa cola crece <b>muchísimo</b> —
+            por eso la reacción se acelera con la temperatura.</li>
+        <li><b>Cuidado con la aritmética:</b> el área sombreada es la <b>población</b> energética;
+            lo que multiplica a k es el <b>factor de Boltzmann</b> e^(−E<sub>a</sub>/RT) (algo menor,
+            la fracción de colisiones con energía suficiente). Es el mismo término de
+            k = A·e^(−E<sub>a</sub>/RT) (Arrhenius) y k = p·Z·e^(−E<sub>a</sub>/RT) (colisiones).</li>
+        <li><b>La caja de colisiones</b> muestra los tres requisitos: chocar (frecuencia Z, que crece con T),
+            con energía (fracción ≈ e^(−E<sub>a</sub>/RT)) y bien orientadas (factor p). Solo cuando se
+            cumplen los tres hay reacción (verde); en ámbar hubo energía pero mala orientación.</li>
+        <li><b>El catalizador</b> corre la barrera a la izquierda (menor E<sub>a</sub>): de golpe muchas
+            más moléculas la superan. Acelera la reacción sin mover el equilibrio (K no cambia).</li>
+        <li><b>La recta de Arrhenius</b> tiene pendiente −E<sub>a</sub>/R: mayor pendiente = mayor
+            E<sub>a</sub> = más sensible a la temperatura.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>Valida el ejemplo de clase:</b> elige N₂O₅, pon 298 K y luego 318 K. ¿k pasa de
+            3.46×10⁻⁵ a 4.98×10⁻⁴ s⁻¹? ¿La pendiente da E<sub>a</sub> ≈ 105 kJ/mol?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>E<sub>a</sub> = R·ln(k₂/k₁)/(1/T₁ − 1/T₂) = 8.314·ln(14.4)/(2.108×10⁻⁴) =
+               8.314·2.667/2.108×10⁻⁴ ≈ 105 kJ/mol. La lectura «k(T+10)/k(T)» ≈ 4 explica por qué
+               20 K multiplican k por ~14.</p>
+          </details></li>
+        <li><b>La regla de los 10 grados:</b> con E<sub>a</sub> = 50 kJ/mol mira «k(T+10)/k(T)».
+            ¿Vale lo mismo a 300 K que a 1200 K?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>No: el factor es e^(E<sub>a</sub>/R·(1/T − 1/(T+10))), que decrece con T. A T baja
+               10 K importan mucho más que a T alta. La «regla de que la rapidez se duplica cada
+               10 °C» solo vale cerca de la temperatura ambiente y para cierto E<sub>a</sub>.</p>
+          </details></li>
+        <li><b>El poder del catalizador:</b> con E<sub>a</sub> = 105 kJ/mol a 298 K, activa el
+            catalizador. ¿Por cuánto se multiplica k?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Bajar E<sub>a</sub> en 40 kJ multiplica k por e^(40000/RT) = e^(16.1) ≈ 10⁷: diez
+               millones de veces más rápido, a la misma temperatura. Y sin tocar el equilibrio.</p>
+          </details></li>
+        <li><b>Fracción diminuta, rapidez medible:</b> en N₂O₅ a 298 K mira «Factor Boltzmann e^(−E<sub>a</sub>/RT)».
+            Es ~10⁻¹⁸. ¿Cómo hay reacción entonces?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Porque A (frecuencia de colisiones con buena orientación) es enorme, ~10¹⁴ s⁻¹.
+               Una fracción diminuta × una frecuencia enorme = una rapidez perfectamente medible.
+               k = A·(fracción).</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ======== créditos (protegidos) ======== -->
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución del autor fue ocultada o eliminada. Recarga la página para restaurarla
+      y seguir usando el simulador.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+/* ================= constantes ================= */
+const R = 8.314;             // J/(mol·K)
+const Rk = 8.314e-3;         // kJ/(mol·K)
+const COLORS = {
+  ink:"#0b0b0b", ink2:"#52514e", muted:"#898781", grid:"#e1e0d9", axis:"#c3c2b7",
+  surface:"#fcfcfb", blue:"#2a78d6", blueDeep:"#1c5cab", aqua:"#1baf7a",
+  aquaDeep:"#0e7a54", yellow:"#eda100", green:"#008300", red:"#e34948", redText:"#c93636", violet:"#4a3aa7"
+};
+const CAT_DROP = 40;         // el catalizador baja Ea en 40 kJ/mol
+const PRESETS = {
+  generic:{ nombre:"Reacción modelo (Eₐ ajustable)", ajustable:true,
+    Ea:30, A:1e13, Tmin:300, Tmax:1500, Tdef:850,
+    nota:"Ajusta Eₐ y T con libertad. Con Eₐ baja la cola reactiva se ve grande; súbela y casi desaparece." },
+  n2o5:{ nombre:"N₂O₅ → productos (ejemplo de clase)", ajustable:false,
+    Ea:105.2, A:9.31e13, Tmin:280, Tmax:360, Tdef:298.15,   // 25 °C exactos: el punto de control de la lámina
+    nota:"Descomposición del pentóxido: Eₐ ≈ 105 kJ/mol, A ≈ 9×10¹³ s⁻¹ (reproduce k a 25 y 45 °C)." }
+};
+
+/* ================= estado ================= */
+const state = { presetId:"generic", T:850, Ea:30, cat:false, p:0.30, challenge:null, measure:null };
+const $ = id => document.getElementById(id);
+const pr = () => PRESETS[state.presetId];
+const eaEff = () => Math.max(8, state.Ea - (state.cat?CAT_DROP:0));   // kJ/mol
+const boltz = (Ea,T)=> Math.exp(-Ea*1000/(R*T));                       // fracción e^(−Ea/RT)
+const kOf = (Ea,T)=> pr().A*boltz(Ea,T);
+const lnkOf = (Ea,T)=> Math.log(pr().A) - Ea*1000/(R*T);
+/* Maxwell–Boltzmann de energías (molar), normalizada: f(E)=2/√π·(RT)^-1.5·√E·e^(−E/RT) */
+function mb(E,T){ const rt=Rk*T; return (2/Math.sqrt(Math.PI))*Math.pow(rt,-1.5)*Math.sqrt(Math.max(E,0))*Math.exp(-E/rt); }
+
+/* ================= gráfica Maxwell–Boltzmann ================= */
+const cvMB=$("cvMB"), mx=cvMB.getContext("2d");
+let MW=700, MH=250, MDPR=1;
+new ResizeObserver(()=>{ const r=cvMB.getBoundingClientRect(); MW=Math.max(200,r.width); MH=250; MDPR=window.devicePixelRatio||1; cvMB.width=Math.round(MW*MDPR); cvMB.height=Math.round(MH*MDPR); }).observe(cvMB);
+let hoverE=null;
+const GEO={l:44,r:14,t:12,b:30};   // márgenes compartidos con el manejador (b crece en lienzos estrechos)
+
+function emaxView(){ return Math.max(eaEff()*1.35, 6*Rk*state.T, (state.Ea)*1.15); }
+function drawMB(){
+  const Emax=emaxView(), Ea=eaEff();
+  /* pie del lienzo: si el título del eje y la marca de agua no caben en el mismo renglón
+     (lienzo estrecho), la marca baja a un renglón propio y el margen inferior crece */
+  const c=_cd();
+  const wm = c ? ("© "+c.y+" "+c.n+" · @"+c.ig.split("/").pop()) : "atribución requerida";
+  mx.font="10.5px system-ui, sans-serif"; const wmW=mx.measureText(wm).width;
+  mx.font="600 10.5px system-ui, sans-serif"; const axW=mx.measureText("energía (kJ/mol)").width;
+  const stacked = GEO.l+axW+12+wmW > MW-GEO.r-4;
+  GEO.b = stacked ? 44 : 30;
+  const PW=MW-GEO.l-GEO.r;
+  const X=e=>GEO.l+e/Emax*PW;
+  /* pico para escalar y */
+  let fmax=1e-9;
+  for(let i=0;i<=120;i++){ const f=mb(Emax*i/120,state.T); if(f>fmax)fmax=f; }
+  fmax*=1.12;
+  const Y=f=>GEO.t+(1-f/fmax)*(MH-GEO.t-GEO.b);
+  mx.setTransform(MDPR,0,0,MDPR,0,0);
+  mx.clearRect(0,0,MW,MH);
+  mx.font="10px system-ui, sans-serif";
+  /* rejilla x */
+  mx.strokeStyle=COLORS.grid; mx.lineWidth=1; mx.fillStyle=COLORS.muted;
+  mx.textAlign="center"; mx.textBaseline="top";
+  let stepx = Emax>200?50:Emax>80?20:Emax>30?10:5;
+  while(stepx/Emax*PW<26) stepx*=2;          // lienzo estrecho: menos marcas para que los números no se toquen
+  for(let e=0;e<=Emax;e+=stepx){
+    mx.beginPath(); mx.moveTo(X(e),GEO.t); mx.lineTo(X(e),MH-GEO.b); mx.stroke();
+    mx.fillText(e.toFixed(0), X(e), MH-GEO.b+4);
+  }
+  /* área sombreada del catalizador (ganancia) primero, luego la reactiva */
+  const N=200;
+  function fillArea(from,to,col){
+    mx.beginPath(); mx.moveTo(X(from),Y(0));
+    for(let i=0;i<=N;i++){ const e=from+(to-from)*i/N; mx.lineTo(X(e),Y(mb(e,state.T))); }
+    mx.lineTo(X(to),Y(0)); mx.closePath(); mx.fillStyle=col; mx.fill();
+  }
+  if(state.cat){ fillArea(Ea, Emax, "rgba(0,131,0,0.22)"); fillArea(state.Ea, Emax, "rgba(227,73,72,0.30)"); }
+  else fillArea(Ea, Emax, "rgba(227,73,72,0.30)");
+  /* curva */
+  mx.strokeStyle=COLORS.blue; mx.lineWidth=2.4; mx.beginPath();
+  for(let i=0;i<=N;i++){ const e=Emax*i/N, x=X(e), y=Y(mb(e,state.T)); i?mx.lineTo(x,y):mx.moveTo(x,y); }
+  mx.stroke();
+  /* energía media (3/2)RT */
+  const Em=1.5*Rk*state.T;
+  mx.strokeStyle=COLORS.muted; mx.setLineDash([3,3]); mx.lineWidth=1;
+  mx.beginPath(); mx.moveTo(X(Em),Y(0)); mx.lineTo(X(Em),GEO.t+10); mx.stroke(); mx.setLineDash([]);
+  mx.fillStyle=COLORS.muted; mx.font="10px system-ui, sans-serif"; mx.textAlign="center"; mx.textBaseline="bottom";
+  const emW=mx.measureText("E media").width;
+  let emX=X(Em);                                   // centrado en su línea, salvo que una línea Eₐ lo cortaría
+  for(const lx of (state.cat?[X(state.Ea),X(Ea)]:[X(Ea)])){
+    if(lx>emX-emW/2-3 && lx<emX+emW/2+3) emX = X(Em)>=lx ? lx+5+emW/2 : lx-5-emW/2;
+  }
+  emX=Math.max(GEO.l+3+emW/2, Math.min(emX, MW-3-emW/2));
+  mx.fillText("E media", emX, GEO.t+8);
+  /* rótulos superiores: cada uno busca el lado de su línea donde cabe sin salirse del lienzo
+     y, si pisaría a otro, baja de renglón; una placa lo separa de la línea que cruce */
+  const tops=[{x0:emX-emW/2, x1:emX+emW/2, row:0}];
+  /* línea Ea (y la original si hay catalizador); los rótulos se dibujan después de las líneas */
+  const eaL=[];
+  function eaLine(e,col,label){
+    if(X(e)>MW-GEO.r-2) return;
+    mx.strokeStyle=col; mx.lineWidth=2; mx.beginPath(); mx.moveTo(X(e),GEO.t); mx.lineTo(X(e),MH-GEO.b); mx.stroke();
+    eaL.push({x:X(e),col,label});
+  }
+  if(state.cat) eaLine(state.Ea, "rgba(137,135,129,.8)", "Eₐ sin catal.");
+  eaLine(Ea, COLORS.redText, state.cat?"Eₐ con catal.":"Eₐ");
+  const vlines=eaL.map(l=>l.x).concat([X(Em)]);
+  mx.font="700 10.5px system-ui, sans-serif"; mx.textAlign="left"; mx.textBaseline="top";
+  for(const l of eaL.slice().reverse()){          // primero la Eₐ vigente, luego la de referencia
+    const w=mx.measureText(l.label).width;
+    let x0=l.x+4, row=0, ok=false;
+    for(row=0; row<3 && !ok; row++){
+      for(const cand of [l.x+4, l.x-4-w]){
+        if(cand<GEO.l+3 || cand+w>MW-3) continue;
+        if(tops.some(b=>b.row===row && cand<b.x1+10 && cand+w>b.x0-10)) continue;
+        x0=cand; ok=true; break;
+      }
+      if(ok) break;
+    }
+    if(!ok){ row=0; x0=Math.max(GEO.l+3, Math.min(l.x+4, MW-3-w)); }
+    tops.push({x0, x1:x0+w, row});
+    const y=GEO.t+2+row*13;
+    if(vlines.some(x=>x!==l.x && x>x0-2 && x<x0+w+2)){ mx.fillStyle="rgba(252,252,251,.9)"; const py=row?y-1:GEO.t-1; mx.fillRect(x0-2,py,w+4,y+12-py); }
+    mx.fillStyle=l.col; mx.fillText(l.label, x0, y);
+  }
+  /* anotación que enseña, sobre la cola (el texto cambia si casi nadie llega a Eₐ).
+     Va centrada en la cola; si ahí pisaría la otra línea Eₐ o se saldría del lienzo (lienzo
+     estrecho) pasa al tramo más ancho y, si hace falta, se parte en dos renglones. Si la
+     curva la cruzaría, se sube justo encima de la curva. */
+  {
+    const few=boltz(Ea,state.T)<1e-4;
+    const one= few ? "casi ninguna llega a Eₐ" : "E ≥ Eₐ (energéticas)";
+    const two= few ? ["casi ninguna","llega a Eₐ"] : ["E ≥ Eₐ","(energéticas)"];
+    mx.font="700 10px system-ui, sans-serif";
+    const xa=X(Ea), xr=MW-3, xg=eaL.length>1 ? eaL[0].x : null;   // xg: línea Eₐ sin catalizador
+    let lines=[one], w=mx.measureText(one).width, cxm=X((Ea+Emax)/2);
+    if(cxm-w/2<xa+4 || cxm+w/2>xr || (xg!==null && xg>cxm-w/2-4 && xg<cxm+w/2+4)){
+      const w1=w, w2=Math.max(mx.measureText(two[0]).width, mx.measureText(two[1]).width);
+      let lo=xa+5, hi=xr;
+      if(xg!==null){ if(xg-xa>=xr-xg) hi=xg-5; else lo=xg+5; }
+      if(w1>hi-lo){ lines=two; w=w2; }
+      if(w>hi-lo && few && xa-6-w1>=GEO.l+4){ lines=[one]; w=w1; lo=xa-6-w1; hi=xa-6; }   // ni en dos renglones: a la izquierda de Eₐ
+      else if(w>hi-lo){ lo=xa+5; hi=xr; }                                                    // o en toda la cola
+      cxm = w>hi-lo ? hi-w/2 : (lo+hi)/2;
+    }
+    const lh=12, hgt=lines.length*lh;
+    let cHi=Y(0), cLo=GEO.t;                    // punto más alto y más bajo de la curva bajo el rótulo
+    for(let i=0;i<=12;i++){
+      const e=(cxm-w/2-3+(w+6)*i/12-GEO.l)/PW*Emax; if(e<0||e>Emax) continue;
+      const yy=Y(mb(e,state.T)); if(yy<cHi) cHi=yy; if(yy>cLo) cLo=yy;
+    }
+    let yb=Y(0)-6;                              // posición original: sobre el eje, dentro de la cola
+    if(!(cLo<yb-hgt-4) && cHi-6-hgt>=GEO.t+30){
+      yb=cHi-6;
+      const xe=X(Em);                           // placa si la línea de E media cruzaría el texto
+      if(xe>cxm-w/2-2 && xe<cxm+w/2+2){ mx.fillStyle="rgba(252,252,251,.9)"; mx.fillRect(cxm-w/2-3, yb-hgt-1, w+6, hgt+2); }
+    }
+    mx.fillStyle=COLORS.redText; mx.textAlign="center"; mx.textBaseline="bottom";
+    lines.forEach((s,i)=>mx.fillText(s, cxm, yb-(lines.length-1-i)*lh));
+  }
+  /* marco + títulos */
+  mx.strokeStyle=COLORS.axis; mx.lineWidth=1.2;
+  mx.beginPath(); mx.moveTo(GEO.l,GEO.t); mx.lineTo(GEO.l,MH-GEO.b); mx.lineTo(MW-GEO.r,MH-GEO.b); mx.stroke();
+  mx.fillStyle=COLORS.ink2; mx.font="600 10.5px system-ui, sans-serif"; mx.textAlign="left"; mx.textBaseline="alphabetic";
+  mx.fillText("energía (kJ/mol)", GEO.l, MH-GEO.b+22);
+  mx.save(); mx.translate(12,(GEO.t+MH-GEO.b)/2); mx.rotate(-Math.PI/2);
+  mx.textAlign="center"; mx.fillText("nº de moléculas",0,0); mx.restore();
+  /* hover */
+  if(hoverE!==null && hoverE>=0 && hoverE<=Emax){
+    mx.strokeStyle="rgba(11,11,11,.2)"; mx.lineWidth=1;
+    mx.beginPath(); mx.moveTo(X(hoverE),GEO.t); mx.lineTo(X(hoverE),MH-GEO.b); mx.stroke();
+    mx.font="10.5px system-ui, sans-serif"; mx.textAlign="left"; mx.textBaseline="top";
+    const t="E = "+hoverE.toFixed(0)+" kJ/mol"+(hoverE>=Ea?" · ✓ reacciona":" · ✗ no alcanza");
+    const tw=mx.measureText(t).width;
+    let bx=X(hoverE)+8; if(bx+tw+8>MW-GEO.r) bx=X(hoverE)-tw-16;
+    bx=Math.max(4, Math.min(bx, MW-4-tw));       // nunca fuera del lienzo
+    const under=tops.filter(b=>bx-4<b.x1+2 && bx+tw+4>b.x0-2);      // rótulos superiores bajo la lectura
+    const hy=GEO.t+6+(under.length ? 13*(1+Math.max(...under.map(b=>b.row))) : 0);   // si los pisaría, baja de renglón
+    mx.fillStyle="rgba(252,252,251,.92)"; mx.fillRect(bx-4, hy-3, tw+8, 17);       // placa: legible sobre la rejilla
+    mx.fillStyle=COLORS.ink2; mx.fillText(t, bx, hy);
+  }
+  /* marca de agua (atribución del autor): mismo texto y cuerpo; en lienzos estrechos, renglón propio */
+  mx.font="10.5px system-ui, sans-serif"; mx.fillStyle="rgba(137,135,129,.9)"; mx.textAlign="right"; mx.textBaseline="alphabetic";
+  if(stacked) mx.fillText(wm, MW-6, MH-7, MW-12);
+  else mx.fillText(wm, MW-GEO.r-4, MH-8);
+}
+/* lectura de la curva: con ratón sigue al cursor y se va al salir; con el dedo no existe «hover»,
+   así que se fija al tocar (o al recorrer en horizontal) y se queda unos segundos tras soltar */
+let hoverTimer=0;
+function mbHover(ev){ const r=cvMB.getBoundingClientRect(); hoverE=(ev.clientX-r.left-GEO.l)/(MW-GEO.l-GEO.r)*emaxView(); }
+cvMB.addEventListener("pointermove",mbHover);
+cvMB.addEventListener("pointerdown",ev=>{ clearTimeout(hoverTimer); mbHover(ev); });
+cvMB.addEventListener("pointercancel",()=>{ clearTimeout(hoverTimer); hoverE=null; });   // era un desplazamiento de página
+cvMB.addEventListener("pointerleave",ev=>{
+  clearTimeout(hoverTimer);
+  if(ev.pointerType==="mouse") hoverE=null;
+  else if(hoverE!==null) hoverTimer=setTimeout(()=>{ hoverE=null; },3500);
+});
+
+/* ================= caja de colisiones (los tres requisitos) =================
+   Cada choque se clasifica: con energía (prob = e^(−Ea/RT), la fracción de
+   colisiones con energía suficiente) y bien orientado (prob = p). El éxito exige
+   ambos → k ∝ p·Z·e^(−Ea/RT). La rapidez de las moléculas crece con √T (frecuencia Z). */
+const cvColl=$("cvColl"), cx=cvColl.getContext("2d");
+let CW=700, CH=158, CDPR=1;
+const COLL=[], NP=32, PR=7;
+let tally={tot:0,en:0,ok:0}, tallyT0=0;
+function initColl(){
+  COLL.length=0;
+  for(let i=0;i<NP;i++) COLL.push({x:PR+Math.random()*(CW-2*PR), y:PR+Math.random()*(CH-2*PR),
+    dir:Math.random()*6.283, ang:Math.random()*6.283, cool:0, flash:0, fcol:"", prod:0});
+}
+function resetTally(){ tally={tot:0,en:0,ok:0}; tallyT0=performance.now(); }
+new ResizeObserver(()=>{ const r=cvColl.getBoundingClientRect(), w0=CW; CW=Math.max(200,r.width); CH=158; CDPR=window.devicePixelRatio||1; cvColl.width=Math.round(CW*CDPR); cvColl.height=Math.round(CH*CDPR); if(!COLL.length) initColl();
+  /* al cambiar el ancho las moléculas se reparten en proporción (antes se amontonaban en el borde derecho de un lienzo estrecho) */
+  else for(const p of COLL){ p.x=Math.min(Math.max(p.x*CW/w0,PR),CW-PR); p.y=Math.min(Math.max(p.y,PR),CH-PR); } }).observe(cvColl);
+function drawColl(dt){
+  if(!COLL.length) initColl();
+  const spd=54*Math.sqrt(state.T/500);      // rapidez ∝ √T → la frecuencia de choques Z crece con T
+  cx.setTransform(CDPR,0,0,CDPR,0,0);
+  cx.clearRect(0,0,CW,CH); cx.fillStyle=COLORS.surface; cx.fillRect(0,0,CW,CH);
+  for(const p of COLL){
+    p.x+=Math.cos(p.dir)*spd*dt; p.y+=Math.sin(p.dir)*spd*dt; p.ang+=1.5*dt;
+    if(p.x<PR){p.x=PR;p.dir=Math.PI-p.dir;} if(p.x>CW-PR){p.x=CW-PR;p.dir=Math.PI-p.dir;}
+    if(p.y<PR){p.y=PR;p.dir=-p.dir;} if(p.y>CH-PR){p.y=CH-PR;p.dir=-p.dir;}
+    p.cool=Math.max(0,p.cool-dt); p.flash=Math.max(0,p.flash-dt*2); p.prod=Math.max(0,p.prod-dt*0.7);
+  }
+  for(let i=0;i<NP;i++) for(let j=i+1;j<NP;j++){
+    const a=COLL[i],b=COLL[j], dx=b.x-a.x,dy=b.y-a.y,d2=dx*dx+dy*dy;
+    if(d2<(2*PR)*(2*PR) && a.cool===0 && b.cool===0){
+      const t=a.dir; a.dir=b.dir; b.dir=t;
+      const d=Math.sqrt(d2)||1, ov=(2*PR-d)/2+0.5, nx=dx/d, ny=dy/d;
+      a.x-=nx*ov; a.y-=ny*ov; b.x+=nx*ov; b.y+=ny*ov; a.cool=b.cool=0.28;
+      tally.tot++;
+      const en=Math.random()<boltz(eaEff(),state.T), ok=en && Math.random()<state.p;
+      if(en) tally.en++; if(ok) tally.ok++;
+      const col = ok?"0,131,0":en?"237,161,0":null;
+      if(col){ a.flash=b.flash=1; a.fcol=b.fcol=col; } if(ok){ a.prod=b.prod=1; }
+    }
+  }
+  for(const p of COLL){
+    if(p.flash>0){ cx.beginPath(); cx.arc(p.x,p.y,PR+3+(1-p.flash)*8,0,7); cx.strokeStyle="rgba("+p.fcol+","+(p.flash*0.6).toFixed(2)+")"; cx.lineWidth=2; cx.stroke(); }
+    cx.beginPath(); cx.arc(p.x,p.y,PR,0,7);
+    cx.fillStyle = p.prod>0 ? "rgba(0,131,0,"+(0.35+0.5*p.prod).toFixed(2)+")" : COLORS.blue;
+    cx.fill(); cx.lineWidth=1.4; cx.strokeStyle="rgba(255,255,255,.9)"; cx.stroke();
+    cx.strokeStyle="rgba(255,255,255,.85)"; cx.lineWidth=1.6;
+    cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(p.x+Math.cos(p.ang)*PR*0.95,p.y+Math.sin(p.ang)*PR*0.95); cx.stroke();
+  }
+  const c=_cd();
+  cx.font="10px system-ui, sans-serif"; cx.fillStyle="rgba(137,135,129,.85)"; cx.textAlign="right"; cx.textBaseline="bottom";
+  cx.fillText(c?("© "+c.y+" @"+c.ig.split("/").pop()):"", CW-4, CH-3);
+  const el=(performance.now()-tallyT0)/1000, Z = el>0.4 ? tally.tot/el : 0;
+  $("cZ").textContent = Z.toFixed(0);
+  $("cEn").textContent = tally.tot ? (100*tally.en/tally.tot).toFixed(tally.en/tally.tot<0.1?2:0)+"%" : "—";
+  $("cOk").textContent = tally.tot ? (100*tally.ok/tally.tot).toFixed(tally.ok/tally.tot<0.1?2:0)+"%" : "—";
+}
+
+/* ================= gráfica de Arrhenius ================= */
+const cvArr=$("cvArr"), ax=cvArr.getContext("2d");
+let AW=700, AH=200, ADPR=1;
+new ResizeObserver(()=>{ const r=cvArr.getBoundingClientRect(); AW=Math.max(200,r.width); AH=200; ADPR=window.devicePixelRatio||1; cvArr.width=Math.round(AW*ADPR); cvArr.height=Math.round(AH*ADPR); }).observe(cvArr);
+const AG={l:46,r:14,t:12,b:30};
+let arrY=null;   // función Y(lnk) actual, para el reto
+function drawArr(){
+  const p=pr(), Ea=eaEff();
+  const xA=1000/p.Tmax, xB=1000/p.Tmin;      // 1000/T
+  const lnAtTmax=lnkOf(Ea,p.Tmax), lnAtTmin=lnkOf(Ea,p.Tmin);
+  let ymin=Math.min(lnAtTmax,lnAtTmin), ymax=Math.max(lnAtTmax,lnAtTmin);
+  /* incluir la recta sin catalizador para escala estable */
+  const ln0max=lnkOf(state.Ea,p.Tmax), ln0min=lnkOf(state.Ea,p.Tmin);
+  ymin=Math.min(ymin,ln0max,ln0min); ymax=Math.max(ymax,ln0max,ln0min);
+  const pad=(ymax-ymin)*0.12+0.5; ymin-=pad; ymax+=pad;
+  const X=x=>AG.l+(x-xA)/(xB-xA)*(AW-AG.l-AG.r);
+  const Y=v=>AG.t+(ymax-v)/(ymax-ymin)*(AH-AG.t-AG.b);
+  arrY=Y;
+  ax.setTransform(ADPR,0,0,ADPR,0,0);
+  ax.clearRect(0,0,AW,AH);
+  ax.font="10px system-ui, sans-serif";
+  /* rejilla y */
+  ax.strokeStyle=COLORS.grid; ax.lineWidth=1; ax.fillStyle=COLORS.muted; ax.textAlign="right"; ax.textBaseline="middle";
+  const stepy=Math.max(1,Math.round((ymax-ymin)/5));
+  for(let v=Math.ceil(ymin/stepy)*stepy; v<=ymax; v+=stepy){
+    ax.beginPath(); ax.moveTo(AG.l,Y(v)); ax.lineTo(AW-AG.r,Y(v)); ax.stroke();
+    ax.fillText(v.toFixed(0), AG.l-6, Y(v));
+  }
+  /* marco */
+  ax.strokeStyle=COLORS.axis; ax.lineWidth=1.2;
+  ax.beginPath(); ax.moveTo(AG.l,AG.t); ax.lineTo(AG.l,AH-AG.b); ax.lineTo(AW-AG.r,AH-AG.b); ax.stroke();
+  ax.textAlign="center"; ax.textBaseline="top"; ax.fillStyle=COLORS.muted;
+  ax.fillText(xA.toFixed(2), X(xA), AH-AG.b+4);
+  ax.fillText(xB.toFixed(2), X(xB), AH-AG.b+4);
+  ax.fillStyle=COLORS.ink2; ax.font="600 10.5px system-ui, sans-serif"; ax.textAlign="left"; ax.textBaseline="alphabetic";
+  ax.fillText("1000/T (K⁻¹)", AG.l, AH-7);      // sobre la línea base: antes quedaba cortado por el borde inferior
+  ax.save(); ax.translate(11,(AG.t+AH-AG.b)/2); ax.rotate(-Math.PI/2); ax.textAlign="center"; ax.textBaseline="alphabetic"; ax.fillText("ln k",0,0); ax.restore();
+  /* recta sin catalizador (referencia) */
+  if(state.cat){
+    ax.strokeStyle="rgba(137,135,129,.7)"; ax.lineWidth=1.6; ax.setLineDash([6,4]);
+    ax.beginPath(); ax.moveTo(X(xA),Y(ln0max)); ax.lineTo(X(xB),Y(ln0min)); ax.stroke(); ax.setLineDash([]);
+    /* rótulo bajo la recta de referencia, del lado libre (antes se salía por la derecha del lienzo) */
+    ax.fillStyle=COLORS.muted; ax.font="700 10px system-ui, sans-serif"; ax.textAlign="right"; ax.textBaseline="top";
+    ax.fillText("sin catalizador", X(xA+0.62*(xB-xA))-6, Y(ln0max+0.62*(ln0min-ln0max))+4);
+  }
+  /* recta principal */
+  ax.strokeStyle=state.cat?COLORS.green:COLORS.blue; ax.lineWidth=2.2;
+  ax.beginPath(); ax.moveTo(X(xA),Y(lnAtTmax)); ax.lineTo(X(xB),Y(lnAtTmin)); ax.stroke();
+  /* anotación de pendiente: encima de la recta, del lado libre (la recta baja hacia la derecha) */
+  ax.fillStyle=state.cat?COLORS.green:COLORS.blueDeep; ax.font="700 10px system-ui, sans-serif"; ax.textAlign="left"; ax.textBaseline="bottom";
+  ax.fillText("pendiente = −Eₐ/R", X(xA+0.30*(xB-xA))+2, Y(lnAtTmax+0.30*(lnAtTmin-lnAtTmax))-8);
+  /* punto de la T actual (oculto durante el reto sin revelar) */
+  const hide=state.challenge && !state.challenge.revealed;
+  const xc=1000/state.T, lnc=lnkOf(Ea,state.T);
+  if(!hide){
+    ax.beginPath(); ax.arc(X(xc),Y(lnc),4.5,0,7); ax.fillStyle="#1c1c1a"; ax.fill(); ax.lineWidth=2; ax.strokeStyle="#fff"; ax.stroke();
+  } else {
+    ax.strokeStyle="rgba(11,11,11,.4)"; ax.setLineDash([4,4]); ax.lineWidth=1.2;
+    ax.beginPath(); ax.moveTo(X(xc),AG.t); ax.lineTo(X(xc),AH-AG.b); ax.stroke(); ax.setLineDash([]);
+  }
+  /* reto: predicción y valor real */
+  if(state.challenge){
+    if(state.challenge.guess!=null){
+      ax.beginPath(); ax.arc(X(xc),Y(state.challenge.guess),5.5,0,7); ax.fillStyle="rgba(74,58,167,.85)"; ax.fill();
+      ax.lineWidth=2; ax.strokeStyle="#fff"; ax.stroke();
+      ax.fillStyle=COLORS.violet; ax.font="700 10px system-ui, sans-serif"; ax.textAlign = xc>(xA+xB)/2?"right":"left"; ax.textBaseline="middle";
+      ax.fillText("tu predicción", X(xc)+(xc>(xA+xB)/2?-9:9), Y(state.challenge.guess));
+    }
+    if(state.challenge.revealed){
+      ax.beginPath(); ax.arc(X(xc),Y(lnc),4.5,0,7); ax.fillStyle=state.cat?COLORS.green:COLORS.blue; ax.fill(); ax.lineWidth=2; ax.strokeStyle="#fff"; ax.stroke();
+    }
+  }
+  /* puntos medidos (modo "mide Eₐ") */
+  if(state.measure){
+    for(const m of state.measure.pts){
+      ax.beginPath(); ax.arc(X(1000/m.T),Y(Math.log(m.k)),5,0,7);
+      ax.fillStyle=COLORS.violet; ax.fill(); ax.lineWidth=2; ax.strokeStyle="#fff"; ax.stroke();
+    }
+  }
+  /* geometría para los manejadores de clic */
+  drawArr._Y=Y; drawArr._ymin=ymin; drawArr._ymax=ymax; drawArr._xA=xA; drawArr._xB=xB;
+}
+function arrClickT(px){
+  const r=cvArr.getBoundingClientRect(), frac=Math.max(0,Math.min(1,(px-r.left-AG.l)/(AW-AG.l-AG.r)));   // dentro del tramo dibujado
+  const x=drawArr._xA + frac*(drawArr._xB-drawArr._xA);   // 1000/T
+  return 1000/Math.max(0.1,x);
+}
+/* el toque o clic cuenta al SOLTAR y solo si el puntero casi no se movió: así, desplazar la
+   página con el dedo sobre la gráfica no marca puntos ni predicciones por accidente */
+let arrTap=null;
+cvArr.addEventListener("pointerdown",ev=>{ arrTap={id:ev.pointerId,x:ev.clientX,y:ev.clientY}; });
+cvArr.addEventListener("pointercancel",()=>{ arrTap=null; });
+cvArr.addEventListener("pointerup",ev=>{
+  const t0=arrTap; arrTap=null;
+  if(!t0 || t0.id!==ev.pointerId || Math.hypot(ev.clientX-t0.x,ev.clientY-t0.y)>12) return;
+  if(state.measure && !state.measure.done){ measureClick(arrClickT(ev.clientX)); return; }
+  if(!(state.challenge && !state.challenge.revealed)) return;
+  const r=cvArr.getBoundingClientRect();
+  const py=ev.clientY-r.top;
+  const frac=(py-AG.t)/(AH-AG.t-AG.b);
+  const lnk=drawArr._ymax - frac*(drawArr._ymax-drawArr._ymin);
+  challengeGuess(lnk);
+});
+
+/* ================= lecturas ================= */
+function fmtSci(x){
+  if(!isFinite(x)||x===0) return "0";
+  if(Math.abs(x)>=0.01 && Math.abs(x)<10000) return Number(x.toPrecision(3)).toString();
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  const SUP={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return (x/10**e).toFixed(2)+"×10"+String(e).split("").map(ch=>SUP[ch]||"").join("");
+}
+function updateReadouts(){
+  const Ea=eaEff(), T=state.T;
+  const hide=state.challenge && !state.challenge.revealed;
+  $("rEa").textContent=Ea.toFixed(0)+" kJ";
+  $("rFrac").textContent=fmtSci(boltz(Ea,T));
+  $("rK").textContent=hide ? "?" : fmtSci(kOf(Ea,T));
+  const q10=Math.exp(Ea*1000/R*(1/T-1/(T+10)));
+  $("rQ10").textContent="×"+q10.toFixed(2);
+  $("rEm").textContent=(1.5*Rk*T).toFixed(1);
+  $("rCat").textContent = state.cat ? "×"+fmtSci(Math.exp(CAT_DROP*1000/(R*T))) : "—";
+}
+
+/* ================= narración causal ================= */
+function narrate(kind){
+  if(state.challenge){ if(!state.challenge.revealed) return; endChallenge(); }
+  const Ea=eaEff(), T=state.T, fr=boltz(Ea,T), q10=Math.exp(Ea*1000/R*(1/T-1/(T+10)));
+  const el=$("narr"); el.className="narr";
+  if(kind==="T"){
+    el.innerHTML="Ahora T = <b>"+fmtTK(T)+" K</b> → el factor de Boltzmann e^(−Eₐ/RT) = <b>"+fmtSci(fr)
+      +"</b> y k = <b>"+fmtSci(kOf(Ea,T))+" s⁻¹</b>. Cerca de aquí, subir 10 K multiplica k por <b>×"+q10.toFixed(2)+"</b>.";
+  } else if(kind==="Ea"){
+    el.innerHTML="Eₐ = <b>"+Ea.toFixed(0)+" kJ/mol</b> → una barrera más "+(Ea>60?"alta":"baja")
+      +" da un factor de Boltzmann de <b>"+fmtSci(fr)+"</b>; k = <b>"+fmtSci(kOf(Ea,T))
+      +" s⁻¹</b>. La pendiente de Arrhenius (−Eₐ/R) también cambió.";
+  } else if(kind==="cat"){
+    if(state.cat) el.innerHTML="<span class='eq'>Catalizador activado.</span> Eₐ baja de <b>"+state.Ea.toFixed(0)+"</b> a <b>"+Ea.toFixed(0)
+      +" kJ/mol</b> → la barrera se corre a la izquierda y k se multiplica por <b>×"+fmtSci(Math.exp(CAT_DROP*1000/(R*T)))
+      +"</b>, sin mover el equilibrio.";
+    else el.innerHTML="Catalizador retirado: Eₐ vuelve a <b>"+Ea.toFixed(0)+" kJ/mol</b> y k baja de nuevo.";
+  } else if(kind==="p"){
+    el.innerHTML="Factor de orientación p = <b>"+state.p.toFixed(2)+"</b> → de los choques que ya tienen energía, "
+      +"solo esa fracción está bien orientada y reacciona (los ámbar chocan con energía pero mal orientados). "
+      +"Es el factor estérico de k = <b>p·Z·e^(−Eₐ/RT)</b>.";
+  } else {
+    el.innerHTML="Reacción: <b>"+pr().nombre+"</b>. A "+fmtTK(T)+" K, factor de Boltzmann = <b>"+fmtSci(fr)
+      +"</b> y k = <b>"+fmtSci(kOf(Ea,T))+" s⁻¹</b>. Mueve T, Eₐ o el catalizador.";
+  }
+}
+
+/* en teléfono la recta de Arrhenius queda lejos del botón: al entrar a un reto se trae a la vista */
+function showOnPhone(el){
+  if(!window.matchMedia("(max-width:720px)").matches) return;
+  const dk=document.getElementById("dock"), r=el.getBoundingClientRect();
+  const lo=96, hi=window.innerHeight-(dk&&!dk.hidden?dk.offsetHeight:0)-8;   // franja libre entre la consigna fija y el muelle
+  const y=Math.max(lo, lo+(hi-lo-r.height)/2);
+  const calm=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({top:window.scrollY+r.top-y, behavior:calm?"auto":"smooth"});
+}
+/* ================= reto "predice ln k" ================= */
+function challengeStart(){
+  measureExit();
+  showOnPhone(cvArr);
+  state.challenge={guess:null, revealed:false};
+  $("bChallenge").textContent="✕ Salir del reto";
+  const el=$("narr"); el.className="narr reto";
+  el.innerHTML="🎯 <b>Predice ln k.</b> Se oculta el valor de k. A esta T ("+fmtTK(state.T)
+    +" K) haz clic en la recta de Arrhenius, a la altura donde crees que cae ln k.";
+}
+function challengeGuess(lnkGuess){
+  const real=lnkOf(eaEff(),state.T), err=Math.abs(lnkGuess-real);
+  state.challenge.guess=lnkGuess; state.challenge.revealed=true;
+  const v=err<0.4?'<span class="eq">¡Excelente!</span>':err<1.2?'<span class="dn">Muy cerca.</span>':'Sigue practicando.';
+  const el=$("narr"); el.className="narr reto"+(err<1.2?" ok":"");
+  el.innerHTML="🎯 Tu predicción: ln k = <b>"+lnkGuess.toFixed(1)+"</b> · Real: <b>"+real.toFixed(1)
+    +"</b> (k = "+fmtSci(Math.exp(real))+" s⁻¹) · Error: <b>"+err.toFixed(1)+"</b>. "+v+" Cambia T o Eₐ y vuelve a intentar.";
+  $("bChallenge").textContent="🎯 Otra vez";
+}
+function endChallenge(){ state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice ln k"; }
+$("bChallenge").addEventListener("click",()=>{
+  if(state.challenge && !state.challenge.revealed){ endChallenge(); narrate("reset"); }
+  else challengeStart();
+});
+
+/* ================= modo "mide Eₐ" (dos puntos → pendiente) ================= */
+function measureStart(){
+  endChallenge(); state.measure={pts:[],done:false};
+  showOnPhone(cvArr);
+  $("bMeasure").textContent="✕ Salir de medición";
+  const el=$("narr"); el.className="narr reto";
+  el.innerHTML="📏 <b>Mide Eₐ.</b> Haz clic en <b>dos</b> temperaturas distintas sobre la recta de Arrhenius; con los dos pares (T, k) calcularé Eₐ de la pendiente, como en el examen.";
+}
+function measureExit(){ state.measure=null; $("bMeasure").textContent="📏 Mide Eₐ (2 puntos)"; }
+function measureClick(T){
+  const m=state.measure; if(!m||m.done) return;
+  m.pts.push({T, k:kOf(eaEff(),T)});
+  const el=$("narr");
+  if(m.pts.length===1){
+    el.className="narr reto";
+    el.innerHTML="📏 Punto 1: T₁ = <b>"+Math.round(T)+" K</b>, k₁ = <b>"+fmtSci(m.pts[0].k)+" s⁻¹</b>. Ahora marca una segunda temperatura sobre la recta.";
+  } else {
+    const [a,b]=m.pts; m.done=true;
+    if(Math.abs(1/a.T-1/b.T)<1e-6){ measureExit(); narrate("reset"); return; }
+    const EaMed=R*Math.log(b.k/a.k)/(1/a.T-1/b.T)/1000;
+    el.className="narr reto ok";
+    el.innerHTML="📏 T₁="+Math.round(a.T)+" K, k₁="+fmtSci(a.k)+" · T₂="+Math.round(b.T)+" K, k₂="+fmtSci(b.k)
+      +" → Eₐ = R·ln(k₂/k₁)/(1/T₁−1/T₂) = <b>"+EaMed.toFixed(1)+" kJ/mol</b> (real: "+eaEff().toFixed(1)+"). "
+      +"<span class='eq'>Así se obtiene Eₐ de dos medidas de k.</span>";
+    $("bMeasure").textContent="📏 Medir otra vez";
+  }
+}
+$("bMeasure").addEventListener("click",()=>{
+  if(state.measure && !state.measure.done) measureExit();
+  else measureStart();
+});
+
+/* ================= controles ================= */
+/* T en pantalla: entera cuando viene del deslizador (pasos de 5 K); con decimales y °C cuando es
+   un punto exacto del ejemplo de clase (25 °C = 298.15 K, 45 °C = 318.15 K) */
+function tExact(T){ return Math.abs(T-Math.round(T))>1e-9; }
+function fmtTK(T){ return tExact(T) ? T.toFixed(2) : String(Math.round(T)); }
+function syncLabels(){
+  $("vT").textContent=fmtTK(state.T)+" K"+(tExact(state.T) ? " · "+(state.T-273.15).toFixed(0)+" °C" : "");
+  $("vEa").textContent=state.Ea.toFixed(0)+" kJ/mol";
+  document.querySelectorAll("#tQuick .btn").forEach(b=>{
+    const on=String(Math.abs(state.T-(+b.dataset.t))<1e-9);
+    if(b.getAttribute("aria-pressed")!==on) b.setAttribute("aria-pressed",on);
+  });
+}
+function applyPreset(id){
+  const p=PRESETS[id];
+  state.presetId=id; state.Ea=p.Ea; state.T=p.Tdef; state.cat=false;
+  state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice ln k";
+  measureExit();
+  $("tCat").checked=false; $("lg-cat").hidden=true;
+  $("sT").min=p.Tmin; $("sT").max=p.Tmax; $("sT").value=p.Tdef;
+  $("ea-row").hidden=!p.ajustable; $("sEa").value=Math.round(p.Ea);
+  $("rxn").textContent=p.nombre; $("preset-nota").textContent=p.nota;
+  $("valid").hidden = p.ajustable;
+  $("tQuick").hidden = id!=="n2o5";
+  resetTally();
+  syncLabels(); narrate("preset");
+}
+$("preset").addEventListener("change",e=>applyPreset(e.target.value));
+/* accesos rápidos del ejemplo de clase (preset N₂O₅): fijan 25 °C y 45 °C exactos, que el deslizador
+   de 5 en 5 no alcanza; el pulgar queda en el paso más cercano y al moverlo T vuelve a sus pasos enteros */
+document.querySelectorAll("#tQuick .btn").forEach(b=>b.addEventListener("click",()=>{
+  state.T=+b.dataset.t; $("sT").value=state.T;
+  syncLabels(); resetTally(); narrate("T");
+}));
+$("sT").addEventListener("input",e=>{ state.T=+e.target.value; syncLabels(); });
+$("sT").addEventListener("change",()=>{ resetTally(); narrate("T"); });
+$("sEa").addEventListener("input",e=>{ state.Ea=+e.target.value; syncLabels(); });
+$("sEa").addEventListener("change",()=>{ measureExit(); resetTally(); narrate("Ea"); });
+$("sSter").addEventListener("input",e=>{ state.p=+e.target.value; $("vSter").textContent=state.p.toFixed(2); resetTally(); });
+$("sSter").addEventListener("change",()=>narrate("p"));
+$("tCat").addEventListener("change",e=>{ state.cat=e.target.checked; $("lg-cat").hidden=!e.target.checked; measureExit(); resetTally(); narrate("cat"); });
+
+/* ================= atribución protegida =================
+   La identidad del autor viaja codificada y se verifica en vivo:
+   si la barra de créditos se elimina o se altera, se reconstruye;
+   si está oculta y no puede verse, el simulador se pausa. */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML =
+    '<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+let _last=performance.now();
+function frame(now){
+  const t=now||performance.now();
+  const dt=Math.min(0.05,(t-_last)/1000); _last=t;
+  drawMB();
+  drawColl(dt);
+  drawArr();
+  updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+applyPreset("generic");
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("sT").closest(".row"), $("ea-row"), $("tCat").closest(".toggles") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+</script>
+</body>
+</html>

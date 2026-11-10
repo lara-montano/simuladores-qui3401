@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  Debye–Hückel y el efecto salino — Simulador de no idealidad iónica
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401 (Termodinámica del Equilibrio
+  Químico). Se permite su uso en el aula citando al autor. Prohibido
+  redistribuir este archivo sin la atribución visible del autor.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>Debye–Hückel y el efecto salino · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#a9761f;
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --green:#008300; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{border:1px solid var(--border);background:#fff;color:var(--ink2);padding:8px 15px;border-radius:9px;font:inherit;font-size:13.5px;font-weight:650;cursor:pointer}
+  .tab[aria-selected=true]{background:linear-gradient(180deg,var(--blue),var(--blue-deep));color:#fff;border-color:transparent;box-shadow:0 2px 6px rgba(42,120,214,.3)}
+  .tab .t-short{display:none}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  .grid + .grid{margin-top:14px}
+  @media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(11,11,11,.05);min-width:0}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em}
+  .card h2 .h2-sub{font-weight:500;font-size:11.5px;color:var(--muted);margin-left:4px}
+  .plot-caption{font-size:12px;color:var(--muted);margin:2px 0 8px}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(42,120,214,.05);
+    border:1px solid rgba(42,120,214,.22);border-left:3px solid var(--blue);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:4px 10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-main{min-width:0}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted);min-width:0}
+  .card.hero > .sec-head:first-child{margin-top:2px}
+  canvas{display:block;max-width:100%;border:1px solid var(--grid);border-radius:8px;background:var(--surface);touch-action:manipulation}
+  #cvG{width:100%;height:300px;cursor:crosshair}
+  #cvAtm{width:100%;height:200px}
+  #cvAnchor{width:100%;height:150px}
+  #cvPH{width:100%;height:168px}
+  #cvD{width:100%;height:300px}
+  #cvS{width:100%;height:340px}
+  .legend{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 0 6px}
+  .lg{display:inline-flex;align-items:center;gap:6px}
+  .lg svg{flex:0 0 auto}
+  .lg b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  /* controles */
+  .row{margin-bottom:13px}
+  .row .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px;white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  input[type=range]:focus-visible{box-shadow:0 0 0 3px rgba(42,120,214,.28)}
+  select{width:100%;font:inherit;font-size:13.5px;font-weight:600;padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink)}
+  .nota{font-size:11.5px;color:var(--muted);margin:5px 0 0;min-height:15px}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f4f3f0}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btn[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:rgba(169,118,31,.10)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .seg{display:flex;gap:6px}
+  .seg .btn{flex:1 1 0;min-width:0;padding-left:6px;padding-right:6px}
+  .row > .btns{margin-bottom:0}
+  .valid{font-size:12px;font-weight:650;color:var(--aqua-deep);background:rgba(27,175,122,.09);border:1px solid rgba(27,175,122,.3);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+  .warn{font-size:12px;font-weight:650;color:#7a5200;background:rgba(237,161,0,.11);border:1px solid rgba(237,161,0,.5);border-radius:8px;padding:6px 10px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px;min-width:0}
+  .stat .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em;font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .stat.wide{grid-column:1/-1}
+  .stat.s-conc{border-left-color:var(--red)}
+  .stat.s-act{border-left-color:var(--blue)}
+  table.cmp{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+  table.cmp th,table.cmp td{padding:6px 7px;text-align:right;border-top:1px solid var(--grid)}
+  table.cmp thead th{border-top:0;border-bottom:1px solid var(--axis);font-size:11px;color:var(--ink2);font-weight:650}
+  table.cmp th:first-child,table.cmp td:first-child{text-align:left;color:var(--ink2);font-weight:600;padding-left:2px}
+  table.cmp td{font-weight:700}
+  table.cmp tbody tr:last-child td{border-bottom:1px solid var(--axis)}
+  table.cmp[data-on=ll] tr > :nth-child(2), table.cmp[data-on=dv] tr > :nth-child(3){background:rgba(27,175,122,.11)}
+  table.cmp[data-off=ll] td:nth-child(2){color:var(--muted);font-weight:600}
+  table.cmp[data-on=ll][data-off=ll] tr > :nth-child(2){background:rgba(237,161,0,.16)}
+  table.cmp .sw-l{display:inline-block;vertical-align:middle;margin-right:4px}
+  .modelguide{margin-top:12px}
+  .mg-item{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-top:1px solid var(--grid)}
+  .mg-item .sw{width:16px;height:3px;border-radius:2px;flex:0 0 auto}
+  .mg-item .rng{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600}
+  .mg-item.active{font-weight:700}
+  .mg-item.active .rng{color:var(--aqua-deep)}
+  /* explicación */
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:minmax(0,1fr)}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain li::marker{color:var(--muted)}
+  .explain b{color:var(--ink)}
+  /* créditos */
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(249,249,247,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(11,11,11,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+
+  /* --- Teléfono (≤ 720 px): más ancho útil para los lienzos y blancos táctiles ≥ 40 px --- */
+  @media (max-width:720px){
+    .page{padding:14px 12px 10px}
+    .card{padding:12px 12px}
+    .topnav{margin-bottom:12px}
+    .topnav .tn-course{font-size:12.5px;text-align:right}
+    .sub{font-size:14px}
+    .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+    .tab{padding:6px 5px;font-size:12.5px;line-height:1.2;min-height:46px}
+    .tab .t-long{display:none}
+    .tab .t-short{display:inline}
+    .btn{min-height:40px}
+    select{min-height:42px;font-size:16px}
+    details.pista summary{padding:9px 0}
+    #cvAtm{height:166px}
+    #cvD{height:268px}
+    #cvS{height:332px}
+  }
+  /* deslizadores para dedo: franja táctil de 28 px y perilla de 26 px */
+  @media (max-width:720px),(pointer:coarse){
+    .btn,.tab{min-height:40px}
+    input[type=range]{height:28px;background:none;margin:2px 0 0}
+    input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+    input[type=range]::-webkit-slider-thumb{width:26px;height:26px;margin-top:-10px}
+    input[type=range]::-moz-range-thumb{width:20px;height:20px}
+  }
+
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 3</p>
+    <h1>Debye–Hückel y el efecto salino</h1>
+    <p class="sub">En disoluciones reales los iones se estorban: cada uno se rodea de una nube
+      de contraiones que baja su actividad (γ &lt; 1). Explora cómo γ<sub>±</sub> depende de la
+      fuerza iónica según tres modelos; comprueba por qué una sal «inerte» desplaza el equilibrio
+      del ácido acético (sube [H⁺] y baja p[H], aunque el pH de electrodo no cambia), y aplica la
+      misma corrección al pH de un ácido fuerte y a la solubilidad del AgCl.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab1" role="tab" aria-selected="true"><span class="t-long">1 · Modelos de γ± y la atmósfera iónica</span><span class="t-short">1 · Modelos de γ±</span></button>
+    <button class="tab" id="tab2" role="tab" aria-selected="false"><span class="t-long">2 · El efecto salino sobre el ácido acético</span><span class="t-short">2 · Efecto salino</span></button>
+    <button class="tab" id="tab3" role="tab" aria-selected="false"><span class="t-long">3 · pH riguroso y solubilidad</span><span class="t-short">3 · pH riguroso y solubilidad</span></button>
+  </div>
+
+  <!-- ============================================================ TAB 1 -->
+  <div class="grid" id="panel1">
+    <section class="card hero">
+      <p class="plot-caption">log₁₀ γ<sub>±</sub> contra √I para la sal seleccionada. Los tres modelos
+        coinciden cuando I → 0 y divergen al subir I; el marcador señala tu fuerza iónica actual.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Elige una sal: su producto de cargas |z₊z₋| fija qué tan rápido cae γ±.</li>
+          <li>Mueve la fuerza iónica I y observa cómo se separan los tres modelos.</li>
+          <li>Mira la atmósfera iónica: al subir I la nube se comprime (longitud de Debye ↓).</li>
+          <li>Compara cada modelo con su rango de validez en la guía de selección de modelo.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr1" aria-live="polite">Mueve I o cambia de sal y aquí verás cómo baja γ± y qué modelo sigue siendo válido.</div>
+      <div class="legend">
+        <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#e34948" stroke-width="3"/></svg>LLDH (ley límite) <b id="lgLL"></b></span>
+        <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#2a78d6" stroke-width="3" stroke-dasharray="7 4"/></svg>DH extendida (4 Å) <b id="lgEX"></b></span>
+        <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#008300" stroke-width="3" stroke-dasharray="6 3 2 3"/></svg>Davies <b id="lgDV"></b></span>
+        <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#898781" stroke-width="3" stroke-dasharray="2 3"/></svg>referencia empírica</span>
+      </div>
+      <canvas id="cvG" aria-label="Curvas de log gamma más menos contra raíz de la fuerza iónica para tres modelos"></canvas>
+
+      <div class="sec-head"><span class="s-main">La atmósfera iónica</span>
+        <span class="s-sub">ion central y su nube de contraiones · la nube se comprime al subir I</span></div>
+      <canvas id="cvAtm" aria-label="Ion central rodeado de una nube de contraiones que se comprime al aumentar la fuerza iónica"></canvas>
+      <p class="modelnote">A 25 °C en agua: A = 0.509 (escala molal); I = ½ Σ mᵢzᵢ².
+        DH extendida usa Ba° = 1.312 (tamaño iónico 4 Å). La longitud de Debye κ⁻¹ ∝ 1/√I.</p>
+    </section>
+
+    <aside class="card">
+      <h2 data-dock-hide="1">Controles</h2>
+      <div class="row">
+        <label class="top" for="selSalt">Sal (tipo de carga)</label>
+        <select id="selSalt">
+          <option value="nacl" selected>NaCl — 1:1 · |z₊z₋| = 1</option>
+          <option value="cacl2">CaCl₂ — 2:1 · |z₊z₋| = 2</option>
+          <option value="lacl3">LaCl₃ — 3:1 · |z₊z₋| = 3</option>
+          <option value="mgso4">MgSO₄ — 2:2 · |z₊z₋| = 4</option>
+        </select>
+        <p class="nota" id="salt-nota"></p>
+      </div>
+      <div class="row">
+        <label class="top" for="sI">Fuerza iónica I <span class="val" id="vI">0.100 m</span></label>
+        <input type="range" id="sI" min="-3" max="0.079" step="0.01" value="-1">
+      </div>
+
+      <h2>γ± predicho (a esta I)</h2>
+      <div class="stats">
+        <div class="stat" title="Ley límite: solo válida cuando I → 0"><div class="k">LLDH</div><div class="v" id="rLL">—</div></div>
+        <div class="stat" title="Debye–Hückel extendida (tamaño iónico 4 Å)"><div class="k">DH extendida</div><div class="v" id="rEX">—</div></div>
+        <div class="stat" title="Ecuación de Davies (sin parámetro de tamaño)"><div class="k">Davies</div><div class="v" id="rDV">—</div></div>
+        <div class="stat" title="Cuánto se aparta la actividad del valor ideal: (1−γ±)·100 según Davies"><div class="k">Desviación del ideal</div><div class="v" id="rAC">—</div></div>
+      </div>
+
+      <div class="modelguide">
+        <div class="sec-head" style="margin-bottom:2px"><span class="s-main">Guía de selección de modelo</span>
+          <span class="s-sub">se resalta el válido a tu I</span></div>
+        <div class="mg-item" id="mg-ll"><span class="sw" style="background:#e34948"></span>LLDH<span class="rng">I ≤ 0.01</span></div>
+        <div class="mg-item" id="mg-ex"><span class="sw" style="background:#2a78d6"></span>DH extendida<span class="rng">I ≤ 0.1</span></div>
+        <div class="mg-item" id="mg-dv"><span class="sw" style="background:#008300"></span>Davies<span class="rng">I ≤ 0.5</span></div>
+        <div class="mg-item" id="mg-hi"><span class="sw" style="background:#898781"></span>Pitzer / experimental<span class="rng">I &gt; 0.5</span></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============================================================ TAB 2 -->
+  <div class="grid" id="panel2" hidden>
+    <section class="card hero">
+      <p class="plot-caption">Ácido acético 0.10 M. Agregas NaCl «inerte» (que no reacciona) y sube la
+        fuerza iónica: los γ bajan, K<sub>γ</sub> baja y, como K<sub>a</sub> es fija, K<sub>m</sub> sube:
+        el equilibrio se reajusta y [H⁺] sube. Hay dos escalas: p[H] = −log[H⁺] baja; el pH de
+        electrodo = −log a<sub>H⁺</sub> no cambia, porque a<sub>H⁺</sub> = γ±[H⁺] = √(K<sub>a</sub>·C)
+        no depende de la sal.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Arranca en NaCl = 0 (agua pura): las dos escalas coinciden, p[H] = pH de electrodo = 2.88.</li>
+          <li>Sube el NaCl hasta 0.50 M y verifica p[H] = 2.74 (el caso de clase).</li>
+          <li>Observa el ancla K<sub>a</sub> = K<sub>γ</sub>·K<sub>m</sub>: K<sub>a</sub> no se mueve.</li>
+          <li>Compara las dos escalas en la gráfica: p[H] baja a 2.74 y el pH de electrodo sigue en 2.88.</li>
+          <li>Práctica 1: con los accesos I = 0.1, 0.3 y 0.5 comprueba tu tabla de predicciones.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr2" aria-live="polite">Mueve el NaCl y aquí verás la cadena: sal → I ↑ → γ ↓ → K<sub>γ</sub> ↓ → K<sub>m</sub> ↑ → [H⁺] ↑ → p[H] ↓, con el pH de electrodo sin cambio.</div>
+
+      <div class="sec-head"><span class="s-main">El ancla termodinámica: K<sub>a</sub> = K<sub>γ</sub> · K<sub>m</sub></span>
+        <span class="s-sub">K<sub>a</sub> fija (solo depende de T) · K<sub>γ</sub> baja · K<sub>m</sub> sube para compensar</span></div>
+      <canvas id="cvAnchor" aria-label="Diagrama del ancla: K a es el producto de K gamma por K m; barras en escala logarítmica"></canvas>
+
+      <div class="sec-head"><span class="s-main">Dos escalas: p[H] y pH de electrodo</span>
+        <span class="s-sub">p[H] = −log[H⁺] baja al añadir sal · pH = −log a<sub>H⁺</sub> no se mueve · ○ agua pura · ● con sal</span></div>
+      <canvas id="cvPH" aria-label="Gráfica de puntos con dos magnitudes, p[H] igual a menos logaritmo de la concentración de H más y pH de electrodo igual a menos logaritmo de la actividad de H más, en agua pura y con la sal elegida"></canvas>
+      <p class="modelnote">K<sub>a</sub>(CH₃COOH) = 1.75×10⁻⁵; γ<sub>±</sub> por Davies (I ≤ 0.5);
+        γ de la especie neutra ≈ 1. Aprox. de ácido débil [H⁺] = √(K<sub>m</sub>·C), con [H⁺] ≪ C. I ≈ [NaCl].
+        Con estas hipótesis a<sub>H⁺</sub> = γ±[H⁺] = √(K<sub>a</sub>·C) no depende de la sal.</p>
+    </section>
+
+    <aside class="card">
+      <h2>Condiciones</h2>
+      <div class="row">
+        <label class="top" for="sNaCl">NaCl agregado <span class="val" id="vNaCl">0.50 M</span></label>
+        <input type="range" id="sNaCl" min="0" max="1" step="0.01" value="0.5">
+      </div>
+      <div class="row" id="rowPrac">
+        <div class="top"><span>Práctica 1 · NaCl hasta:</span></div>
+        <div class="seg" role="group" aria-label="Práctica 1: accesos rápidos a las tres fuerzas iónicas">
+          <button class="btn" id="bP1" aria-pressed="false" title="Práctica 1: I = 0.1 (NaCl 0.10 M)">I = 0.1</button>
+          <button class="btn" id="bP3" aria-pressed="false" title="Práctica 1: I = 0.3 (NaCl 0.30 M)">I = 0.3</button>
+          <button class="btn" id="bP5" aria-pressed="false" title="Práctica 1: I = 0.5 (NaCl 0.50 M)">I = 0.5</button>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn btn-primary" id="bCaseAc">Caso de clase: 0.50 M NaCl</button>
+        <button class="btn" id="bIdeal">Agua pura (ideal)</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bChallenge" title="Se oculta el p[H]; predícelo tocando la gráfica de las dos escalas">🎯 Reto: predice el p[H]</button>
+      </div>
+      <div class="valid" id="validAc" hidden></div>
+
+      <h2>Lecturas <span class="h2-sub" id="aCond">con NaCl 0.50 M</span></h2>
+      <div class="stats">
+        <div class="stat" title="Fuerza iónica ≈ concentración de NaCl"><div class="k">I (mol/L)</div><div class="v" id="aI">—</div></div>
+        <div class="stat" title="Coeficiente de actividad iónico medio (Davies)"><div class="k">γ± (Davies)</div><div class="v" id="aG">—</div></div>
+        <div class="stat" title="Kγ = γ(H+)·γ(acetato) = γ±²"><div class="k">K<sub>γ</sub> = γ±²</div><div class="v" id="aKg">—</div></div>
+        <div class="stat" title="Km = Ka/Kγ: el cociente medible de concentraciones"><div class="k">K<sub>m</sub> = K<sub>a</sub>/K<sub>γ</sub></div><div class="v" id="aKm">—</div></div>
+        <div class="stat s-conc" title="Concentración de H+ en el equilibrio"><div class="k">[H⁺]</div><div class="v" id="aH">—</div></div>
+        <div class="stat s-conc" title="p[H] = −log[H⁺]: escala de concentración; no es lo que marca el electrodo"><div class="k">p[H] = −log[H⁺]</div><div class="v" id="aPH">—</div></div>
+        <div class="stat s-act" title="Actividad del H+: a(H⁺) = γ±·[H⁺]"><div class="k">a<sub>H⁺</sub> = γ±[H⁺]</div><div class="v" id="aAH">—</div></div>
+        <div class="stat s-act" title="pH de electrodo = −log a(H⁺) = −log(γ±[H⁺]): lo que mide el pH-metro"><div class="k">pH de electrodo = −log a<sub>H⁺</sub></div><div class="v" id="aPHe">—</div></div>
+      </div>
+      <h2 style="margin-top:14px">Referencia: agua pura <span class="h2-sub">sin sal, γ± ≈ 1</span></h2>
+      <div class="stats">
+        <div class="stat" title="En agua pura γ± ≈ 1: p[H] y pH de electrodo coinciden"><div class="k">p[H] = pH de electrodo</div><div class="v" id="aPH0">—</div></div>
+        <div class="stat" title="En agua pura γ± ≈ 1: concentración y actividad coinciden"><div class="k">[H⁺] = a<sub>H⁺</sub></div><div class="v" id="aH0">—</div></div>
+        <div class="stat s-conc" title="Cambio de [H+] y de p[H] respecto al agua pura"><div class="k">Δ[H⁺] · Δp[H]</div><div class="v" id="aDH">—</div></div>
+        <div class="stat s-act" title="Cambio del pH de electrodo respecto al agua pura"><div class="k">ΔpH de electrodo</div><div class="v" id="aDE">—</div></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ============================================================ TAB 3 -->
+  <div id="panel3" hidden>
+    <div class="grid">
+      <section class="card hero">
+        <div class="sec-head"><span class="s-main">pH riguroso de un ácido fuerte: ΔpH = −log γ<sub>±</sub></span>
+          <span class="s-sub">HCl (1:1), I = c · trazo sólido: dentro del rango del modelo · punteado: fuera</span></div>
+        <p class="plot-caption">ΔpH = pH (con actividad) − pH ideal, contra √I. En el HCl la disociación es
+          completa: [H⁺] = c e I = c. La diferencia entre el pH calculado con concentraciones (−log c) y el
+          que mide el electrodo (−log a<sub>H⁺</sub>) es −log γ<sub>±</sub>.</p>
+        <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+          <ol>
+            <li>Mueve la concentración de HCl: el marcador recorre las dos curvas.</li>
+            <li>Salta a A y a B, los dos ejercicios de la lámina, y compara con tus cuentas.</li>
+            <li>Fíjate en el trazo: punteado significa que el modelo ya está fuera de su rango.</li>
+            <li>Lee en la tabla γ±, pH y ΔpH con cada modelo, y cuál corresponde a esa I.</li>
+          </ol>
+        </details>
+        <div class="narr" id="narr3a" aria-live="polite"></div>
+        <div class="legend">
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#e34948" stroke-width="3"/></svg>ley límite</span>
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#008300" stroke-width="3"/></svg>Davies</span>
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#565248" stroke-width="2.4" stroke-dasharray="2 4" stroke-linecap="round"/></svg>fuera del rango del modelo</span>
+          <span class="lg"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4.2" fill="#565248"/></svg>A, B (lámina)</span>
+          <span class="lg"><svg width="12" height="12" aria-hidden="true"><path d="M6 0.8 L11.2 6 L6 11.2 L0.8 6 Z" fill="#292722"/></svg>efluente, I ≈ 0.5</span>
+        </div>
+        <canvas id="cvD" aria-label="Delta pH igual a menos logaritmo de gamma más menos contra raíz de la fuerza iónica para HCl, con la ley límite y Davies, y los puntos A, B y efluente"></canvas>
+        <p class="modelnote">pH = −log a<sub>H⁺</sub> = −log(γ<sub>±</sub>·c); pH ideal = −log c.
+          Ley límite: log γ<sub>±</sub> = −0.509·√I (rango: hasta I = 0.01).
+          Davies: log γ<sub>±</sub> = −0.509·[√I/(1+√I) − 0.30·I] (rango: hasta I = 0.5).
+          El punto del efluente supone una matriz 1:1 con I ≈ 0.5.</p>
+      </section>
+
+      <aside class="card">
+        <h2 data-dock-hide="3a">Condiciones</h2>
+        <div class="row">
+          <label class="top" for="sHCl">HCl · concentración c (I = c) <span class="val" id="vHCl">0.050 M</span></label>
+          <input type="range" id="sHCl" min="-3" max="-0.3" step="0.01" value="-1.3">
+        </div>
+        <div class="row" id="rowAB">
+          <div class="seg" role="group" aria-label="Saltar a los ejercicios de la lámina">
+            <button class="btn" id="bA" aria-pressed="false" title="Ejercicio A: HCl 0.010 M, ley límite">A · HCl 0.010 M</button>
+            <button class="btn" id="bB" aria-pressed="false" title="Ejercicio B: HCl 0.050 M, Davies">B · HCl 0.050 M</button>
+          </div>
+        </div>
+        <div class="valid" id="validAB" hidden></div>
+
+        <h2>Lecturas</h2>
+        <div class="stats">
+          <div class="stat" title="En un ácido fuerte 1:1 la fuerza iónica es la concentración"><div class="k">I = c (mol/L)</div><div class="v" id="dI">—</div></div>
+          <div class="stat" title="pH calculado con concentración, γ = 1"><div class="k">pH ideal = −log c</div><div class="v" id="dP0">—</div></div>
+        </div>
+        <table class="cmp" id="tD">
+          <thead><tr><th>a esta I</th><th>ley límite</th><th>Davies</th></tr></thead>
+          <tbody>
+            <tr><td>γ<sub>±</sub></td><td id="dGL">—</td><td id="dGD">—</td></tr>
+            <tr><td>pH = −log(γ<sub>±</sub>c)</td><td id="dPL">—</td><td id="dPD">—</td></tr>
+            <tr><td>ΔpH = −log γ<sub>±</sub></td><td id="dDL">—</td><td id="dDD">—</td></tr>
+            <tr><td>¿dentro de su rango?</td><td id="dRL">—</td><td id="dRD">—</td></tr>
+          </tbody>
+        </table>
+        <div class="stats" style="margin-top:10px">
+          <div class="stat wide" title="Misma guía de selección que la pestaña 1"><div class="k">Modelo que corresponde a esta I</div><div class="v" id="dMod">—</div></div>
+        </div>
+        <p class="nota">Guía de la pestaña 1: ley límite hasta I = 0.01 · DH extendida hasta 0.1 ·
+          Davies hasta 0.5 · por encima, Pitzer o datos experimentales.</p>
+      </aside>
+    </div>
+
+    <div class="grid">
+      <section class="card hero">
+        <div class="sec-head"><span class="s-main">Solubilidad del AgCl con una sal sin ion común (KNO₃)</span>
+          <span class="s-sub">K<sub>ps</sub> = γ<sub>±</sub>²[Ag⁺][Cl⁻] = 1.77×10⁻¹⁰ a 25 °C: la invariante</span></div>
+        <p class="plot-caption">K<sub>ps</sub> solo depende de T. Si γ<sub>±</sub> baja, el producto de
+          concentraciones [Ag⁺][Cl⁻] = K<sub>ps</sub>/γ<sub>±</sub>² sube: la hipérbola de saturación se aleja del
+          origen. Sin ion común [Ag⁺] = [Cl⁻]; el cruce de esa recta con la hipérbola es la solubilidad s.</p>
+        <div class="narr" id="narr3b" aria-live="polite"></div>
+        <div class="legend">
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#52514e" stroke-width="3"/></svg>agua pura (γ± = 1)</span>
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line id="lgSline" x1="0" y1="3" x2="24" y2="3" stroke="#008300" stroke-width="3"/></svg><span id="lgS">con KNO₃</span></span>
+          <span class="lg"><svg width="24" height="6" aria-hidden="true"><line x1="0" y1="3" x2="24" y2="3" stroke="#898781" stroke-width="2" stroke-dasharray="5 4"/></svg>[Ag⁺] = [Cl⁻] (sin ion común)</span>
+        </div>
+        <canvas id="cvS" aria-label="Plano de concentraciones de plata y cloruro con la hipérbola de saturación en agua pura y a la fuerza iónica elegida, y la recta de concentraciones iguales; el cruce es la solubilidad"></canvas>
+        <p class="modelnote">s₀ = √K<sub>ps</sub> = 1.33×10⁻⁵ M; s = s₀/γ<sub>±</sub>. I ≈ [KNO₃]: el AgCl
+          disuelto (~10⁻⁵ M) no aporta fuerza iónica apreciable. El efecto es de decenas de por ciento y
+          depende del modelo: un porcentaje sin el modelo declarado no se puede auditar.</p>
+      </section>
+
+      <aside class="card">
+        <h2 data-dock-hide="3b">Condiciones</h2>
+        <div class="row">
+          <label class="top" for="sIK">KNO₃ · fuerza iónica I <span class="val" id="vIK">0.10</span></label>
+          <input type="range" id="sIK" min="0" max="0.5" step="0.01" value="0.1">
+        </div>
+        <div class="row" id="rowModel">
+          <div class="top"><span>Modelo de γ<sub>±</sub></span></div>
+          <div class="seg" role="group" aria-label="Modelo de gamma más menos">
+            <button class="btn" id="mLL" aria-pressed="false">Ley límite</button>
+            <button class="btn" id="mDV" aria-pressed="true">Davies</button>
+          </div>
+        </div>
+        <div class="warn" id="warnS" hidden></div>
+        <div class="valid" id="validS" hidden></div>
+
+        <h2>Lecturas <span class="h2-sub" id="sCond"></span></h2>
+        <div class="stats">
+          <div class="stat" title="Coeficiente de actividad iónico medio con el modelo elegido"><div class="k" id="sGk">γ±</div><div class="v" id="sG">—</div></div>
+          <div class="stat" title="Solubilidad en agua pura: s₀ = √Kps"><div class="k">s₀ (agua pura)</div><div class="v" id="sS0">—</div></div>
+          <div class="stat" title="Solubilidad a la fuerza iónica elegida: s = s₀/γ±"><div class="k">s = s₀/γ±</div><div class="v" id="sS">—</div></div>
+          <div class="stat" title="Aumento de solubilidad respecto al agua pura: (s/s₀ − 1)·100"><div class="k">Aumento de solubilidad</div><div class="v" id="sP">—</div></div>
+        </div>
+        <table class="cmp" id="tS">
+          <thead><tr><th>a esta I</th><th>ley límite</th><th>Davies</th></tr></thead>
+          <tbody>
+            <tr><td>γ<sub>±</sub></td><td id="sGL">—</td><td id="sGD">—</td></tr>
+            <tr><td>s (10⁻⁵ M)</td><td id="sSL">—</td><td id="sSD">—</td></tr>
+            <tr><td>aumento</td><td id="sPL">—</td><td id="sPD">—</td></tr>
+            <tr><td>¿dentro de su rango?</td><td id="sRL">—</td><td id="sRD">—</td></tr>
+          </tbody>
+        </table>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ======== explicación ======== -->
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul id="ex1">
+        <li><b>γ<sub>±</sub> &lt; 1</b> porque la nube de contraiones estabiliza cada ion y le baja
+            la actividad: la disolución «esconde» parte de la concentración.</li>
+        <li><b>La ley límite (LLDH)</b> es una recta en √I: exacta solo cuando I → 0. A mayor I el
+            tamaño iónico y la solvatación hacen que γ± deje de caer y hasta repunte.</li>
+        <li><b>Cada modelo extiende el rango:</b> DH extendida mete el tamaño iónico; Davies añade
+            el término +0.30·I que curva hacia arriba. Ninguno vale para todo I.</li>
+        <li><b>El producto de cargas manda:</b> a mayor |z₊z₋| (MgSO₄ 2:2 vs NaCl 1:1) la caída es
+            mucho más pronunciada — por eso una sal 2:2 se desvía del ideal muchísimo antes.</li>
+      </ul>
+      <ul id="ex2" hidden>
+        <li><b>El ancla K<sub>a</sub> = K<sub>γ</sub>·K<sub>m</sub>:</b> K<sub>a</sub> solo depende de T,
+            así que no se mueve. Si K<sub>γ</sub> baja (por la sal), K<sub>m</sub> <b>debe</b> subir para
+            compensar: más disociación.</li>
+        <li><b>La sal «inerte» no es neutra:</b> el NaCl no participa en la reacción, pero sube la
+            fuerza iónica, baja los γ y con ello reajusta el equilibrio ácido-base.</li>
+        <li><b>Dos escalas, dos respuestas:</b> p[H] = −log[H⁺] mide concentración; el pH de electrodo
+            = −log a<sub>H⁺</sub> mide actividad. La sal desplaza la disociación → más H⁺ → p[H] baja de
+            2.88 a 2.74 (sin redondear, de 2.878 a 2.744: Δp[H] = −0.13; [H⁺] sube ~36 %). Pero a<sub>H⁺</sub> = γ±[H⁺] = 1.32 mM en
+            ambos casos, así que el electrodo sigue marcando 2.88: la sal desplazó el equilibrio sin
+            que el pH-metro lo delate.</li>
+        <li><b>Práctica 1:</b> tu predicción del pH medido es −log(γ±[H⁺]), con Davies para γ± y la
+            tabla ICE corregida para [H⁺]. Con I = 0.1, 0.3 y 0.5 este modelo da el mismo pH de
+            electrodo (2.88) y un p[H] distinto en cada vaso.</li>
+        <li><b>Es medible y real:</b> ignorar γ± en electroquímica, solubilidad o pH riguroso
+            introduce errores de decenas de por ciento. MgSO₄ a 1 m: 95 % de error en la actividad,
+            −15.0 kJ/mol en μ por mol de MgSO₄ (ν = 2).</li>
+      </ul>
+      <ul id="ex3" hidden>
+        <li><b>El electrodo mide actividad:</b> pH = −log a<sub>H⁺</sub>. En un ácido fuerte
+            monoprótico [H⁺] = c, así que pH − (−log c) = −log γ<sub>±</sub>: ΔpH es toda la
+            corrección por actividad.</li>
+        <li><b>Trazo sólido y trazo punteado:</b> sólido, el modelo está dentro de su rango (ley
+            límite hasta I = 0.01; Davies hasta I = 0.5). Punteado, fuera de su rango: el número se
+            puede calcular, pero no se debe reportar.</li>
+        <li><b>K<sub>ps</sub> es la invariante:</b> K<sub>ps</sub> = γ<sub>±</sub>²[Ag⁺][Cl⁻] solo
+            depende de T. Si γ<sub>±</sub> baja, [Ag⁺][Cl⁻] sube y la hipérbola de saturación se aleja
+            del origen: s = s₀/γ<sub>±</sub>. La sal sin ion común vuelve al AgCl más soluble.</li>
+        <li><b>El porcentaje depende del modelo:</b> a I = 0.10 la solubilidad sube +28 % con Davies
+            y +45 % con la ley límite, que ahí ya está fuera de su rango. El efecto es de decenas de
+            por ciento; un porcentaje sin el modelo declarado no se puede auditar.</li>
+        <li><b>La misma corrección, otros usos:</b> en los tres casos (ácido débil, ácido fuerte,
+            sal poco soluble) la constante termodinámica no cambia; lo que cambia con I es γ<sub>±</sub>
+            y, con él, las concentraciones de equilibrio.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol id="ret1">
+        <li><b>Valida Davies:</b> pon NaCl/1:1 y lleva I a 0.50. ¿γ± = 0.734? Verifica con
+            log γ± = −0.509(√I/(1+√I) − 0.30·I).
+          <details class="pista"><summary>Ver pista</summary>
+            <p>√0.5 = 0.707; 0.707/1.707 = 0.414; 0.414 − 0.30(0.5) = 0.264;
+               log γ± = −0.509(0.264) = −0.134; γ± = 10⁻⁰·¹³⁴ = 0.734. Exacto.</p>
+          </details></li>
+        <li><b>La carga domina:</b> a I = 0.10 compara NaCl (1:1) contra MgSO₄ (2:2). ¿Cuántas
+            veces más cae log γ±?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>log γ± ∝ |z₊z₋|. Para MgSO₄ el producto es 4 vs 1 del NaCl: la caída (en log) es
+               4 veces mayor. Por eso las sales 2:2 se desvían del ideal muchísimo antes.</p>
+          </details></li>
+        <li><b>¿Dónde miente la LLDH?</b> Sube I a 0.50 con NaCl y compara LLDH contra Davies.
+            ¿La ley límite exagera o subestima la caída?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>La LLDH (recta) sigue bajando sin freno y <b>exagera</b> la caída: predice γ± ≈ 0.70
+               por debajo de lo real. Davies incorpora el repunte y da 0.734, mucho más cerca del dato.</p>
+          </details></li>
+      </ol>
+      <ol id="ret2" hidden>
+        <li><b>Reproduce el caso de clase:</b> pon NaCl = 0.50 M. ¿p[H] = 2.74? ¿γ± = 0.734?
+            ¿K<sub>m</sub> = 3.25×10⁻⁵? ¿Y el pH de electrodo?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>γ± = 0.734 → K<sub>γ</sub> = 0.734² = 0.538 → K<sub>m</sub> = 1.75×10⁻⁵/0.538 =
+               3.25×10⁻⁵ → [H⁺] = √(3.25×10⁻⁵·0.10) = 1.80×10⁻³ M → p[H] = 2.74.
+               a<sub>H⁺</sub> = 0.734 × 1.80×10⁻³ = 1.32×10⁻³ → pH de electrodo = 2.88, el mismo
+               que en agua pura.</p>
+          </details></li>
+        <li><b>¿Por qué baja p[H] y no el pH de electrodo?</b> Explica la cadena con el ancla:
+            sal → I ↑ → γ ↓ → K<sub>γ</sub> ↓ → K<sub>m</sub> ↑ → más H⁺.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Como K<sub>a</sub> = K<sub>γ</sub>·K<sub>m</sub> es constante, cualquier caída de
+               K<sub>γ</sub> obliga a K<sub>m</sub> a subir en la misma proporción. K<sub>m</sub> más
+               grande = más productos disociados = más H⁺ = p[H] menor. El electrodo mide
+               a<sub>H⁺</sub> = γ±[H⁺] = √(K<sub>a</sub>·C): γ± baja en la misma proporción en que
+               [H⁺] sube, y el pH de electrodo no cambia.</p>
+          </details></li>
+        <li><b>Rendimientos decrecientes:</b> sube el NaCl de 0.5 a 1.0 M. ¿p[H] sigue bajando al
+            mismo ritmo?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>No: Davies tiene el término +0.30·I que frena (y a I altas revierte) la caída de γ±.
+               El efecto salino se satura; por eso más allá de I ≈ 0.5 el modelo de Davies pierde
+               precisión y se necesita Pitzer.</p>
+          </details></li>
+        <li><b>Tabla de la práctica 1:</b> para el acético 0.10 M sin sal y con NaCl hasta I = 0.1,
+            0.3 y 0.5 calcula γ±, K<sub>m</sub>, [H⁺], p[H], a<sub>H⁺</sub> y el pH de electrodo.
+            Comprueba cada columna con los accesos «Práctica 1».
+          <details class="pista"><summary>Ver pista</summary>
+            <p>En cada vaso: γ± con Davies → K<sub>m</sub> = K<sub>a</sub>/γ±² → [H⁺] =
+               √(K<sub>m</sub>·0.10) → p[H] = −log[H⁺]; a<sub>H⁺</sub> = γ±[H⁺] → pH = −log a<sub>H⁺</sub>.
+               El pH-metro responde a a<sub>H⁺</sub>: la predicción que se contrasta con la medición
+               es la última.</p>
+          </details></li>
+      </ol>
+      <ol id="ret3" hidden>
+        <li><b>Ejercicio A:</b> HCl 0.010 M. Calcula γ± con la ley límite y el pH con actividad.
+            Comprueba con el botón A.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>γ± = 10^(−0.509·√0.010) = 0.889; pH = −log(0.889 × 0.010) = 2.05. Ideal: 2.00.
+               ΔpH = +0.05.</p>
+          </details></li>
+        <li><b>Ejercicio B:</b> HCl 0.050 M. ¿Por qué ya no corresponde la ley límite? ¿Cuánto se
+            equivoca quien calcula el pH con −log c?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>I = 0.050 &gt; 0.01: fuera del rango de la ley límite. Con Davies γ± = 0.822 →
+               a<sub>H⁺</sub> = 0.041 → pH = 1.39. Ideal: 1.30. ΔpH = +0.09. La ley límite daría
+               γ± = 0.769 y pH = 1.41.</p>
+          </details></li>
+        <li><b>El efluente:</b> en una matriz 1:1 con I ≈ 0.5, ¿cuánto marca el electrodo por
+            encima del cálculo ideal?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Davies a I = 0.5: γ± = 0.734 → ΔpH = −log 0.734 = +0.13. Lleva el HCl a 0.50 M y
+               lee ΔpH en la columna de Davies.</p>
+          </details></li>
+        <li><b>AgCl en KNO₃ con I = 0.10:</b> calcula la solubilidad con Davies y con la ley
+            límite. ¿Cuál de los dos resultados se reporta?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>s₀ = √(1.77×10⁻¹⁰) = 1.33×10⁻⁵ M. Davies: γ± = 0.782 → s = s₀/γ± = 1.70×10⁻⁵ M
+               (+28 %). Ley límite: γ± = 0.690 → +45 %, pero a I = 0.10 está fuera de su rango.
+               Se reporta el de Davies (o DH extendida), con el modelo declarado.</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ======== créditos (protegidos) ======== -->
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución del autor fue ocultada o eliminada. Recarga la página para restaurarla
+      y seguir usando el simulador.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+/* ================= constantes ================= */
+const A = 0.509;          // constante de Debye–Hückel (agua, 25 °C, molal)
+const Ba = 1.312;         // B·a° para tamaño iónico 4 Å (DH extendida)
+const Ka = 1.75e-5;       // constante de acidez del ácido acético
+const C_HAc = 0.10;       // concentración analítica del ácido acético (M)
+const Kps = 1.77e-10;     // producto de solubilidad termodinámico del AgCl (25 °C)
+const COLORS = {
+  ink:"#0b0b0b", ink2:"#52514e", muted:"#898781", grid:"#e1e0d9", axis:"#c3c2b7",
+  surface:"#fcfcfb", blue:"#2a78d6", blueDeep:"#1c5cab", aqua:"#1baf7a",
+  aquaDeep:"#0e7a54", yellow:"#eda100", green:"#008300", red:"#e34948", redText:"#c93636",
+  violet:"#4a3aa7"
+};
+const FONT = "system-ui, sans-serif";
+const SALTS = {
+  nacl: {z:1, nombre:"NaCl (1:1)", nota:"Monovalente: la caída más suave. Es el caso del ácido acético."},
+  cacl2:{z:2, nombre:"CaCl₂ (2:1)", nota:"Producto de cargas 2: γ± cae al doble de rápido (en log)."},
+  lacl3:{z:3, nombre:"LaCl₃ (3:1)", nota:"Producto de cargas 3: desviación fuerte ya a I baja."},
+  mgso4:{z:4, nombre:"MgSO₄ (2:2)", nota:"Producto de cargas 4: se aparta del ideal muchísimo antes."}
+};
+
+/* ================= modelos de γ± ================= */
+function logG_LLDH(I,z){ return -A*z*Math.sqrt(I); }
+function logG_ext(I,z){ const s=Math.sqrt(I); return -A*z*s/(1+Ba*s); }
+function logG_davies(I,z){ const s=Math.sqrt(I); return -A*z*(s/(1+s) - 0.30*I); }
+/* referencia empírica: DH ext con repunte tipo Pitzer (heurística, 1:1 ajustada al curso) */
+function logG_exp(I,z){ const s=Math.sqrt(I); return -A*z*s/(1+1.3*s) + 0.15*z*I; }
+const g = lg => Math.pow(10,lg);
+const EPS = 1e-9;         // tolerancia para comparar I con los límites de la guía (inclusivos)
+
+/* ================= estado ================= */
+const state = { tab:1, saltId:"nacl", I:0.10, nacl:0.50, challenge:null,
+                cHCl:0.050, IK:0.10, model:"dv" };
+const $ = id => document.getElementById(id);
+const setT = (id,t) => { const el=$(id); if(el.textContent!==t) el.textContent=t; };
+const setH = (id,h) => { const el=$(id); if(el._h!==h){ el._h=h; el.innerHTML=h; } };
+let dirty = true;                 // hay algo que redibujar / releer
+let dockApply = () => {};         // lo define el muelle móvil (al final)
+
+/* ================= lienzos: tamaño según su ancho CSS real ================= */
+function lienzo(id){
+  const cv=$(id), s={cv, x:cv.getContext("2d"), w:0, h:0, dpr:1, geo:null};
+  s.fit=()=>{
+    const w=cv.clientWidth, h=cv.clientHeight;
+    if(w<2||h<2) return;                       // pestaña oculta: se ajusta al mostrarse
+    const dpr=window.devicePixelRatio||1;
+    if(w===s.w && h===s.h && dpr===s.dpr) return;
+    s.w=w; s.h=h; s.dpr=dpr;
+    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    dirty=true;
+  };
+  new ResizeObserver(s.fit).observe(cv);
+  return s;
+}
+function wrap(x,text,maxW){                    // parte un texto en renglones que caben en maxW
+  const out=[]; let line="";
+  for(const w of text.split(" ")){
+    const t=line?line+" "+w:w;
+    if(line && x.measureText(t).width>maxW){ out.push(line); line=w; } else line=t;
+  }
+  if(line) out.push(line);
+  return out;
+}
+/* texto con subíndices: "K_{a} = K_{γ} · K_{m}". El subíndice nunca baja de 10 px.
+   Con X === null solo mide. Devuelve el ancho. */
+function richText(x,str,X,Y,px,weight,align){
+  const parts=[]; const re=/_\{([^}]*)\}/g; let i=0,m;
+  while((m=re.exec(str))){ if(m.index>i) parts.push({t:str.slice(i,m.index),sub:false}); parts.push({t:m[1],sub:true}); i=re.lastIndex; }
+  if(i<str.length) parts.push({t:str.slice(i),sub:false});
+  const sp=Math.max(10,Math.round(px*0.82)), f=s=>(weight||"600")+" "+s+"px "+FONT;
+  let w=0; for(const p of parts){ x.font=f(p.sub?sp:px); p.w=x.measureText(p.t).width; w+=p.w; }
+  if(X===null) return w;
+  let cx = align==="right" ? X-w : align==="center" ? X-w/2 : X;
+  x.textAlign="left"; x.textBaseline="middle";
+  for(const p of parts){ x.font=f(p.sub?sp:px); x.fillText(p.t,cx,Y+(p.sub?px*0.32:0)); cx+=p.w; }
+  return w;
+}
+/* marca de agua (parte de la atribución del autor): esquina inferior derecha de cada lienzo.
+   Si no cabe en un renglón se parte en dos; quien dibuja reserva wm.h px abajo. */
+const WM_FONT = "10.5px "+FONT;
+function wmText(){ const c=_cd(); return c ? ("© "+c.y+" "+c.n+" · @"+c.ig.split("/").pop()) : "atribución requerida"; }
+function wmInfo(x,W){
+  const t=wmText(); x.save(); x.font=WM_FONT;
+  let lines=[t];
+  if(x.measureText(t).width>W-16){ const k=t.indexOf(" · "); if(k>0) lines=[t.slice(0,k), t.slice(k+3)]; }
+  const w=Math.max(...lines.map(s=>x.measureText(s).width)); x.restore();
+  return {lines, w, h:13*lines.length};
+}
+function watermark(x,W,H,wm){
+  x.save(); x.font=WM_FONT; x.fillStyle="rgba(137,135,129,.9)";
+  x.textAlign="right"; x.textBaseline="alphabetic";
+  wm.lines.forEach((s,i)=>x.fillText(s, W-8, H-5-13*(wm.lines.length-1-i)));
+  x.restore();
+}
+function rotulo(x,t,X,Y){                       // usa font / textAlign / textBaseline / fillStyle vigentes
+  const w=x.measureText(t).width, al=x.textAlign, bl=x.textBaseline, fs=x.fillStyle;
+  const x0 = al==="right" ? X-w : al==="center" ? X-w/2 : X;
+  const y0 = bl==="top" ? Y-2 : bl==="bottom" ? Y-12 : Y-7;
+  x.fillStyle="rgba(252,252,251,.84)"; x.fillRect(x0-2,y0,w+4,14); x.fillStyle=fs;
+  x.fillText(t,X,Y);
+}
+function punto(x,X,Y,r,fill,stroke,lw){ x.beginPath(); x.arc(X,Y,r,0,7); x.fillStyle=fill; x.fill(); if(stroke){ x.lineWidth=lw||1.8; x.strokeStyle=stroke; x.stroke(); } }
+function rombo(x,X,Y,r,fill,stroke,lw){ x.beginPath(); x.moveTo(X,Y-r); x.lineTo(X+r,Y); x.lineTo(X,Y+r); x.lineTo(X-r,Y); x.closePath(); if(fill){ x.fillStyle=fill; x.fill(); } if(stroke){ x.lineWidth=lw||1.8; x.strokeStyle=stroke; x.stroke(); } }
+const menos = s => String(s).replace("-","−");
+const conSigno = (v,dec) => Math.abs(v)<0.5*Math.pow(10,-dec) ? (0).toFixed(dec) : (v>0?"+":"−")+Math.abs(v).toFixed(dec);
+
+/* ================= TAB 1: gráfica γ± vs √I ================= */
+const G = lienzo("cvG");
+let hoverSqI = null;
+
+function drawG(){
+  const x=G.x, W=G.w, H=G.h; if(!W){ G.fit(); return; }
+  const z=SALTS[state.saltId].z, narrow=W<520;
+  const sqImax=1.15;                       // √I hasta ~1.15 (I≈1.3)
+  let ymin=-0.7*z, ymax=0.12*z;            // escala se adapta a la carga
+  ymin=Math.min(ymin,-0.2);
+  const stepY = z>=3?0.5:(z>=2?0.2:0.1);
+  x.setTransform(G.dpr,0,0,G.dpr,0,0);
+  x.clearRect(0,0,W,H);
+
+  /* márgenes medidos: el título del eje y no pisa los números de las marcas y la marca de
+     agua no pisa el título del eje x (en lienzos angostos van en renglones distintos) */
+  x.font="10px "+FONT;
+  const ty=[];
+  for(let v=Math.ceil(ymin/stepY)*stepY; v<=ymax+1e-9; v+=stepY){
+    const vv=Math.abs(v)<1e-9?0:v; ty.push([v, menos(vv.toFixed(stepY<0.5?2:1))]);
+  }
+  let tw=0; for(const t of ty) tw=Math.max(tw,x.measureText(t[1]).width);
+  const wm=wmInfo(x,W);
+  const xt="√I   (I = ½ Σ mᵢzᵢ²)";
+  x.font="600 10.5px "+FONT; const xtW=x.measureText(xt).width;
+  const M={l:Math.ceil(tw)+26, r:narrow?10:14, t:12, b:34};
+  const apilar = wm.lines.length>1 || M.l+xtW+16+wm.w > W-8;
+  if(apilar) M.b=36+wm.h;
+  G.geo={l:M.l, r:M.r};
+  const X=s=>M.l+s/sqImax*(W-M.l-M.r);
+  const Y=v=>M.t+(ymax-v)/(ymax-ymin)*(H-M.t-M.b);
+
+  /* banda de validez de Davies (I ≤ 0.5 → √I ≤ 0.707) sombreada suave */
+  x.fillStyle="rgba(0,131,0,0.04)";
+  x.fillRect(M.l,M.t,X(Math.sqrt(0.5))-M.l,H-M.t-M.b);
+
+  /* rejilla */
+  x.font="10px "+FONT;
+  x.strokeStyle=COLORS.grid; x.lineWidth=1;
+  x.fillStyle=COLORS.muted; x.textAlign="right"; x.textBaseline="middle";
+  for(const [v,lab] of ty){
+    x.beginPath(); x.moveTo(M.l,Y(v)); x.lineTo(W-M.r,Y(v)); x.stroke();
+    x.fillText(lab, M.l-6, Y(v));
+  }
+  x.textAlign="center"; x.textBaseline="top";
+  for(let s=0;s<=sqImax;s+=0.2){
+    x.strokeStyle=COLORS.grid;
+    x.beginPath(); x.moveTo(X(s),M.t); x.lineTo(X(s),H-M.b); x.stroke();
+    x.fillStyle=COLORS.muted; x.fillText(s.toFixed(1), X(s), H-M.b+5);
+  }
+  /* eje γ=1 (log γ=0) */
+  x.strokeStyle=COLORS.axis; x.lineWidth=1.3;
+  x.beginPath(); x.moveTo(M.l,Y(0)); x.lineTo(W-M.r,Y(0)); x.stroke();
+  x.beginPath(); x.moveTo(M.l,M.t); x.lineTo(M.l,H-M.b); x.stroke();
+  /* títulos */
+  x.fillStyle=COLORS.ink2; x.font="600 10.5px "+FONT; x.textBaseline="top";
+  if(apilar){ x.textAlign="center"; x.fillText(xt, (M.l+W-M.r)/2, H-M.b+20); }
+  else { x.textAlign="left"; x.fillText(xt, M.l, H-13); }
+  x.save(); x.translate(10,(M.t+H-M.b)/2); x.rotate(-Math.PI/2);
+  x.textAlign="center"; x.textBaseline="middle"; x.fillText("log₁₀ γ±",0,0); x.restore();
+
+  /* curvas */
+  function curve(fn,col,wdt,dash){
+    x.strokeStyle=col; x.lineWidth=wdt; x.setLineDash(dash||[]);
+    x.beginPath();
+    let started=false;
+    for(let s=0;s<=sqImax+1e-9;s+=sqImax/160){
+      const I=s*s, y=fn(I,z);
+      if(y<ymin-0.1) { started=false; continue; }
+      const px=X(s), py=Y(Math.max(ymin,y));
+      started?x.lineTo(px,py):x.moveTo(px,py); started=true;
+    }
+    x.stroke(); x.setLineDash([]);
+  }
+  curve(logG_exp, COLORS.muted, 1.6, [2,3]);
+  curve(logG_LLDH, COLORS.red, 2, []);
+  curve(logG_ext, COLORS.blue, 2, [7,4]);
+  curve(logG_davies, COLORS.green, 2.2, [6,3,2,3]);
+
+  /* anotación que enseña: dónde la ley límite deja de valer */
+  {
+    const sA=0.72, yL=logG_LLDH(sA*sA,z);
+    if(yL>ymin+0.05){
+      const txt="la LLDH ya exagera aquí";
+      x.font="700 10px "+FONT; x.fillStyle="rgba(201,54,54,.85)";
+      x.strokeStyle="rgba(201,54,54,.5)"; x.lineWidth=1;
+      const w=x.measureText(txt).width;
+      if(X(sA)+w<=W-M.r-2){              // cabe a la derecha del ancla: va sobre la recta
+        x.textAlign="left"; x.textBaseline="bottom";
+        x.fillText(txt, X(sA), Y(yL)-4);
+        x.beginPath(); x.moveTo(X(sA),Y(yL)-3); x.lineTo(X(sA)-2,Y(yL)); x.stroke();
+      } else {                           // lienzo angosto: a la izquierda y debajo de la recta
+        x.textAlign="right"; x.textBaseline="top";
+        x.fillText(txt, X(sA)-8, Y(yL)+8);
+        x.beginPath(); x.moveTo(X(sA)-6,Y(yL)+8); x.lineTo(X(sA)-1,Y(yL)+1); x.stroke();
+      }
+    }
+  }
+
+  /* marcador de la I actual */
+  const sMk=Math.sqrt(state.I);
+  if(sMk<=sqImax){
+    x.strokeStyle="rgba(11,11,11,.35)"; x.setLineDash([4,4]); x.lineWidth=1.2;
+    x.beginPath(); x.moveTo(X(sMk),M.t); x.lineTo(X(sMk),H-M.b); x.stroke();
+    x.setLineDash([]);
+    for(const [fn,col] of [[logG_LLDH,COLORS.red],[logG_ext,COLORS.blue],[logG_davies,COLORS.green]]){
+      const y=fn(state.I,z); if(y<ymin) continue;
+      punto(x,X(sMk),Y(y),4,col,"#fff",1.8);
+    }
+  }
+
+  /* lectura bajo el cursor / el dedo */
+  if(hoverSqI!==null && hoverSqI>=0 && hoverSqI<=sqImax){
+    const I=hoverSqI*hoverSqI;
+    x.strokeStyle="rgba(11,11,11,.2)"; x.lineWidth=1;
+    x.beginPath(); x.moveTo(X(hoverSqI),M.t); x.lineTo(X(hoverSqI),H-M.b); x.stroke();
+    const lines=[
+      "I = "+I.toFixed(3),
+      "LLDH: γ± = "+g(logG_LLDH(I,z)).toFixed(3),
+      "DH ext: γ± = "+g(logG_ext(I,z)).toFixed(3),
+      "Davies: γ± = "+g(logG_davies(I,z)).toFixed(3)
+    ];
+    x.font="10.5px "+FONT;
+    const bw=Math.max(...lines.map(t=>x.measureText(t).width))+16;
+    let bx=X(hoverSqI)+10; if(bx+bw>W-M.r) bx=X(hoverSqI)-bw-10;
+    bx=Math.max(M.l+2,Math.min(bx,W-M.r-bw));
+    x.fillStyle="rgba(255,255,255,.96)"; x.strokeStyle=COLORS.grid;
+    x.beginPath(); x.rect(bx,M.t+6,bw,lines.length*14+10); x.fill(); x.stroke();
+    x.fillStyle=COLORS.ink2; x.textAlign="left"; x.textBaseline="top";
+    lines.forEach((t,i)=>x.fillText(t,bx+8,M.t+11+i*14));
+  }
+
+  watermark(x,W,H,wm);
+}
+function gHover(ev){
+  if(!G.geo||!G.w) return null;
+  const r=G.cv.getBoundingClientRect();
+  return (ev.clientX-r.left-1-G.geo.l)/(G.w-G.geo.l-G.geo.r)*1.15;
+}
+G.cv.addEventListener("pointermove",ev=>{ if(ev.pointerType==="mouse") hoverSqI=gHover(ev); });
+G.cv.addEventListener("pointerleave",ev=>{ if(ev.pointerType==="mouse") hoverSqI=null; });
+let gTipo="mouse";
+G.cv.addEventListener("pointerdown",ev=>{ gTipo=ev.pointerType||"mouse"; });
+G.cv.addEventListener("click",ev=>{                  // con el dedo: un toque fija la lectura; otro toque cercano la quita
+  if(gTipo==="mouse") return;
+  const s=gHover(ev);
+  hoverSqI = (hoverSqI!==null && s!==null && Math.abs(s-hoverSqI)<0.05) ? null : s;
+});
+
+/* ================= TAB 1: atmósfera iónica ================= */
+const AT = lienzo("cvAtm");
+const CLOUD=[];
+function initCloud(){
+  CLOUD.length=0;
+  for(let i=0;i<70;i++){
+    CLOUD.push({ang:Math.random()*6.283, rad:0.3+Math.random()*0.7, sp:(Math.random()-0.5)*0.5, sign:Math.random()<0.62?-1:1, jit:Math.random()*6.283});
+  }
+}
+function drawAtm(dt){
+  const x=AT.x, W=AT.w, H=AT.h; if(!W){ AT.fit(); return; }
+  if(!CLOUD.length) initCloud();
+  const narrow=W<520;
+  x.setTransform(AT.dpr,0,0,AT.dpr,0,0);
+  x.clearRect(0,0,W,H);
+  const wm=wmInfo(x,W);
+  /* ancho: rótulos arriba y nube centrada. Angosto: nube a la izquierda y texto a la derecha,
+     para que el lienzo no quede vacío. */
+  const top=narrow?8:26, bot=wm.h+8, availH=H-top-bot;
+  const holgado = !narrow && W/2+48 <= W-8-wm.w;     // la marca de agua no alcanza a la nube centrada
+  const Rmax = narrow ? Math.min(availH/2-3, W*0.27) : holgado ? Math.min(W,H)*0.46 : availH/2-2;
+  const cx = narrow ? Rmax+14 : W/2, cy = holgado ? H/2 : top+availH/2;
+  /* longitud de Debye: κ⁻¹ ∝ 1/√I → radio de nube visible */
+  const debye=1/Math.sqrt(Math.max(state.I,1e-3));            // grande a I baja
+  const Rcloud=Math.max(Rmax*0.28, Math.min(Rmax, Rmax*0.13*debye));
+  /* halo de la nube */
+  const grd=x.createRadialGradient(cx,cy,6,cx,cy,Rcloud);
+  grd.addColorStop(0,"rgba(42,120,214,0.16)");
+  grd.addColorStop(1,"rgba(42,120,214,0)");
+  x.fillStyle=grd; x.beginPath(); x.arc(cx,cy,Rcloud,0,7); x.fill();
+  x.strokeStyle="rgba(42,120,214,0.28)"; x.setLineDash([4,4]); x.lineWidth=1.2;
+  x.beginPath(); x.arc(cx,cy,Rcloud,0,7); x.stroke(); x.setLineDash([]);
+
+  /* contraiones */
+  for(const p of CLOUD){
+    p.ang+=p.sp*dt; p.jit+=dt*3;
+    const rr=p.rad*Rcloud + Math.sin(p.jit)*3;
+    const px=cx+Math.cos(p.ang)*rr, py=cy+Math.sin(p.ang)*rr*0.82;
+    x.beginPath(); x.arc(px,py,6,0,7);
+    x.fillStyle = p.sign<0 ? "#2a4f8a" : "rgba(200,70,60,0.55)";
+    x.fill();
+    x.font="700 10px "+FONT; x.fillStyle="#fff";
+    x.textAlign="center"; x.textBaseline="middle";
+    x.fillText(p.sign<0?"−":"+", px, py+0.5);
+  }
+  /* ion central */
+  x.beginPath(); x.arc(cx,cy,13,0,7);
+  x.fillStyle=COLORS.red; x.fill();
+  x.lineWidth=2.5; x.strokeStyle="#fff"; x.stroke();
+  x.font="700 15px "+FONT; x.fillStyle="#fff";
+  x.textAlign="center"; x.textBaseline="middle"; x.fillText("+", cx, cy+1);
+
+  /* el radio de la nube ES la longitud de Debye: se rotula sobre el dibujo */
+  {
+    const a=-0.70, c=Math.cos(a), s=Math.sin(a);
+    x.strokeStyle=COLORS.ink; x.lineWidth=1.3;
+    x.beginPath(); x.moveTo(cx+15*c,cy+15*s); x.lineTo(cx+Rcloud*c,cy+Rcloud*s); x.stroke();
+    x.beginPath(); x.moveTo(cx+Rcloud*c-3*s,cy+Rcloud*s+3*c); x.lineTo(cx+Rcloud*c+3*s,cy+Rcloud*s-3*c); x.stroke();
+    x.font="700 11px "+FONT; x.fillStyle=COLORS.ink; x.textAlign="left"; x.textBaseline="bottom";
+    x.fillText("κ⁻¹", cx+(Rcloud+5)*c, cy+(Rcloud+5)*s+3);
+  }
+
+  /* etiquetas y leyenda */
+  const cual = state.I<0.05?"grande (nube difusa)":state.I<0.3?"media":"pequeña (nube apretada)";
+  const LEY=[[COLORS.red,"ion central (+)"],["#2a4f8a","contraiones (−)"],["rgba(200,70,60,0.55)","coiones (+)"]];
+  function leyenda(lx,ly){
+    x.font="10.5px "+FONT; x.textAlign="left"; x.textBaseline="middle";
+    LEY.forEach(([col,t],i)=>{
+      x.beginPath(); x.arc(lx+5,ly+i*15,4.5,0,7); x.fillStyle=col; x.fill();
+      x.fillStyle=COLORS.ink2; x.fillText(t, lx+15, ly+i*15+0.5);
+    });
+  }
+  if(narrow){
+    const tx=cx+Rmax+16, tw=W-tx-8; let ty=top+6;
+    x.textAlign="left"; x.textBaseline="top";
+    x.font="700 12px "+FONT; x.fillStyle=COLORS.ink; x.fillText("I = "+state.I.toFixed(3), tx, ty); ty+=19;
+    x.font="600 10.5px "+FONT; x.fillStyle=COLORS.ink2;
+    for(const ln of wrap(x,"longitud de Debye κ⁻¹: "+cual, tw)){ x.fillText(ln,tx,ty); ty+=13; }
+    leyenda(tx, ty+14);
+  } else {
+    x.font="600 11px "+FONT; x.fillStyle=COLORS.ink2;
+    x.textAlign="left"; x.textBaseline="top";
+    x.fillText("longitud de Debye κ⁻¹ "+cual, 10, 8);
+    x.textAlign="right";
+    x.fillText("I = "+state.I.toFixed(3), W-10, 8);
+    leyenda(12, cy-15);
+  }
+  watermark(x,W,H,wm);
+}
+
+/* ================= TAB 2: química del ácido acético ================= */
+/* Dos escalas (no confundir):
+     pHc = p[H] = −log[H⁺]              (concentración)
+     pHe = pH de electrodo = −log a(H⁺) = −log(γ±·[H⁺])   (actividad; lo que mide el pH-metro)
+   Con γ(HAc) ≈ 1 y la aproximación de ácido débil, a(H⁺) = γ±·√(Ka·C/γ±²) = √(Ka·C):
+   el pH de electrodo no depende de la sal; p[H] sí. */
+function acetic(I){
+  const gpm = g(logG_davies(Math.max(I,0),1));   // Davies, monovalente
+  const Kg = gpm*gpm;                             // γ(H+)·γ(Ac-), neutra≈1
+  const Km = Ka/Kg;
+  const x = Math.sqrt(Km*C_HAc);                  // [H⁺], aprox. ácido débil
+  const aH = gpm*x;                               // actividad del H⁺
+  return {gpm, Kg, Km, x, aH, pHc:-Math.log10(x), pHe:-Math.log10(aH)};
+}
+const ideal = { x:Math.sqrt(Ka*C_HAc), pH:-Math.log10(Math.sqrt(Ka*C_HAc)) };   // agua pura: p[H] = pH
+const mM = v => (v*1e3).toFixed(2)+" mM";
+
+/* ancla Ka = Kγ·Km (barras en escala log) */
+const AN = lienzo("cvAnchor");
+function drawAnchor(){
+  const x=AN.x, W=AN.w, H=AN.h; if(!W){ AN.fit(); return; }
+  const r=acetic(state.nacl);
+  x.setTransform(AN.dpr,0,0,AN.dpr,0,0);
+  x.clearRect(0,0,W,H);
+  const wm=wmInfo(x,W);
+  const L=10;
+  /* título: en una línea si cabe; si no, la nota baja al segundo renglón */
+  x.fillStyle=COLORS.ink;
+  const w0=richText(x,"K_{a} = K_{γ} · K_{m}",L,15,12.5,"700","left");
+  const nota="barras en escala log · la línea punteada es «×1»";
+  x.font="10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="left"; x.textBaseline="middle";
+  let top=28;
+  if(L+w0+12+x.measureText(nota).width<=W-L) x.fillText(nota, L+w0+12, 15.5);
+  else { x.fillText(nota, L, 31); top=42; }
+  const gap=6, rowH=Math.max(18,Math.min(26,(H-top-(wm.h+8)-2*gap)/3));
+  /* columnas: rótulo | valor | barra */
+  const filas=[
+    ["K_{a} (fija)", fmtSci(Ka), Math.log10(Ka), "rgba(42,120,214,0.35)"],
+    ["K_{γ} ↓", r.Kg.toFixed(3), Math.log10(r.Kg), "rgba(237,161,0,0.55)"],
+    ["K_{m} ↑", fmtSci(r.Km), Math.log10(r.Km), "rgba(0,131,0,0.5)"]
+  ];
+  let lw=0, vw=0;
+  for(const f of filas) lw=Math.max(lw,richText(x,f[0],null,0,11,"600"));
+  x.font="700 11px "+FONT;
+  for(const s of ["1.75×10⁻⁵","0.538","3.25×10⁻⁵"]) vw=Math.max(vw,x.measureText(s).width);
+  const vx=L+Math.ceil(lw)+10+Math.ceil(vw), bx=vx+10, bw=W-L-bx;
+  // mapa: logs de −5.8 a 0.6 → 0..bw
+  const map=v=>bx+(v-(-5.8))/(0.6-(-5.8))*bw;
+  filas.forEach(([label,val,logval,col],i)=>{
+    const yy=top+i*(rowH+gap);
+    x.fillStyle=COLORS.ink2; richText(x,label,L,yy+rowH/2,11,"600","left");
+    x.fillStyle=COLORS.ink; x.font="700 11px "+FONT; x.textAlign="right"; x.textBaseline="middle";
+    x.fillText(val, vx, yy+rowH/2);
+    x.strokeStyle=COLORS.grid; x.lineWidth=1; x.setLineDash([]);
+    x.strokeRect(bx,yy+3,bw,rowH-6);
+    x.fillStyle=col;
+    x.fillRect(Math.min(map(0),map(logval)), yy+3, Math.abs(map(logval)-map(0)), rowH-6);
+    // línea de referencia en log=0 (valor 1)
+    x.strokeStyle=COLORS.axis; x.setLineDash([3,3]);
+    x.beginPath(); x.moveTo(map(0),yy+1); x.lineTo(map(0),yy+rowH-1); x.stroke(); x.setLineDash([]);
+  });
+  watermark(x,W,H,wm);
+}
+
+/* Dos escalas en una gráfica de puntos: p[H] = −log[H⁺] y pH de electrodo = −log a(H⁺),
+   cada una en agua pura (○) y con la sal elegida (●). Una baja; la otra no se mueve. */
+const PHC = lienzo("cvPH");
+const P_MIN=2.5, P_MAX=3.0;
+function drawPH(){
+  const x=PHC.x, W=PHC.w, H=PHC.h; if(!W){ PHC.fit(); return; }
+  const r=acetic(state.nacl), ch=state.challenge, oculto=!!(ch && !ch.revealed);
+  x.setTransform(PHC.dpr,0,0,PHC.dpr,0,0);
+  x.clearRect(0,0,W,H);
+  const wm=wmInfo(x,W);
+  const lab1="agua pura", lab2="NaCl "+state.nacl.toFixed(2)+" M";
+  x.font="600 10.5px "+FONT;
+  const M={l:Math.ceil(Math.max(x.measureText(lab1).width,x.measureText("NaCl 0.00 M").width))+18, r:16, t:4, b:wm.h+24};
+  PHC.geo={l:M.l, r:M.r};
+  const X=v=>M.l+(v-P_MIN)/(P_MAX-P_MIN)*(W-M.l-M.r);
+  const headH=18, sep=4;
+  const rowH=Math.max(16,Math.min(24,(H-M.t-M.b-2*headH-sep)/4));
+  const yH1=M.t+headH/2+1, y1a=M.t+headH+rowH/2, y1b=y1a+rowH;
+  const yH2=y1b+rowH/2+sep+headH/2, y2a=yH2+headH/2+rowH/2, y2b=y2a+rowH;
+  const yTop=y1a-rowH/2, yBot=y2b+rowH/2;
+  const cConc=COLORS.red, cAct=COLORS.blue;
+
+  /* rejilla y marcas de la escala */
+  x.font="10px "+FONT; x.lineWidth=1;
+  x.textAlign="center"; x.textBaseline="top";
+  for(let v=P_MIN; v<=P_MAX+0.001; v+=0.1){
+    x.strokeStyle=COLORS.grid;
+    x.beginPath(); x.moveTo(X(v),y1a-rowH/2); x.lineTo(X(v),y1b+rowH/2); x.stroke();
+    x.beginPath(); x.moveTo(X(v),y2a-rowH/2); x.lineTo(X(v),y2b+rowH/2); x.stroke();
+    x.fillStyle=COLORS.muted; x.fillText(v.toFixed(1), X(v), yBot+4);
+  }
+  /* referencia: el valor en agua pura, √(Ka·C) → 2.88 */
+  x.strokeStyle="rgba(11,11,11,.38)"; x.setLineDash([4,3]); x.lineWidth=1.2;
+  x.beginPath(); x.moveTo(X(ideal.pH),yTop); x.lineTo(X(ideal.pH),yBot); x.stroke(); x.setLineDash([]);
+
+  /* encabezados de las dos magnitudes */
+  x.fillStyle=COLORS.ink;
+  let hw=richText(x,"p[H] = −log [H⁺]",8,yH1,11,"700","left");
+  x.font="10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="left"; x.textBaseline="middle";
+  if(8+hw+8+x.measureText("· concentración").width<W-8) x.fillText("· concentración", 8+hw+8, yH1+0.5);
+  x.fillStyle=COLORS.ink;
+  hw=richText(x,"pH de electrodo = −log a_{H⁺}",8,yH2,11,"700","left");
+  x.font="10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="left"; x.textBaseline="middle";
+  if(8+hw+8+x.measureText("· actividad").width<W-8) x.fillText("· actividad", 8+hw+8, yH2+0.5);
+
+  function fila(y,label){
+    x.font="600 10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="right"; x.textBaseline="middle";
+    x.fillText(label, M.l-9, y+0.5);
+    x.strokeStyle=COLORS.axis; x.lineWidth=1;
+    x.beginPath(); x.moveTo(M.l,y); x.lineTo(W-M.r,y); x.stroke();
+  }
+  function valor(y,val,col,lleno){               // punto + número a su izquierda
+    const px=X(val);
+    x.font="700 11px "+FONT; const t=val.toFixed(2), w=x.measureText(t).width;
+    x.fillStyle=COLORS.surface; x.fillRect(px-12-w-3, y-7, w+6, 14);
+    x.fillStyle=COLORS.ink; x.textAlign="right"; x.textBaseline="middle"; x.fillText(t, px-12, y+0.5);
+    if(lleno) punto(x,px,y,5.5,col,"#fff",1.6); else punto(x,px,y,4.6,COLORS.surface,col,2.2);
+  }
+  function delta(y,d,col){                       // nota a la derecha de la referencia
+    x.font="700 10.5px "+FONT; x.textAlign="left"; x.textBaseline="middle";
+    let t="Δ = "+conSigno(d,2);
+    const x0=X(ideal.pH)+9;
+    if(x0+x.measureText(t).width>W-3) t=conSigno(d,2);
+    x.fillStyle=col; x.fillText(t, x0, y+0.5);
+  }
+  function oculta(y,pista){
+    x.font="700 12px "+FONT; x.textAlign="left"; x.textBaseline="middle";
+    x.fillStyle=COLORS.surface; x.fillRect(M.l+3, y-7, x.measureText("?").width+6, 14);
+    x.fillStyle=COLORS.ink2; x.fillText("?", M.l+6, y+0.5);
+    if(!pista) return;
+    x.font="600 10.5px "+FONT; x.fillStyle=COLORS.violet;
+    let t="toca aquí tu estimación de p[H]";
+    if(M.l+20+x.measureText(t).width>W-4) t="toca tu estimación";
+    const w=x.measureText(t).width;
+    x.fillStyle=COLORS.surface; x.fillRect(M.l+18, y-7, w+6, 14);
+    x.fillStyle=COLORS.violet; x.fillText(t, M.l+21, y+0.5);
+  }
+
+  /* p[H] */
+  fila(y1a,lab1); valor(y1a,ideal.pH,cConc,false);
+  fila(y1b,lab2);
+  if(oculto){
+    oculta(y1b, ch.guess==null);
+  } else {
+    const d=r.pHc-ideal.pH;
+    if(Math.abs(X(r.pHc)-X(ideal.pH))>14){        // flecha del valor en agua pura al valor con sal
+      const xa=X(ideal.pH)-1, xb=X(r.pHc)+8*Math.sign(X(ideal.pH)-X(r.pHc)), dir=Math.sign(xb-xa);
+      x.strokeStyle=cConc; x.fillStyle=cConc; x.lineWidth=2;
+      x.beginPath(); x.moveTo(xa,y1b); x.lineTo(xb-dir*4,y1b); x.stroke();
+      x.beginPath(); x.moveTo(xb,y1b); x.lineTo(xb-dir*7,y1b-4); x.lineTo(xb-dir*7,y1b+4); x.closePath(); x.fill();
+    }
+    valor(y1b,r.pHc,cConc,true);
+    delta(y1b,d,COLORS.redText);
+    if(ch && ch.revealed && ch.guess!=null) rombo(x,X(ch.guess),y1b,6,null,COLORS.violet,2.2);
+  }
+  /* pH de electrodo */
+  fila(y2a,lab1); valor(y2a,ideal.pH,cAct,false);
+  fila(y2b,lab2);
+  if(oculto) oculta(y2b,false);
+  else { valor(y2b,r.pHe,cAct,true); delta(y2b,r.pHe-ideal.pH,COLORS.blueDeep); }
+
+  watermark(x,W,H,wm);
+}
+PHC.cv.addEventListener("click",ev=>{                 // «click» y no «pointerdown»: deslizar la página sobre el lienzo no cuenta como respuesta
+  if(!(state.challenge && !state.challenge.revealed) || !PHC.geo) return;
+  const r=PHC.cv.getBoundingClientRect();
+  const v=P_MIN + (ev.clientX-r.left-1-PHC.geo.l)/(PHC.w-PHC.geo.l-PHC.geo.r)*(P_MAX-P_MIN);
+  challengeGuess(Math.max(P_MIN,Math.min(P_MAX,v)));
+});
+
+/* ================= TAB 3: pH riguroso (HCl) y solubilidad (AgCl) ================= */
+/* Guía de selección con los límites de las láminas de la clase 4 (inclusivos):
+   ley límite hasta I = 0.01 · DH extendida hasta 0.1 · Davies hasta 0.5. */
+function guia3(I){
+  if(I<=0.01+1e-9) return {id:"ll", txt:"ley límite"};
+  if(I<=0.1+1e-9)  return {id:"dv", txt:"DH extendida o Davies"};
+  if(I<=0.5+1e-9)  return {id:"dv", txt:"Davies"};
+  return {id:"hi", txt:"Pitzer / experimental"};
+}
+const fmtC = c => c.toPrecision(2);
+function hcl(){
+  const c=state.cHCl, gl=g(logG_LLDH(c,1)), gd=g(logG_davies(c,1)), gu=guia3(c);
+  return {c, gl, gd, gu, pH0:-Math.log10(c), pHL:-Math.log10(gl*c), pHD:-Math.log10(gd*c),
+          dL:-Math.log10(gl), dD:-Math.log10(gd),
+          gSel: gu.id==="ll"?gl:gd, nomSel: gu.id==="ll"?"ley límite":"Davies"};
+}
+const PUNTOS = {            // los tres marcadores de la lámina «pH riguroso»
+  A:{c:0.010, modelo:"ll"}, B:{c:0.050, modelo:"dv"}, E:{c:0.50, modelo:"dv"}
+};
+const DD = lienzo("cvD");
+function drawD(){
+  const x=DD.x, W=DD.w, H=DD.h; if(!W){ DD.fit(); return; }
+  const narrow=W<520, m=hcl();
+  x.setTransform(DD.dpr,0,0,DD.dpr,0,0);
+  x.clearRect(0,0,W,H);
+  const wm=wmInfo(x,W);
+  x.font="10px "+FONT;
+  const M={l:Math.ceil(x.measureText("0.20").width)+26, r:narrow?12:16, t:12, b:34};
+  const xt="√I   (las marcas indican I = c)";
+  x.font="600 10.5px "+FONT; const xtW=x.measureText(xt).width;
+  const apilar = wm.lines.length>1 || M.l+xtW+16+wm.w > W-8;
+  if(apilar) M.b=36+wm.h;
+  const smax=0.78, ymax=0.20;
+  const X=s=>M.l+s/smax*(W-M.l-M.r), Y=v=>M.t+(ymax-v)/ymax*(H-M.t-M.b);
+  const dL=s=>-logG_LLDH(s*s,1), dD=s=>-logG_davies(s*s,1);
+
+  /* rejilla */
+  x.font="10px "+FONT; x.lineWidth=1;
+  x.textAlign="right"; x.textBaseline="middle";
+  for(const v of [0,0.05,0.10,0.15,0.20]){
+    x.strokeStyle=COLORS.grid; x.beginPath(); x.moveTo(M.l,Y(v)); x.lineTo(W-M.r,Y(v)); x.stroke();
+    x.fillStyle=COLORS.muted; x.fillText(v.toFixed(2), M.l-6, Y(v));
+  }
+  x.textAlign="center"; x.textBaseline="top";
+  let lastR=-1e9;
+  for(const I of [0,0.01,0.05,0.1,0.3,0.5]){
+    const px=X(Math.sqrt(I)), t=String(I), w=x.measureText(t).width;
+    x.strokeStyle=COLORS.grid; x.beginPath(); x.moveTo(px,M.t); x.lineTo(px,H-M.b); x.stroke();
+    if(px-w/2>lastR+4){ x.fillStyle=COLORS.muted; x.fillText(t, px, H-M.b+5); lastR=px+w/2; }
+  }
+  x.strokeStyle=COLORS.axis; x.lineWidth=1.3;
+  x.beginPath(); x.moveTo(M.l,M.t); x.lineTo(M.l,H-M.b); x.lineTo(W-M.r,H-M.b); x.stroke();
+  /* títulos */
+  x.fillStyle=COLORS.ink2; x.font="600 10.5px "+FONT; x.textBaseline="top";
+  if(apilar){ x.textAlign="center"; x.fillText(xt, (M.l+W-M.r)/2, H-M.b+20); }
+  else { x.textAlign="left"; x.fillText(xt, M.l, H-13); }
+  x.save(); x.translate(10,(M.t+H-M.b)/2); x.rotate(-Math.PI/2);
+  x.textAlign="center"; x.textBaseline="middle"; x.fillText("ΔpH = −log γ±",0,0); x.restore();
+
+  /* curvas: sólido dentro del rango del modelo, punteado fuera */
+  function tramo(fn,s0,s1){
+    x.beginPath(); const n=Math.max(8,Math.ceil((s1-s0)/0.004));
+    for(let i=0;i<=n;i++){ const s=s0+(s1-s0)*i/n, y=Math.min(ymax,fn(s)); i?x.lineTo(X(s),Y(y)):x.moveTo(X(s),Y(y)); }
+    x.stroke();
+  }
+  x.lineCap="round";
+  x.strokeStyle=COLORS.red;
+  x.setLineDash([]); x.lineWidth=2.4; tramo(dL,0,0.1);
+  x.setLineDash([1.5,5]); x.lineWidth=2; tramo(dL,0.1,Math.min(smax,ymax/A));
+  x.strokeStyle=COLORS.green;
+  x.setLineDash([]); x.lineWidth=2.4; tramo(dD,0,Math.SQRT1_2);
+  x.setLineDash([1.5,5]); x.lineWidth=2; tramo(dD,Math.SQRT1_2,smax);
+  x.setLineDash([]); x.lineCap="butt";
+
+  /* rótulos directos de las curvas */
+  x.font="700 10.5px "+FONT; x.textBaseline="middle";
+  x.fillStyle=COLORS.redText; x.textAlign="left"; rotulo(x,"ley límite", X(0.186/A)+8, Y(0.186));
+  x.fillStyle=COLORS.green; x.textAlign="center"; x.textBaseline="bottom"; rotulo(x,"Davies", X(0.585), Y(dD(0.585))-6);
+
+  /* marcador de la concentración actual */
+  const sC=Math.sqrt(m.c);
+  x.strokeStyle="rgba(11,11,11,.35)"; x.setLineDash([4,4]); x.lineWidth=1.2;
+  x.beginPath(); x.moveTo(X(sC),M.t); x.lineTo(X(sC),H-M.b); x.stroke(); x.setLineDash([]);
+
+  /* puntos de la concentración actual; el del modelo que corresponde va resaltado */
+  for(const [fn,col,id] of [[dL,COLORS.red,"ll"],[dD,COLORS.green,"dv"]]){
+    const y=fn(sC); if(y>ymax) continue;
+    if(id===m.gu.id) punto(x,X(sC),Y(y),6.5,col,COLORS.ink,2); else punto(x,X(sC),Y(y),4,col,"#fff",1.6);
+  }
+
+  /* puntos fijos de la lámina: A (ley límite), B (Davies), efluente (Davies, I ≈ 0.5) */
+  x.font="700 10.5px "+FONT; x.fillStyle=COLORS.ink; x.textAlign="left"; x.textBaseline="top";
+  { const s=Math.sqrt(PUNTOS.A.c), y=dL(s); punto(x,X(s),Y(y),4.2,COLORS.red,"#fff",1.6);
+    x.fillStyle=COLORS.ink; rotulo(x,"A: "+conSigno(y,2), X(s)+9, Y(y)+5); }
+  { const s=Math.sqrt(PUNTOS.B.c), y=dD(s); punto(x,X(s),Y(y),4.2,COLORS.green,"#fff",1.6);
+    x.fillStyle=COLORS.ink; rotulo(x,"B: "+conSigno(y,2), X(s)+9, Y(y)+6); }
+  { const s=Math.sqrt(PUNTOS.E.c), y=dD(s);
+    const t="efluente, I ≈ 0.5: "+conSigno(y,2), w=x.measureText(t).width;
+    const xr=X(s)+4, sLeft=Math.max(0,(xr-w-M.l)/(W-M.l-M.r)*smax);     // la curva crece: su mínimo bajo el rótulo está en el extremo izquierdo
+    const yt=Math.max(Y(y)+12, Y(dD(sLeft))+7);
+    x.strokeStyle=COLORS.axis; x.lineWidth=1; x.beginPath(); x.moveTo(X(s),Y(y)+7); x.lineTo(X(s),yt-2); x.stroke();
+    rombo(x,X(s),Y(y),5.2,COLORS.ink,"#fff",1.6);
+    x.fillStyle=COLORS.ink; x.textAlign="right"; rotulo(x,t, xr, yt); }
+
+  /* lectura en la esquina inferior derecha (se ve mientras se mueve el deslizador) */
+  {
+    const lines=[ ["HCl "+fmtC(m.c)+" M",true], ["pH ideal = "+m.pH0.toFixed(2),false],
+                  ["pH = "+(m.gu.id==="ll"?m.pHL:m.pHD).toFixed(2)+" ("+m.nomSel+")",true],
+                  ["ΔpH = "+conSigno(m.gu.id==="ll"?m.dL:m.dD,2),false] ];
+    let bw=0; for(const [t,b] of lines){ x.font=(b?"700 ":"")+"10.5px "+FONT; bw=Math.max(bw,x.measureText(t).width); }
+    bw+=14; const bh=lines.length*13+9, bx=W-M.r-bw-5, by=H-M.b-bh-5;
+    x.fillStyle="rgba(255,255,255,.94)"; x.strokeStyle=COLORS.grid; x.lineWidth=1;
+    x.beginPath(); x.rect(bx,by,bw,bh); x.fill(); x.stroke();
+    x.textAlign="left"; x.textBaseline="top";
+    lines.forEach(([t,b],i)=>{ x.font=(b?"700 ":"")+"10.5px "+FONT; x.fillStyle=b?COLORS.ink:COLORS.ink2; x.fillText(t,bx+7,by+6+i*13); });
+  }
+  watermark(x,W,H,wm);
+}
+
+function solub(){
+  const I=state.IK, gl=g(logG_LLDH(I,1)), gd=g(logG_davies(I,1));
+  const gam=state.model==="ll"?gl:gd, s0=Math.sqrt(Kps);
+  return {I, gl, gd, gam, s0, s:s0/gam, sL:s0/gl, sD:s0/gd,
+          pct:100*(1/gam-1), pctL:100*(1/gl-1), pctD:100*(1/gd-1),
+          nom: state.model==="ll"?"ley límite":"Davies",
+          fuera: state.model==="ll" && I>0.01+1e-9};
+}
+const pctTxt = p => conSigno(p,0).replace(/^0$/,"+0")+" %";
+const SS = lienzo("cvS");
+function drawS(){
+  const x=SS.x, W=SS.w, H=SS.h; if(!W){ SS.fit(); return; }
+  const lado=W>=640, m=solub();                   // lado: rótulos de las curvas a la derecha del plano
+  const K0=Kps*1e10, K=K0/(m.gam*m.gam);          // en (10⁻⁵ M)²
+  const s0=Math.sqrt(K0), s=Math.sqrt(K);
+  const col = state.model==="ll"?COLORS.red:COLORS.green, colT = state.model==="ll"?COLORS.redText:COLORS.green;
+  x.setTransform(SS.dpr,0,0,SS.dpr,0,0);
+  x.clearRect(0,0,W,H);
+  const wm=wmInfo(x,W);
+  x.font="10px "+FONT;
+  const M={l:Math.ceil(x.measureText("3").width)+28, r:12, t:12, b:34};
+  const xt="[Ag⁺]   (10⁻⁵ M)", yt="[Cl⁻]   (10⁻⁵ M)";
+  x.font="600 10.5px "+FONT; const xtW=x.measureText(xt).width;
+  const vmax=3.5;
+  /* ancho: plano cuadrado a la izquierda y rótulos de las curvas a su derecha (como en la lámina);
+     angosto: el plano ocupa todo el lienzo y los rótulos van dentro */
+  let ph=H-M.t-M.b, pw=lado ? Math.min(W-M.l-M.r, ph) : W-M.l-M.r;
+  let apilar = wm.lines.length>1 || M.l+pw/2+xtW/2+16 > W-8-wm.w;
+  if(apilar){ M.b=36+wm.h; ph=H-M.t-M.b; if(lado) pw=Math.min(W-M.l-M.r, ph); }
+  const X=v=>M.l+v/vmax*pw, Y=v=>M.t+(vmax-v)/vmax*ph;
+
+  /* rejilla y ejes */
+  x.font="10px "+FONT; x.lineWidth=1;
+  for(let v=0; v<=3; v++){
+    x.strokeStyle=COLORS.grid;
+    x.beginPath(); x.moveTo(M.l,Y(v)); x.lineTo(X(vmax),Y(v)); x.stroke();
+    x.beginPath(); x.moveTo(X(v),M.t); x.lineTo(X(v),Y(0)); x.stroke();
+    x.fillStyle=COLORS.muted;
+    x.textAlign="right"; x.textBaseline="middle"; x.fillText(String(v), M.l-6, Y(v));
+    x.textAlign="center"; x.textBaseline="top"; x.fillText(String(v), X(v), Y(0)+5);
+  }
+  x.strokeStyle=COLORS.grid; x.strokeRect(M.l,M.t,pw,ph);
+  x.strokeStyle=COLORS.axis; x.lineWidth=1.3;
+  x.beginPath(); x.moveTo(M.l,M.t); x.lineTo(M.l,Y(0)); x.lineTo(X(vmax),Y(0)); x.stroke();
+  x.fillStyle=COLORS.ink2; x.font="600 10.5px "+FONT; x.textAlign="center"; x.textBaseline="top";
+  x.fillText(xt, M.l+pw/2, Y(0)+20);
+  x.save(); x.translate(10,M.t+ph/2); x.rotate(-Math.PI/2);
+  x.textBaseline="middle"; x.fillText(yt,0,0); x.restore();
+
+  /* recta sin ion común: [Ag⁺] = [Cl⁻] */
+  x.strokeStyle=COLORS.muted; x.lineWidth=1.3; x.setLineDash([5,4]);
+  x.beginPath(); x.moveTo(X(0),Y(0)); x.lineTo(X(vmax),Y(vmax)); x.stroke(); x.setLineDash([]);
+  {
+    const ang=Math.atan2(Y(1)-Y(0), X(1)-X(0));
+    x.save(); x.translate(X(0.5),Y(0.5)); x.rotate(ang);
+    x.font="600 10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="center"; x.textBaseline="bottom";
+    rotulo(x,"[Ag⁺] = [Cl⁻]", 0, -5); x.restore();
+  }
+
+  /* hipérbolas de saturación [Ag⁺][Cl⁻] = Kps/γ±² */
+  function hiperbola(Kc){
+    x.beginPath(); const a=Kc/vmax, n=90;
+    for(let i=0;i<=n;i++){ const v=a*Math.pow(vmax/a,i/n); i?x.lineTo(X(v),Y(Kc/v)):x.moveTo(X(v),Y(Kc/v)); }
+    x.stroke();
+  }
+  x.lineCap="round";
+  x.strokeStyle=COLORS.ink2; x.lineWidth=2.2; x.setLineDash([]); hiperbola(K0);
+  x.strokeStyle=col; x.lineWidth=2.6; x.setLineDash(m.fuera?[1.5,5]:[]); hiperbola(K);
+  x.setLineDash([]); x.lineCap="butt";
+
+  /* cruces con la recta: s₀ (agua pura) y s (con KNO₃); líneas guía hasta el eje.
+     Los rótulos van en la cuña libre junto a cada punto: a la izquierda de s₀ y a la derecha de s
+     (entre la recta, que sube, y la hipérbola, que baja). */
+  x.setLineDash([2,3]); x.lineWidth=1;
+  x.strokeStyle=COLORS.ink2; x.beginPath(); x.moveTo(X(s0),Y(s0)); x.lineTo(X(s0),Y(0)); x.stroke();
+  x.strokeStyle=col; x.beginPath(); x.moveTo(X(s),Y(s)); x.lineTo(X(s),Y(0)); x.stroke();
+  x.setLineDash([]);
+  punto(x,X(s0),Y(s0),4.6,COLORS.surface,COLORS.ink2,2.2);
+  punto(x,X(s),Y(s),5.5,col,"#fff",1.6);
+  x.textBaseline="middle";
+  x.font="600 10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="right";
+  rotulo(x,"s₀ = "+s0.toFixed(2), X(s0)-9, Y(s0)+0.5);
+  x.font="700 10.5px "+FONT; x.fillStyle=colT;
+  {
+    const t1="s = "+s.toFixed(2), t2="("+pctTxt(m.pct)+")", una=t1+" "+t2;
+    const wU=x.measureText(una).width, wD=Math.max(x.measureText(t1).width,x.measureText(t2).width);
+    /* un renglón cabe pegado al punto; dos renglones necesitan más cuña y se separan 18 px */
+    const xd=X(s)+9, xi=X(s)-9, tope=X(vmax)-3, piso=X(K0/s)+8;
+    if(xd+wU<=tope){ x.textAlign="left"; rotulo(x,una, xd, Y(s)+0.5); }
+    else if(xi-wU>=piso){ x.textAlign="right"; rotulo(x,una, xi, Y(s)+0.5); }
+    else if(xd+9+wD<=tope){ x.textAlign="left"; rotulo(x,t1, xd+9, Y(s)-6); rotulo(x,t2, xd+9, Y(s)+7); }
+    else { x.textAlign="right"; rotulo(x,t1, xi-9, Y(s)-6); rotulo(x,t2, xi-9, Y(s)+7); }
+  }
+
+  /* rótulos de las curvas */
+  const tI="I = "+m.I.toFixed(2);
+  if(!lado){
+    x.font="600 10.5px "+FONT; x.fillStyle=COLORS.ink2; x.textAlign="right"; x.textBaseline="top";
+    rotulo(x,"agua pura", X(vmax)-4, Y(K0/vmax)+5);
+    /* junto a la salida superior de la hipérbola elegida: a su derecha si cabe; si no, a su izquierda */
+    x.font="700 10.5px "+FONT; x.fillStyle=colT;
+    const yy=M.t+5, xBanda=X(K/(vmax-0.42))+8, xArriba=X(K/vmax)-8, xAgua=X(K0/(vmax-0.42))+8;
+    for(const t of [tI+" · "+m.nom, tI]){
+      const w=x.measureText(t).width;
+      if(xBanda+w<=X(vmax-0.5)){ x.textAlign="left"; rotulo(x,t, xBanda, yy); break; }
+      if(xArriba-w>=xAgua){ x.textAlign="right"; rotulo(x,t, xArriba, yy); break; }
+    }
+  } else {
+    const lx=X(vmax)+12;
+    x.textAlign="left";
+    x.font="600 11px "+FONT; x.fillStyle=COLORS.ink2; x.textBaseline="top";
+    x.fillText("agua pura", lx, Y(K0/vmax)+3);
+    x.fillText("γ± = 1 · s₀ = "+fmtSci(m.s0)+" M", lx, Y(K0/vmax)+17);
+    x.font="700 11px "+FONT; x.fillStyle=colT; x.textBaseline="bottom";
+    x.fillText("γ± = "+m.gam.toFixed(3)+" · s = "+fmtSci(m.s)+" M ("+pctTxt(m.pct)+")", lx, Y(K/vmax)-3);
+    x.fillText("con KNO₃, "+tI+" · "+m.nom+(m.fuera?" (fuera de su rango)":""), lx, Y(K/vmax)-17);
+  }
+  watermark(x,W,H,wm);
+}
+
+/* ================= lecturas ================= */
+function fmtSci(x){
+  if(!isFinite(x)||x===0) return "—";
+  if(x>=0.001 && x<1000) return Number(x.toPrecision(3)).toString();
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  const SUP={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return (x/10**e).toFixed(2)+"×10"+String(e).split("").map(ch=>SUP[ch]||"").join("");
+}
+const cerca = (a,b) => Math.abs(a-b)<0.006;
+function updateReadouts(){
+  if(state.tab===1){
+    const z=SALTS[state.saltId].z, I=state.I;
+    const ll=g(logG_LLDH(I,z)).toFixed(3), ex=g(logG_ext(I,z)).toFixed(3), dv=g(logG_davies(I,z)).toFixed(3);
+    setT("rLL",ll); setT("rEX",ex); setT("rDV",dv);
+    setT("lgLL",ll); setT("lgEX",ex); setT("lgDV",dv);
+    setT("rAC",(100*(1-g(logG_davies(I,z)))).toFixed(1)+" %");
+    /* límites inclusivos (I ≤ 0.01, ≤ 0.1, ≤ 0.5), como en la pestaña 3: el caso de clase usa Davies en I = 0.50 */
+    for(const [id,ok] of [["mg-ll",I<=0.01+EPS],["mg-ex",I<=0.1+EPS],["mg-dv",I<=0.5+EPS],["mg-hi",I>0.5+EPS]])
+      $(id).classList.toggle("active",ok);
+  } else if(state.tab===2){
+    const r=acetic(state.nacl);
+    const oculto = !!(state.challenge && !state.challenge.revealed);   // no delatar el p[H] durante el reto
+    setT("aCond", state.nacl<1e-6 ? "sin sal" : "con NaCl "+state.nacl.toFixed(2)+" M");
+    setT("aI",state.nacl.toFixed(2));
+    setT("aG",r.gpm.toFixed(3));
+    setT("aKg",r.Kg.toFixed(3));
+    setT("aKm",fmtSci(r.Km));
+    setT("aH", oculto ? "?" : mM(r.x));
+    setT("aPH", oculto ? "?" : r.pHc.toFixed(2));
+    // a(H+) = γ±·[H+] = √(Ka·C): invariante ante la sal; el pH de electrodo no se mueve aunque p[H] baje.
+    setT("aAH", oculto ? "?" : mM(r.aH));
+    setT("aPHe", oculto ? "?" : r.pHe.toFixed(2));
+    setT("aPH0",ideal.pH.toFixed(2));
+    setT("aH0",mM(ideal.x));
+    setT("aDH", oculto ? "?" : conSigno(100*(r.x/ideal.x-1),0).replace(/^0$/,"+0")+" % · "+conSigno(r.pHc-ideal.pH,2));
+    setT("aDE", oculto ? "?" : conSigno(r.pHe-ideal.pH,2));
+    for(const [id,v] of [["bP1",0.10],["bP3",0.30],["bP5",0.50]]) $(id).setAttribute("aria-pressed", String(cerca(state.nacl,v)));
+    let msg="";
+    if(cerca(state.nacl,0.50)) msg="✓ Caso de clase y condición I = 0.5 de la práctica 1 — en clase: γ± = 0.734, K<sub>γ</sub> = 0.538, "
+      +"K<sub>m</sub> = 3.25×10⁻⁵, p[H] = 2.74 y pH de electrodo = 2.88 (el mismo que en agua pura). Compara con las lecturas.";
+    else if(cerca(state.nacl,0.10)||cerca(state.nacl,0.30)) msg="✓ Práctica 1 · I = "+state.nacl.toFixed(1)+" (NaCl "+state.nacl.toFixed(2)
+      +" M): compara tu tabla de predicciones con las lecturas. El valor que se contrasta con el pH-metro es el pH de electrodo.";
+    if(oculto) msg="";                               // durante el reto el aviso no delata el p[H]
+    setH("validAc",msg); $("validAc").hidden = !msg;
+  } else {
+    /* --- pH riguroso (HCl) --- */
+    const m=hcl();
+    setT("dI",fmtC(m.c)); setT("dP0",m.pH0.toFixed(2));
+    setT("dGL",m.gl.toFixed(3)); setT("dGD",m.gd.toFixed(3));
+    setT("dPL",m.pHL.toFixed(2)); setT("dPD",m.pHD.toFixed(2));
+    setT("dDL",conSigno(m.dL,2)); setT("dDD",conSigno(m.dD,2));
+    const llOK=m.gu.id==="ll";
+    setT("dRL", llOK?"sí":"no (I > 0.01)"); setT("dRD","sí");
+    $("tD").dataset.on=m.gu.id; $("tD").dataset.off=llOK?"":"ll";
+    setT("dMod", m.gu.txt.charAt(0).toUpperCase()+m.gu.txt.slice(1));
+    const enA=Math.abs(m.c-PUNTOS.A.c)<1e-9, enB=Math.abs(m.c-PUNTOS.B.c)<1e-9;
+    $("bA").setAttribute("aria-pressed",String(enA)); $("bB").setAttribute("aria-pressed",String(enB));
+    let msg="";
+    if(enA) msg="✓ Ejercicio A de la lámina — HCl 0.010 M con la ley límite: γ± = 0.889, pH = 2.05 frente a 2.00 ideal; ΔpH = +0.05.";
+    else if(enB) msg="✓ Ejercicio B de la lámina — HCl 0.050 M con Davies: γ± = 0.822, a<sub>H⁺</sub> = 0.041, "
+      +"pH = 1.39 frente a 1.30 ideal; ΔpH = +0.09.";
+    setH("validAB",msg); $("validAB").hidden=!msg;
+
+    /* --- solubilidad del AgCl --- */
+    const q=solub();
+    setT("vIK",q.I.toFixed(2));
+    setT("sCond","KNO₃, I = "+q.I.toFixed(2)+" · "+q.nom);
+    setT("sGk","γ± ("+q.nom+")"); setT("sG",q.gam.toFixed(3));
+    setT("sS0",fmtSci(q.s0)+" M"); setT("sS",fmtSci(q.s)+" M"); setT("sP",pctTxt(q.pct));
+    setT("sGL",q.gl.toFixed(3)); setT("sGD",q.gd.toFixed(3));
+    setT("sSL",(q.sL*1e5).toFixed(2)); setT("sSD",(q.sD*1e5).toFixed(2));
+    setT("sPL",pctTxt(q.pctL)); setT("sPD",pctTxt(q.pctD));
+    const llIn=q.I<=0.01+1e-9;
+    setT("sRL", llIn?"sí":"no (I > 0.01)"); setT("sRD","sí");
+    $("tS").dataset.on=state.model; $("tS").dataset.off=llIn?"":"ll";
+    $("mLL").setAttribute("aria-pressed",String(state.model==="ll")); $("mDV").setAttribute("aria-pressed",String(state.model==="dv"));
+    setT("lgS","con KNO₃, I = "+q.I.toFixed(2)+" ("+q.nom+", γ± = "+q.gam.toFixed(3)+")"+(q.fuera?" — fuera de su rango":""));
+    const ln=$("lgSline"); ln.setAttribute("stroke", state.model==="ll"?COLORS.red:COLORS.green);
+    if(q.fuera){ ln.setAttribute("stroke-dasharray","2 4"); ln.setAttribute("stroke-linecap","round"); }
+    else { ln.removeAttribute("stroke-dasharray"); ln.removeAttribute("stroke-linecap"); }
+    const w = q.fuera ? "Aviso: a I = "+q.I.toFixed(2)+" la ley límite está fuera de su rango (hasta I = 0.01) y sobrestima el efecto: da "
+      +pctTxt(q.pctL)+"; con Davies el aumento es "+pctTxt(q.pctD)+"." : "";
+    setT("warnS",w); $("warnS").hidden=!w;
+    const v = Math.abs(q.I-0.10)<1e-9 ? "✓ Ejercicio 3 de clase — KNO₃ con I = 0.10: con Davies γ± = 0.782, s = 1.70×10⁻⁵ M (+28 %); "
+      +"con la ley límite γ± = 0.690 (+45 %, fuera de su rango)." : "";
+    setT("validS",v); $("validS").hidden=!v;
+  }
+}
+
+/* ================= controles ================= */
+function selectTab(n){
+  state.tab=n;
+  for(const k of [1,2,3]){
+    $("tab"+k).setAttribute("aria-selected", String(n===k));
+    $("panel"+k).hidden = n!==k;
+    $("ex"+k).hidden = n!==k;
+    $("ret"+k).hidden = n!==k;
+  }
+  dirty=true;
+  dockApply();
+}
+for(const k of [1,2,3]) $("tab"+k).addEventListener("click",()=>selectTab(k));
+
+$("selSalt").addEventListener("change",e=>{
+  state.saltId=e.target.value;
+  $("salt-nota").textContent=SALTS[state.saltId].nota;
+});
+/* el deslizador es logarítmico (pasos de 0.01 en log I); si el paso cae a menos de 1.2 % de un
+   valor redondo (0.05, 0.1, 0.5…) se toma ese valor, para poder fijar I = 0.500 exacto */
+function redondeaI(I){
+  const r=Number(I.toPrecision(1));
+  return Math.abs(I/r-1)<0.0116 ? r : I;
+}
+$("sI").addEventListener("input",e=>{
+  state.I=redondeaI(Math.pow(10,+e.target.value));
+  $("vI").textContent=state.I.toFixed(3)+" m";
+});
+function setNaCl(v){
+  state.nacl=v; $("sNaCl").value=v; $("vNaCl").textContent=v.toFixed(2)+" M";
+}
+$("sNaCl").addEventListener("input",e=>{
+  state.nacl=+e.target.value;
+  $("vNaCl").textContent=state.nacl.toFixed(2)+" M";
+  if(state.challenge){ if(state.challenge.revealed){ endChallenge(); narrate2(); } else retoTexto(); }
+});
+$("bCaseAc").addEventListener("click",()=>{ setNaCl(0.50); endChallenge(); narrate2(); });
+$("bIdeal").addEventListener("click",()=>{ setNaCl(0); endChallenge(); narrate2(); });
+for(const [id,v] of [["bP1",0.10],["bP3",0.30],["bP5",0.50]])
+  $(id).addEventListener("click",()=>{ setNaCl(v); endChallenge(); narrate2(); });
+
+/* pestaña 3 */
+function setHCl(c){
+  state.cHCl=c; $("vHCl").textContent=fmtC(c)+" M";
+}
+$("sHCl").addEventListener("input",e=>{
+  setHCl(Math.min(0.5,Math.max(0.001,Number(Math.pow(10,+e.target.value).toPrecision(2)))));
+});
+$("bA").addEventListener("click",()=>{ setHCl(PUNTOS.A.c); $("sHCl").value=Math.log10(PUNTOS.A.c); narrate3a(); });
+$("bB").addEventListener("click",()=>{ setHCl(PUNTOS.B.c); $("sHCl").value=Math.log10(PUNTOS.B.c); narrate3a(); });
+$("sIK").addEventListener("input",e=>{ state.IK=+e.target.value; $("vIK").textContent=state.IK.toFixed(2); });
+$("mLL").addEventListener("click",()=>{ state.model="ll"; narrate3b(); });
+$("mDV").addEventListener("click",()=>{ state.model="dv"; narrate3b(); });
+
+/* ================= narración causal (P4) + reto "predice el p[H]" (P3) ================= */
+function narrate1(kind){
+  const z=SALTS[state.saltId].z, I=state.I;
+  const gd=g(logG_davies(I,z)), gl=g(logG_LLDH(I,z));
+  const modelo = I<=0.01+EPS?"LLDH (ley límite)":I<=0.1+EPS?"DH extendida":I<=0.5+EPS?"Davies":"Pitzer / experimental";
+  const head = kind==="salt" ? "Cambiaste a <b>"+SALTS[state.saltId].nombre+"</b> (|z₊z₋| = "+z+")"
+                             : "Fuerza iónica I = <b>"+I.toFixed(3)+"</b>";
+  $("narr1").className="narr";
+  $("narr1").innerHTML = head+" → γ± (Davies) = <b>"+gd.toFixed(3)+"</b> (<span class='dn'>"+(100*(1-gd)).toFixed(0)
+    +"% por debajo del ideal</span>). A esta I el modelo válido es <b>"+modelo+"</b>"
+    +(I>=0.5-EPS?"; la LLDH ya exagera (predeciría "+gl.toFixed(3)+").":".");
+}
+function narrate2(){
+  if(state.challenge){ if(!state.challenge.revealed) return; endChallenge(); }
+  const r=acetic(state.nacl);
+  $("narr2").className="narr";
+  if(state.nacl<1e-6){
+    $("narr2").innerHTML="Sin sal (agua pura): γ± ≈ 1 y K<sub>γ</sub> ≈ 1, así que K<sub>m</sub> = K<sub>a</sub>. "
+      +"Las dos escalas coinciden: <b>p[H] = pH de electrodo = "+ideal.pH.toFixed(2)+"</b>.";
+  } else {
+    const d=r.pHc-ideal.pH;
+    $("narr2").innerHTML="NaCl = <b>"+state.nacl.toFixed(2)+" M</b> → I ↑ → γ± <span class='dn'>baja</span> a <b>"+r.gpm.toFixed(3)
+      +"</b> → K<sub>γ</sub> = "+r.Kg.toFixed(3)+" → como K<sub>a</sub> es fija, K<sub>m</sub> <span class='up'>sube</span> a <b>"+fmtSci(r.Km)
+      +"</b> → [H⁺] sube a <b>"+mM(r.x)+"</b> → <b>p[H] = "+r.pHc.toFixed(2)+"</b> (<span class='"+(d<0?"up":"dn")+"'>"+conSigno(d,2)
+      +" respecto al agua pura</span>). a<sub>H⁺</sub> = γ±[H⁺] = "+mM(r.aH)+" no cambia: el <b>pH de electrodo sigue en "
+      +r.pHe.toFixed(2)+"</b>.";
+  }
+}
+function endChallenge(){ state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice el p[H]"; }
+function retoTexto(){
+  $("narr2").className="narr reto";
+  $("narr2").innerHTML="🎯 <b>Predice el p[H].</b> Con NaCl = "+state.nacl.toFixed(2)
+    +" M se ocultan [H⁺], p[H], a<sub>H⁺</sub> y el pH de electrodo. Calcula p[H] = −log[H⁺] con γ± y K<sub>m</sub>, "
+    +"y toca la gráfica de las dos escalas en ese valor.";
+}
+function challengeStart(){
+  selectTab(2);
+  state.challenge={guess:null, revealed:false};
+  $("bChallenge").textContent="✕ Salir del reto";
+  retoTexto();
+}
+function challengeGuess(v){
+  const r=acetic(state.nacl), real=r.pHc, err=Math.abs(v-real);
+  state.challenge.guess=v; state.challenge.revealed=true;
+  const ver=err<0.03?'<span class="eq">¡Excelente!</span>':err<0.08?'<span class="dn">Muy cerca.</span>':'Sigue practicando.';
+  $("narr2").className="narr reto"+(err<0.08?" ok":"");
+  $("narr2").innerHTML="🎯 Tu predicción (◇ en la gráfica): p[H] = <b>"+v.toFixed(2)+"</b> · Calculado: <b>"+real.toFixed(2)+"</b> · Error: <b>"
+    +err.toFixed(2)+"</b>. "+ver+" El pH de electrodo no cambió: "+r.pHe.toFixed(2)+". Cambia el NaCl y vuelve a intentar.";
+  $("bChallenge").textContent="🎯 Otra vez";
+  dirty=true;
+}
+$("bChallenge").addEventListener("click",()=>{
+  if(state.challenge && !state.challenge.revealed){ endChallenge(); narrate2(); }
+  else challengeStart();
+});
+function narrate3a(){
+  const m=hcl(), ll=m.gu.id==="ll";
+  const pH=ll?m.pHL:m.pHD, d=ll?m.dL:m.dD;
+  $("narr3a").innerHTML="HCl <b>"+fmtC(m.c)+" M</b> → I = c = "+fmtC(m.c)+" → "
+    +(ll ? "corresponde la <b>ley límite</b>" : "la ley límite queda fuera de su rango (I &gt; 0.01); corresponde <b>"+m.gu.txt+"</b>")
+    +": γ± "+(ll?"":"(Davies) ")+"= <b>"+m.gSel.toFixed(3)+"</b> → a<sub>H⁺</sub> = γ±·c = "+Number((m.gSel*m.c).toPrecision(3))
+    +" → pH = <b>"+pH.toFixed(2)+"</b> frente a "+m.pH0.toFixed(2)+" ideal (<span class='up'>ΔpH = "+conSigno(d,2)+"</span>)."
+    +(ll ? "" : " Con la ley límite saldría pH = "+m.pHL.toFixed(2)+".");
+}
+function narrate3b(){
+  const q=solub();
+  if(q.I<1e-9){
+    $("narr3b").innerHTML="Sin KNO₃ (agua pura): γ± = 1 → [Ag⁺][Cl⁻] = K<sub>ps</sub> → s = s₀ = <b>"+fmtSci(q.s0)+" M</b>.";
+    return;
+  }
+  $("narr3b").innerHTML="KNO₃ hasta I = <b>"+q.I.toFixed(2)+"</b> → γ± ("+q.nom+") = <b>"+q.gam.toFixed(3)
+    +"</b> → [Ag⁺][Cl⁻] = K<sub>ps</sub>/γ±² = "+fmtSci(Kps/(q.gam*q.gam))+" → s = s₀/γ± = <b>"+fmtSci(q.s)
+    +" M</b> (<span class='up'>"+pctTxt(q.pct)+" respecto al agua pura</span>)."
+    +(q.fuera ? " A esta I la ley límite está fuera de su rango: con Davies el aumento es "+pctTxt(q.pctD)+"."
+              : state.model==="dv" ? " Con la ley límite saldría "+pctTxt(q.pctL)+(q.I>0.01+1e-9?" (fuera de su rango).":".") : "");
+}
+$("selSalt").addEventListener("change",()=>narrate1("salt"));
+$("sI").addEventListener("change",()=>narrate1("I"));
+$("sNaCl").addEventListener("change",()=>narrate2());
+$("sHCl").addEventListener("change",()=>narrate3a());
+$("sIK").addEventListener("change",()=>narrate3b());
+/* cualquier interacción marca el estado como «por redibujar» */
+for(const t of ["input","change","click","pointerdown","pointermove","keyup"])
+  document.addEventListener(t,()=>{ dirty=true; },true);
+
+/* ================= atribución protegida =================
+   La identidad del autor viaja codificada y se verifica en vivo:
+   si la barra de créditos se elimina o se altera, se reconstruye;
+   si está oculta y no puede verse, el simulador se pausa. */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML =
+    '<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+let last=performance.now(), nframe=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(++nframe%90===0) dirty=true;                 // red de seguridad: relectura periódica
+  const d=dirty; dirty=false;
+  if(state.tab===1){ drawG(); drawAtm(dt); }      // la atmósfera iónica está animada
+  else if(d){
+    if(state.tab===2){ drawAnchor(); drawPH(); }
+    else { drawD(); drawS(); }
+  }
+  if(d) updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+$("salt-nota").textContent=SALTS.nacl.nota;
+selectTab(1);
+narrate3a(); narrate3b();
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio.
+   Con pestañas: el muelle muestra solo las filas de la pestaña activa; en la pestaña 3, que
+   tiene dos figuras, las de la figura que está a la vista. */
+(function(){
+  const fila=id=>$(id).closest(".row");
+  const DOCK_ROWS = [
+    {g:"1",  el:fila("selSalt")}, {g:"1",  el:fila("sI")},
+    {g:"2",  el:fila("sNaCl")},   {g:"2",  el:$("rowPrac")},
+    {g:"3a", el:fila("sHCl")},    {g:"3a", el:$("rowAB")},
+    {g:"3b", el:fila("sIK")},     {g:"3b", el:$("rowModel")}
+  ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(({el,g})=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph,g}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  let grupo="";
+  function grupoActivo(){
+    if(state.tab!==3) return String(state.tab);
+    /* pestaña 3: el muelle sigue a la figura más cercana al centro de la zona visible */
+    const centro=(window.innerHeight-(dock.hidden?0:dock.offsetHeight))/2;
+    const d=id=>{ const r=$(id).getBoundingClientRect(); return Math.abs((r.top+r.bottom)/2-centro); };
+    const da=d("cvD"), db=d("cvS");
+    if(grupo==="3a") return db<da-40 ? "3b" : "3a";
+    if(grupo==="3b") return da<db-40 ? "3a" : "3b";
+    return db<da ? "3b" : "3a";
+  }
+  function apply(){
+    if(mq.matches){
+      grupo=grupoActivo();
+      homes.forEach(h=>{ if(h.g===grupo) body.appendChild(h.el); else h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling); });
+      dock.hidden=false; document.body.classList.add("has-dock");
+    }
+    else{ grupo=""; homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    /* el encabezado de un bloque cuyos controles están en el muelle se oculta mientras tanto */
+    document.querySelectorAll("[data-dock-hide]").forEach(el=>{ el.hidden = mq.matches && el.dataset.dockHide===grupo; });
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  let pend=false;
+  window.addEventListener("scroll",()=>{
+    if(pend||!mq.matches||state.tab!==3) return;
+    pend=true;
+    requestAnimationFrame(()=>{ pend=false; if(mq.matches && state.tab===3 && grupoActivo()!==grupo) apply(); });
+  },{passive:true});
+  dockApply=apply;
+  apply();
+})();
+</script>
+</body>
+</html>

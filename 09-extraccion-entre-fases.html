@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  El embudo de separación — Reparto entre fases (U3 · 3.7)
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401. Se permite su uso en el aula
+  citando al autor. Prohibido redistribuir sin la atribución visible.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>El embudo de separación · QUI3401</title>
+<!-- rev: uso en teléfono (lienzos adaptables + muelle de controles) + escalera «lo que queda en el agua» -->
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+    --navy:#1e3a5f; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#785082;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{background:var(--page);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);background-size:22px 22px}
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(41,39,34,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09);container-type:inline-size}
+  .card h2{font-size:14px;margin:0 0 10px}
+  #rxn{font-size:17px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
+  .plot-caption{font-size:12px;color:var(--muted);margin:0 0 8px}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(120,80,130,.07);
+    border:1px solid rgba(120,80,130,.3);border-left:3px solid var(--accent);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  details.pista p b{color:var(--ink)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:2px 10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  canvas{display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface)}
+  #cvF{width:100%;height:300px}
+  #cvS{width:100%;height:230px}
+  #cvN{width:100%;height:230px;cursor:crosshair;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+  /* las dos gráficas van lado a lado cuando la tarjeta tiene ancho de sobra; en teléfono, apiladas */
+  @container (min-width:640px){
+    .plots2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;
+      grid-auto-flow:column;column-gap:14px}
+    .plots2 .sec-head{align-self:end}
+  }
+  .plots2 .cap-s{margin:6px 0 0;color:var(--ink2)}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px;white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(41,39,34,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(41,39,34,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer;touch-action:manipulation}
+  .btn:hover{background:#f2eee4}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .btns.acts{row-gap:12px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .stat.hi{border-left-color:var(--accent);background:rgba(120,80,130,.06)}
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:minmax(0,1fr)}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain b{color:var(--ink)}
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(245,241,232,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(41,39,34,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+
+  /* --- Teléfono y pantallas táctiles --- */
+  @media (max-width:960px),(pointer:coarse){
+    .btn{min-height:40px}
+    details.pista summary{padding:6px 0}
+  }
+  @media (pointer:coarse){
+    input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+    input[type=range]::-moz-range-thumb{width:19px;height:19px}
+  }
+  @media (max-width:720px){
+    .page{padding:16px 14px 10px}
+    .card{padding:12px 12px}
+    .topnav{margin-bottom:12px}
+    .topnav .tn-course{font-size:13px;text-align:right}
+    #cvF{height:310px}
+    #cvS,#cvN{height:224px}
+  }
+  /* dentro del muelle: fila compacta de acciones con rótulos cortos */
+  .dock-body .btn-more{display:none}
+  .dock-body .btns .btn{flex:1 1 0;min-height:40px;padding:6px 10px}
+  .dock-body .row label.top{margin-bottom:0;line-height:1.2}
+  .dock-body .row label.top sub{line-height:0}
+
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 3</p>
+    <h1>El embudo de separación</h1>
+    <p class="sub">Tienes un soluto disuelto en agua y un volumen fijo de disolvente orgánico.
+      La pregunta del ingeniero: ¿<b>una extracción grande o varias pequeñas</b>? El reparto
+      K<sub>D</sub> = c<sub>org</sub>/c<sub>ac</sub> decide en cada sacudida — y la respuesta
+      tiene moraleja, fórmula y límite.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+    <section class="card hero">
+      <p id="rxn">S(ac) ⇌ S(org) · K<sub>D</sub> = c<sub>org</sub>/c<sub>ac</sub></p>
+      <p class="plot-caption">El embudo agita, reparte según K<sub>D</sub>, y drena la fase orgánica
+        al vaso de recuperado. Cada punto morado es soluto.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Elige K<sub>D</sub>, el disolvente total y en cuántas porciones lo divides.</li>
+          <li>Pulsa «Extraer»: mira cada sacudida repartir y cada drenado cosechar.</li>
+          <li>Lee en la escalera cuánto soluto queda en el agua después de cada porción.</li>
+          <li>Compara en la gráfica el % recuperado contra el número de porciones.</li>
+          <li>Usa el reto para apostar el % antes de correr la secuencia.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr" aria-live="polite">Ajusta la estrategia y pulsa «🧪 Extraer» — o anticipa el resultado con el reto.</div>
+
+      <div class="sec-head">El embudo y el vaso de recuperado
+        <span class="s-sub">fase orgánica arriba (ámbar) · acuosa abajo (azul) · soluto en morado</span></div>
+      <canvas id="cvF" role="img" aria-label="Embudo de separación con dos fases y el soluto repartiéndose; junto a él, el vaso que acumula lo extraído"></canvas>
+
+      <div class="plots2">
+        <div class="sec-head">¿Por qué gana fraccionar? Lo que queda en el agua, porción por porción
+          <span class="s-sub">mismo disolvente total · un escalón por porción</span></div>
+        <canvas id="cvS" role="img" aria-label="Gráfica en escalera: porcentaje del soluto que queda en el agua contra el disolvente orgánico usado, para una sola extracción con todo el disolvente y para n porciones iguales"></canvas>
+        <p class="plot-caption cap-s" id="capS"></p>
+
+        <div class="sec-head">La estrategia: % recuperado vs número de porciones
+          <span class="s-sub">mismo disolvente total · la línea punteada es el límite n → ∞</span></div>
+        <canvas id="cvN" role="img" aria-label="Curva del porcentaje recuperado contra el número de porciones, con su límite asintótico"></canvas>
+      </div>
+
+      <p class="modelnote">Modelo: reparto ideal S(ac) ⇌ S(org) con K<sub>D</sub> constante
+        (dilución ideal, sin asociación en ninguna fase). Tras cada porción de volumen V<sub>org</sub>/n,
+        queda en agua la fracción f = V<sub>ac</sub>/(V<sub>ac</sub> + K<sub>D</sub>·V<sub>org</sub>/n);
+        tras n porciones, f<sup>n</sup>. V<sub>ac</sub> = 100 mL.</p>
+    </section>
+
+    <aside class="card">
+      <h2>Estrategia</h2>
+      <div class="row">
+        <label class="top" for="sKD"><span>Coeficiente de reparto K<sub>D</sub></span> <span class="val" id="vKD">4.0</span></label>
+        <input type="range" id="sKD" min="0" max="1.7" step="0.01" value="0.6">
+      </div>
+      <div class="row">
+        <label class="top" for="sV"><span>Disolvente orgánico total</span> <span class="val" id="vV">100 mL</span></label>
+        <input type="range" id="sV" min="50" max="200" step="10" value="100">
+      </div>
+      <div class="row">
+        <label class="top" for="sN"><span>Porciones n</span> <span class="val" id="vN">4 × 25 mL</span></label>
+        <input type="range" id="sN" min="1" max="8" step="1" value="4">
+      </div>
+      <div class="btns acts" id="actRow">
+        <button type="button" class="btn btn-primary" id="bRun">🧪 Extraer<span class="btn-more"> (secuencia animada)</span></button>
+        <button type="button" class="btn" id="bDuel" title="Corre en paralelo 1 porción grande contra tus n pequeñas — mismo disolvente total">⚔️ Duelo<span class="btn-more">: 1 grande vs n pequeñas</span></button>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn" id="bChallenge" title="Predice el % recuperado antes de correr">🎯 Reto: predice el %</button>
+        <button type="button" class="btn" id="bReset">Reiniciar</button>
+      </div>
+
+      <h2>Lecturas</h2>
+      <div class="stats">
+        <div class="stat" title="Fracción que queda en agua tras cada porción"><div class="k">f por porción</div><div class="v" id="rF">—</div></div>
+        <div class="stat hi" title="Recuperado con TU estrategia: 1 − f^n"><div class="k">% con n porciones</div><div class="v" id="rPn">—</div></div>
+        <div class="stat" title="Lo que lograrías con una sola extracción del total"><div class="k">% con 1 porción</div><div class="v" id="rP1">—</div></div>
+        <div class="stat" title="El techo teórico con infinitas porciones: 1 − e^(−KD·Vorg/Vac)"><div class="k">Límite n → ∞</div><div class="v" id="rPinf">—</div></div>
+        <div class="stat" title="Ventaja de fraccionar frente a una sola extracción"><div class="k">Ganancia vs 1</div><div class="v" id="rGan">—</div></div>
+        <div class="stat" title="Estado de la secuencia animada"><div class="k">Porción en curso</div><div class="v" id="rEt">—</div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li><b>El reparto es un equilibrio:</b> en cada sacudida el soluto se distribuye hasta que
+            c<sub>org</sub>/c<sub>ac</sub> = K<sub>D</sub>. Es la versión entre fases de las K
+            que ya conoces.</li>
+        <li><b>La fórmula del embudo:</b> con una porción V<sub>p</sub>, queda en agua
+            f = V<sub>ac</sub>/(V<sub>ac</sub> + K<sub>D</sub>V<sub>p</sub>). Encadenando n porciones:
+            queda f<sup>n</sup> — el producto de fracciones es la clave.</li>
+        <li><b>Muchas pequeñas ganan:</b> con K<sub>D</sub> = 4 y 100 mL, una extracción saca 80 %;
+            cuatro de 25 mL sacan 93.75 %. Mismo disolvente, mejor química.</li>
+        <li><b>La escalera lo muestra porción por porción:</b> cada porción retira la misma fracción
+            (1 − f) de lo que queda en el agua. Con K<sub>D</sub> = 4 y 4 × 25 mL queda
+            50 → 25 → 12.5 → 6.25 %, contra 20 % con una sola extracción de 100 mL.</li>
+        <li><b>Pero hay techo:</b> el límite n → ∞ es 1 − e^(−K<sub>D</sub>V<sub>org</sub>/V<sub>ac</sub>).
+            Fraccionar no es gratis (tiempo, pérdidas): los rendimientos decrecen.</li>
+        <li><b>Si la estrategia no alcanza,</b> cambia de arma: más disolvente o mejor disolvente
+            (mayor K<sub>D</sub>) — o extracción a contracorriente, la versión industrial.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>El clásico:</b> con K<sub>D</sub> = 4 y 100 mL, corre n = 1 y luego n = 4.
+            Verifica 80 % contra 93.75 %.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>n = 1: f = 100/(100+400) = 0.20 → 80 %. n = 4: f = 100/(100+100) = 0.5 por porción
+               → queda 0.5⁴ = 6.25 % → recuperas 93.75 %. Fraccionar reusa el «poder» de K<sub>D</sub>
+               en cada etapa.</p>
+          </details></li>
+        <li><b>Rendimientos decrecientes:</b> de n = 4 a n = 8, ¿cuánto ganas? ¿Vale la pena
+            lavar ocho veces?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Con K<sub>D</sub> = 4: de 93.75 % a ≈ 96.7 %, contra un límite de 98.2 %. Tres puntos
+               por duplicar el trabajo — en el laboratorio real, cada transferencia también pierde
+               producto. El óptimo práctico suele ser 2–4 porciones.</p>
+          </details></li>
+        <li><b>La misión imposible:</b> con K<sub>D</sub> = 2 y 100 mL, ¿qué n logra ≥ 95 %?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Ninguno: el límite n → ∞ es 1 − e^(−2) = 86.5 %. El dato que lo explica: con
+               V = V<sub>ac</sub> el límite es 1 − e^(−K<sub>D</sub>), así que 95 % exige
+               K<sub>D</sub> ≥ ln 20 = <span id="h3ln">3.0</span>. En general,
+               K<sub>D</sub> mínimo = (V<sub>ac</sub>/V)·ln[1/(1 − meta)], con la meta como fracción.
+               <span id="h3live"></span>
+               Cuando el techo no alcanza, la estrategia no es el problema — necesitas más disolvente,
+               otro disolvente (mayor K<sub>D</sub>) o un esquema a contracorriente.</p>
+          </details></li>
+        <li><b>¿Cuándo da igual?</b> Pon K<sub>D</sub> = 50. ¿Sigue importando fraccionar?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Casi no: una sola porción ya saca 98 %. Fraccionar brilla justo cuando K<sub>D</sub>
+               es mediano (1–10), que es el caso típico de las extracciones reales.</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución fue ocultada o eliminada. Recarga la página para restaurarla.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+const COLORS={ink:"#292722",ink2:"#565248",muted:"#918b7c",grid:"#e4ddcc",axis:"#d8cfb9",
+  surface:"#fcfcfb",blue:"#2a78d6",blueDeep:"#1c5cab",aqua:"#1baf7a",aquaDeep:"#0e7a54",
+  redText:"#c93636",violet:"#4a3aa7",accent:"#785082"};
+const Vac=100, NDOT=120;
+const NB_SINGLE=Math.round(NDOT*0.85), NB_DUEL=Math.round(NDOT*0.74*0.85);   // puntos de soluto por embudo
+const META=0.95;                                                             // meta del reto 3 (fracción recuperada)
+
+/* ================= estado ================= */
+const state={KD:4, V:100, n:4, aq:1, rec:0, org:0,           // fracciones de soluto
+  seq:null,                                                   // {stage,phase,clock}
+  duel:null,
+  challenge:null};
+const $=id=>document.getElementById(id);
+const setTxt=(el,s)=>{ if(el.textContent!==s) el.textContent=s; };   // no tocar el DOM si no cambia
+
+/* fórmulas del curso */
+const fPor=(KD,V,n)=>Vac/(Vac+KD*V/n);
+const pN=(KD,V,n)=>1-Math.pow(fPor(KD,V,n),n);
+const pInf=(KD,V)=>1-Math.exp(-KD*V/Vac);
+
+/* formatos */
+const fmtV=v=>String(+v.toFixed(2));                          // mL por porción: 25, 12.5, 33.33
+const pc1=x=>(100*x).toFixed(1), pc2=x=>(100*x).toFixed(2);
+function fmtPct(v,dec){                                        // % recortado; nunca «0» para un valor positivo
+  const s=String(+v.toFixed(dec));
+  return (+s===0 && v>0) ? "<"+String(Math.pow(10,-dec)) : s;
+}
+function supN(n){ const S={"1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸"}; return S[n]||("^"+n); }
+
+/* ================= secuencia animada ================= */
+function resetRun(){
+  state.seq=null; state.duel=null;
+  resetDots("S"); resetDots("L"); resetDots("R");
+  state.aq=1; state.org=0; state.rec=0;
+}
+function startSeq(){
+  if(state.challenge && !state.challenge.revealed){ ensureVisible(cvN,90); return; }
+  resetRun();
+  const f=fPor(state.KD,state.V,state.n);
+  state.org=state.aq*(1-f); state.aq*=f;      // el reparto ocurre DURANTE la sacudida (los puntos migran)
+  state.seq={stage:1, phase:"agitar", clock:0};
+  narrate("run");
+  ensureVisible(cvF);
+}
+function stepSeq(dt){
+  const s=state.seq; if(!s) return;
+  s.clock+=dt;
+  if(s.phase==="agitar" && s.clock>=1.2){
+    state.rec+=state.org; state.org=0;         // el drenado ocurre DURANTE separar (los puntos vuelan al vaso)
+    s.phase="separar"; s.clock=0;
+  } else if(s.phase==="separar" && s.clock>=1.1){
+    if(s.stage>=state.n){ state.seq=null; narrate("end"); }
+    else { s.stage++; s.phase="agitar"; s.clock=0;
+      const f=fPor(state.KD,state.V,state.n);
+      state.org=state.aq*(1-f); state.aq*=f; }
+  }
+}
+function mkRun(n){
+  const r={n, aq:1, org:0, rec:0, stage:1, phase:"agitar", clock:0, done:false};
+  const f=fPor(state.KD,state.V,n);
+  r.org=r.aq*(1-f); r.aq*=f;
+  return r;
+}
+function stepRunner(r,dt){
+  if(r.done) return;
+  r.clock+=dt;
+  if(r.phase==="agitar" && r.clock>=1.1){
+    r.rec+=r.org; r.org=0; r.phase="separar"; r.clock=0;
+  } else if(r.phase==="separar" && r.clock>=1.0){
+    if(r.stage>=r.n) r.done=true;
+    else { r.stage++; r.phase="agitar"; r.clock=0;
+      const f=fPor(state.KD,state.V,r.n);
+      r.org=r.aq*(1-f); r.aq*=f; }
+  }
+}
+function startDuel(){
+  if(state.challenge && !state.challenge.revealed){ ensureVisible(cvN,90); return; }
+  if(state.n<2){ const el=$("narr"); el.className="narr";
+    el.innerHTML="Para un duelo pon n ≥ 2: con n = 1 ambos embudos son idénticos."; ensureVisible(el); return; }
+  resetRun();
+  state.duel={L:mkRun(1), R:mkRun(state.n), ended:false};
+  narrate("duelo");
+  ensureVisible(cvF);
+}
+function stepDuel(dt){
+  const d=state.duel; if(!d) return;
+  stepRunner(d.L,dt); stepRunner(d.R,dt);
+  if(d.L.done && d.R.done && !d.ended){ d.ended=true; narrate("duelo-end"); }
+}
+
+/* ================= utilidades de lienzo ================= */
+/* cada lienzo se dibuja en px CSS a su tamaño real (sin estirar): el mapa de bits sigue al tamaño en pantalla */
+function fitCanvas(cv){
+  const w=Math.max(200,cv.clientWidth), h=Math.max(120,cv.clientHeight), d=window.devicePixelRatio||1;
+  const bw=Math.round(w*d), bh=Math.round(h*d);
+  if(cv.width!==bw) cv.width=bw;
+  if(cv.height!==bh) cv.height=bh;
+  return [w,h,d];
+}
+function haloText(ctx,txt,x,y){ ctx.save(); ctx.lineJoin="round"; ctx.lineWidth=3; ctx.strokeStyle="rgba(252,252,251,.92)"; ctx.strokeText(txt,x,y); ctx.restore(); ctx.fillText(txt,x,y); }
+function wrapText(ctx,text,maxW){
+  const lines=[]; let cur="";
+  for(const w of text.split(" ")){
+    const t=cur?cur+" "+w:w;
+    if(cur && ctx.measureText(t).width>maxW){ lines.push(cur); cur=w; } else cur=t;
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
+function fillLines(ctx,lines,x,yMid,lh){ lines.forEach((t,i)=>haloText(ctx,t,x,yMid+(i-(lines.length-1)/2)*lh)); }
+/* lleva un elemento a la vista si quedó fuera (por encima del muelle de controles en teléfono) */
+function ensureVisible(el,lead){                  // lead: px que se dejan arriba (p. ej. para que se vea su encabezado)
+  const d=$("dock"), dh=(d && !d.hidden)?d.offsetHeight:0;
+  const r=el.getBoundingClientRect(), vh=window.innerHeight-dh;
+  if(r.top>=0 && r.bottom<=vh) return;
+  const calm=window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const top=Math.max(10,Math.min(lead||10,vh-r.height-10));
+  window.scrollBy({top:r.top-top, behavior:calm?"auto":"smooth"});
+}
+
+/* ================= embudo (canvas) ================= */
+const cvF=$("cvF"), fx=cvF.getContext("2d");
+let FW=700, FH=300, FDPR=1;
+new ResizeObserver(()=>{ [FW,FH,FDPR]=fitCanvas(cvF); }).observe(cvF);
+/* partículas que MIGRAN entre regiones (no se teletransportan) */
+const PSTORES={};
+function resetDots(id){ delete PSTORES[id]; }
+/* offsets estables por punto */
+const JIT=[...Array(NDOT)].map(()=>({a:Math.random(),b:Math.random(),p:Math.random()*6.283}));
+let wob=0;
+
+/* marca de agua (atribución del autor): en una línea si cabe; en dos si el lienzo es angosto */
+const WM_FONT="10.5px system-ui, sans-serif";
+function wmLines(ctx,W){
+  const c=_cd(); if(!c) return ["atribución requerida"];
+  const a="© "+c.y+" "+c.n, b="@"+c.ig.split("/").pop();
+  ctx.font=WM_FONT;
+  return ctx.measureText(a+" · "+b).width<=W-20 ? [a+" · "+b] : [a,b];
+}
+function drawWatermark(ctx,W,H){
+  const L=wmLines(ctx,W);
+  ctx.font=WM_FONT; ctx.fillStyle="rgba(145,139,124,.9)";
+  ctx.textAlign="right"; ctx.textBaseline="alphabetic";
+  L.forEach((t,i)=>ctx.fillText(t, W-10, H-8-(L.length-1-i)*13));
+}
+
+/* geometría de los embudos según el ancho y alto reales del lienzo:
+   · escritorio: igual que siempre (vaso a la derecha de cada embudo);
+   · lienzo angosto, un embudo: mismo arreglo, reducido a lo ancho y estirado a lo alto;
+   · lienzo angosto, duelo: dos columnas, cada embudo con su vaso DEBAJO (así caben sin encimarse). */
+function funnelLayout(){
+  const bottom=FH-(8+13*wmLines(fx,FW).length)-8;      // lo más bajo utilizable, por encima de la marca de agua
+  const side=(cx,top,sx,sy,NB)=>{ const W2=118*sx, mid=top+160*sy;
+    return {cx,top,mid,W2,Wm:16*sx,stemH:34*sy,sy,bx:cx+W2+56*sx,bw:88*sx,bt:mid-70*sy,bb:mid+40*sy,
+      below:false,NB,r:3.2,maxW:2*W2-12}; };
+  if(!state.duel){
+    const sx=Math.min(1,(FW-24)/336);
+    const sy=sx<1?Math.max(1,Math.min(1.25,(bottom-42)/200)):1;
+    const left=Math.max(12,Math.min(FW*0.30-118*sx,FW-12-336*sx));
+    return [side(left+118*sx,30,sx,sy,NB_SINGLE)];
+  }
+  const sD=0.74, W2d=118*sD, span=W2d+56*sD+44*sD;      // del eje del embudo al borde derecho de su vaso
+  if(FW>=2*(W2d+span)+40){
+    const cL=Math.max(12+W2d,FW*0.16);
+    const cR=Math.max(cL+span+16+W2d,Math.min(FW*0.60,FW-12-span));
+    return [side(cL,30,sD,sD,NB_DUEL), side(cR,30,sD,sD,NB_DUEL)];
+  }
+  const colW=FW/2, W2=Math.min(colW/2-8,92), top=28;
+  const bb=bottom-16, bt=bb-60, stemH=14, mid=bt-16-stemH;
+  const mk=cx=>({cx,top,mid,W2,Wm:Math.max(7,W2*0.13),stemH,sy:(mid-top)/160,bx:cx,bw:Math.min(2*W2*0.66,100),bt,bb,
+    below:true,NB:NB_DUEL,r:2.8,maxW:colW-10});
+  return [mk(colW/2), mk(colW*1.5)];
+}
+
+function drawF(dt){
+  wob+=dt*3;
+  fx.setTransform(FDPR,0,0,FDPR,0,0);
+  fx.clearRect(0,0,FW,FH);
+  const hide=state.challenge && !state.challenge.revealed;
+  const halo=(txt,x,y)=>haloText(fx,txt,x,y);
+  /* un embudo parametrizado por su geometría g: la capa orgánica escala con el volumen de la porción */
+  function funnel(g,run,nLbl,lblColor,jOff,hideRec,id,dtG){
+    const shaking=!run.done && run.phase==="agitar";
+    const sep=!run.done && run.phase==="separar";
+    const sh=shaking?Math.sin(wob*6)*4:0;                // se sacude el embudo; el vaso queda fijo
+    const cx=g.cx+sh, top=g.top, mid=g.mid, W2=g.W2, Wm=g.Wm, stemEnd=mid+g.stemH;
+    const Vp=state.V/run.n;
+    const orgH=Math.max(14,Math.min(88,(14+Vp*0.6)))*g.sy;
+    const halfW=yy=>Math.max(W2-(yy-top)*(W2-Wm)/(mid-top),Wm);   // semiancho interior del embudo a la altura yy
+    function path(){ fx.beginPath();
+      fx.moveTo(cx-W2,top); fx.lineTo(cx+W2,top);
+      fx.lineTo(cx+Wm,mid); fx.lineTo(cx+Wm,stemEnd);
+      fx.lineTo(cx-Wm,stemEnd); fx.lineTo(cx-Wm,mid); fx.closePath(); }
+    fx.save(); path(); fx.clip();
+    fx.fillStyle="rgba(237,161,0,.15)"; fx.fillRect(cx-W2-6,top,2*W2+12,orgH);
+    fx.fillStyle="rgba(42,120,214,.12)"; fx.fillRect(cx-W2-6,top+orgH,2*W2+12,stemEnd+6-top-orgH);
+    fx.restore();
+    path(); fx.strokeStyle=COLORS.axis; fx.lineWidth=2; fx.stroke();
+    fx.fillStyle=sep?COLORS.aquaDeep:COLORS.axis;
+    fx.fillRect(cx-Wm-8,stemEnd+3,2*Wm+16,6);
+    const bx=g.bx, bw=g.bw, bt=g.bt, bb=g.bb;
+    fx.strokeStyle=COLORS.axis; fx.lineWidth=2;
+    fx.beginPath(); fx.moveTo(bx-bw/2,bt); fx.lineTo(bx-bw/2,bb); fx.lineTo(bx+bw/2,bb); fx.lineTo(bx+bw/2,bt); fx.stroke();
+    fx.fillStyle="rgba(237,161,0,.16)";
+    fx.fillRect(bx-bw/2+2, bb-2-(bb-bt-8)*Math.min(1,run.rec+0.05), bw-4, (bb-bt-8)*Math.min(1,run.rec+0.05));
+    if(sep){ fx.strokeStyle="rgba(237,161,0,.7)"; fx.lineWidth=3; fx.setLineDash([5,5]);
+      fx.beginPath();
+      if(g.below){ fx.moveTo(cx,stemEnd+10); fx.lineTo(cx,bb-5); }
+      else { fx.moveTo(cx,stemEnd+6); fx.quadraticCurveTo(cx,bb+14,bx-8,bb-4); }
+      fx.stroke(); fx.setLineDash([]); }
+    /* interfase + anotación K_D (el reparto ES un equilibrio) */
+    fx.strokeStyle="rgba(41,39,34,.28)"; fx.setLineDash([4,3]); fx.lineWidth=1;
+    fx.beginPath(); fx.moveTo(cx-halfW(top+orgH)+3,top+orgH); fx.lineTo(cx+halfW(top+orgH)-3,top+orgH); fx.stroke(); fx.setLineDash([]);
+    /* partículas: posiciones objetivo por región (siempre dentro de las paredes), con migración suave */
+    const NB=g.NB;
+    const nOrg=Math.round(run.org*NB), nRec=Math.round(run.rec*NB);
+    const nAq=Math.max(0,NB-nOrg-nRec);
+    function posOf(reg,j){
+      if(reg==="org"){ const yy=top+5+j.b*Math.max(orgH-10,4), w=halfW(yy);
+        return [g.cx-w+7+j.a*Math.max(2*w-14,6), yy]; }
+      if(reg==="aq"){ const yy=top+orgH+5+j.b*Math.max(mid-top-orgH-8,6), w=halfW(yy);
+        return [g.cx-w+7+j.a*Math.max(2*w-14,6), yy]; }
+      return [bx-bw/2+7+j.a*(bw-14), bb-7-j.b*(bb-bt-14)*Math.min(1,run.rec+0.05)];
+    }
+    if(!PSTORES[id] || PSTORES[id].length!==NB){
+      PSTORES[id]=[...Array(NB)].map((_,k)=>{
+        const j=JIT[(k+jOff)%NDOT], q=posOf("aq",j);
+        return {j, reg:"aq", x:q[0], y:q[1], fl:0};
+      });
+    }
+    const st=PSTORES[id];
+    /* retag: mover excedentes hacia regiones con déficit (con destello) */
+    const want={org:nOrg, aq:nAq, rec:nRec};
+    const have={org:0, aq:0, rec:0};
+    for(const p of st) have[p.reg]++;
+    for(const from of ["aq","org","rec"]){
+      for(const to of ["org","rec","aq"]){
+        while(have[from]>want[from] && have[to]<want[to]){
+          const p=st.find(q=>q.reg===from);
+          p.reg=to; p.fl=1; p.via=(to==="rec" && g.below)?0:2; have[from]--; have[to]++;
+        }
+      }
+    }
+    /* mover y dibujar */
+    for(const p of st){
+      let t=posOf(p.reg,p.j), k=3.2;
+      /* vaso debajo del embudo: lo drenado baja por el vástago (cuello → salida → vaso), no a través de la pared */
+      if(p.reg==="rec" && p.via<2){
+        const xs=g.cx+(p.j.a-0.5)*Wm;
+        if(p.via===0){ if(p.y>mid-6) p.via=1; else { t=[xs,mid+6]; k=8; } }
+        if(p.via===1){ if(p.y>stemEnd+8) p.via=2; else { t=[xs,stemEnd+14]; k=8; } }
+        if(p.via===2) k=5;
+      }
+      p.x+=(t[0]-p.x)*Math.min(1,dtG*k);
+      p.y+=(t[1]-p.y)*Math.min(1,dtG*k);
+      const wx=p.x+(p.reg!=="rec"?sh:0);
+      const wy=p.y+Math.sin(wob+p.j.p)*((p.reg!=="rec"&&shaking)?3:1);
+      if(p.fl>0){ p.fl=Math.max(0,p.fl-dtG*1.6);
+        fx.beginPath(); fx.arc(wx,wy,g.r+2+(1-p.fl)*(g.below?5:8),0,7);
+        fx.strokeStyle="rgba(237,161,0,"+(p.fl*0.55).toFixed(3)+")";
+        fx.lineWidth=2; fx.stroke(); }
+      fx.beginPath(); fx.arc(wx,wy,g.r,0,7);
+      fx.fillStyle=COLORS.violet; fx.fill();
+      fx.lineWidth=1; fx.strokeStyle="#fff"; fx.stroke();
+    }
+    /* etiquetas con halo, ENCIMA de los puntos */
+    fx.font="700 11px system-ui, sans-serif"; fx.textAlign="center"; fx.textBaseline="top";
+    fx.fillStyle=lblColor;
+    halo(nLbl, g.cx, 6);
+    fx.fillStyle=COLORS.ink2;
+    const recTxt="rec: "+(hideRec?"?":pc2(run.rec)+" %");
+    if(g.below) halo(recTxt, bx, bb+5); else halo(recTxt, bx, bt-16);
+    /* rótulos dentro del embudo: sobre una placa clara, para que se lean aunque haya puntos debajo */
+    const plate=(t,x,y)=>{ const tw=fx.measureText(t).width;
+      fx.save(); fx.fillStyle="rgba(252,252,251,.84)"; fx.beginPath();
+      if(fx.roundRect) fx.roundRect(x-tw/2-5,y-2,tw+10,14,4); else fx.rect(x-tw/2-5,y-2,tw+10,14);
+      fx.fill(); fx.restore(); fx.fillText(t,x,y); };
+    fx.font="600 10px system-ui, sans-serif"; fx.fillStyle=COLORS.ink2;
+    const tV=fmtV(Vp)+" mL por porción";
+    if(run.org>0.004) plate(tV, cx, top+3); else halo(tV, cx, top+3);
+    if(run.org>0.004){
+      fx.font="700 10px system-ui, sans-serif"; fx.fillStyle=COLORS.accent;
+      let t="c_org/c_ac = "+state.KD.toFixed(1)+" = K_D ✓";
+      if(fx.measureText(t).width>g.maxW) t="c_org/c_ac = K_D ✓";
+      plate(t, cx, top+orgH+3);
+    }
+  }
+  const G=funnelLayout();
+  if(state.duel){
+    /* los títulos llevan el color de su serie en la escalera */
+    funnel(G[0], state.duel.L, "1 porción grande", COLORS.blueDeep, 0, false, "L", dt);
+    funnel(G[1], state.duel.R, state.duel.R.n+" pequeñas", COLORS.accent, 37, false, "R", dt);
+  } else {
+    const pseudo={n:state.n, aq:state.aq, org:state.org, rec:state.rec,
+      phase:state.seq?state.seq.phase:"", done:!state.seq};
+    funnel(G[0], pseudo, "embudo de separación", COLORS.ink2, 0, hide, "S", dt);
+  }
+  drawWatermark(fx,FW,FH);
+}
+
+/* ================= escalera: lo que queda en el agua, porción por porción ================= */
+const cvS=$("cvS"), sc=cvS.getContext("2d");
+let SW=340, SH=230, SDPR=1;
+new ResizeObserver(()=>{ [SW,SH,SDPR]=fitCanvas(cvS); }).observe(cvS);
+const SM={l:44,r:60,t:28,b:38};
+
+function drawS(){
+  const V=state.V, n=state.n;
+  const x0=SM.l, x1=SW-SM.r, y0=SM.t, y1=SH-SM.b, stub=10;
+  const X=v=>x0+v/V*(x1-x0), Y=q=>y0+(1-q)*(y1-y0);     // v: mL usados · q: fracción que queda en el agua
+  const seg=(xa,ya,xb,yb)=>{ sc.beginPath(); sc.moveTo(xa,ya); sc.lineTo(xb,yb); sc.stroke(); };
+  sc.setTransform(SDPR,0,0,SDPR,0,0);
+  sc.clearRect(0,0,SW,SH);
+  sc.lineJoin="round"; sc.lineCap="butt"; sc.globalAlpha=1;
+  /* rejilla y eje y */
+  sc.font="10px system-ui, sans-serif"; sc.lineWidth=1;
+  sc.textAlign="right"; sc.textBaseline="middle";
+  for(let q=0;q<=1.001;q+=0.25){
+    sc.strokeStyle=COLORS.grid; seg(x0,Y(q),x1,Y(q));
+    sc.fillStyle=COLORS.muted; sc.fillText((100*q).toFixed(0), x0-6, Y(q));
+  }
+  /* eje x: una marca por porción; se rotulan las que caben */
+  const stepPx=(x1-x0)/n, every=Math.max(1,Math.ceil(36/stepPx));
+  sc.textAlign="center"; sc.textBaseline="top"; sc.strokeStyle=COLORS.axis;
+  for(let k=0;k<=n;k++){
+    const xk=X(k*V/n);
+    seg(xk,y1,xk,y1+4);
+    if(k===n || (k%every===0 && (n-k)*stepPx>=30)) sc.fillText(fmtV(k*V/n), xk, y1+7);
+  }
+  sc.strokeStyle=COLORS.axis; sc.lineWidth=1.2;
+  sc.beginPath(); sc.moveTo(x0,y0); sc.lineTo(x0,y1); sc.lineTo(x1,y1); sc.stroke();
+  /* títulos de ejes */
+  sc.fillStyle=COLORS.ink2; sc.font="600 10.5px system-ui, sans-serif";
+  sc.textAlign="center"; sc.textBaseline="alphabetic";
+  sc.fillText("disolvente orgánico usado (mL)", (x0+x1)/2, SH-7);
+  sc.save(); sc.translate(12,(y0+y1)/2); sc.rotate(-Math.PI/2); sc.textBaseline="middle";
+  sc.fillText("% que queda en el agua", 0, 0); sc.restore();
+
+  if(state.challenge && !state.challenge.revealed){
+    sc.fillStyle=COLORS.muted; sc.font="700 11px system-ui, sans-serif";
+    sc.textAlign="center"; sc.textBaseline="middle";
+    fillLines(sc, wrapText(sc,"🎯 oculta durante el reto", x1-x0-16),
+      (x0+x1)/2, (Y(0.5)+Y(0.25))/2, 15);
+    return;
+  }
+
+  const f=fPor(state.KD,V,n), f1=fPor(state.KD,V,1), lvl=k=>Math.pow(f,k);
+  /* progreso de la secuencia: cur = porción en curso de la serie fraccionada */
+  let cur=0, running=false, bigRun=false;
+  if(state.seq){ cur=state.seq.stage; running=true; }
+  else if(state.duel){
+    if(!state.duel.R.done && state.duel.R.n===n){ cur=state.duel.R.stage; running=true; }
+    bigRun=!state.duel.L.done;
+  }
+  /* leyenda (arriba, fuera del área de trazado) */
+  sc.font="700 10.5px system-ui, sans-serif"; sc.textAlign="left"; sc.textBaseline="middle";
+  let lx=x0;
+  sc.strokeStyle=COLORS.blue; sc.lineWidth=2; sc.setLineDash([6,4]); seg(lx,13,lx+22,13); sc.setLineDash([]);
+  const t1="1 × "+V+" mL";
+  sc.fillStyle=COLORS.blueDeep; sc.fillText(t1, lx+27, 13.5);
+  lx+=27+sc.measureText(t1).width+14;
+  sc.strokeStyle=COLORS.accent; sc.lineWidth=2.4; seg(lx,13,lx+22,13);
+  sc.fillStyle=COLORS.accent; sc.fillText(n>1?(n+" × "+fmtV(V/n)+" mL"):"n = 1: misma curva", lx+27, 13.5);
+
+  /* banda de la porción en curso */
+  if(running && cur>=1 && cur<=n){
+    sc.fillStyle="rgba(120,80,130,.10)";
+    sc.fillRect(X((cur-1)*V/n), y0, X(cur*V/n)-X((cur-1)*V/n), y1-y0);
+  }
+  /* serie «n × V/n mL»: escalón en cada k·V/n hasta 100·f^k */
+  sc.lineCap="round";
+  for(let k=1;k<=n;k++){
+    const st=!running?"hecha":k<cur?"hecha":k===cur?"curso":"pendiente";
+    sc.globalAlpha=st==="pendiente"?0.3:1;
+    sc.strokeStyle=COLORS.accent; sc.lineWidth=st==="curso"?4:2.4;
+    sc.beginPath(); sc.moveTo(X((k-1)*V/n),Y(lvl(k-1))); sc.lineTo(X(k*V/n),Y(lvl(k-1))); sc.lineTo(X(k*V/n),Y(lvl(k)));
+    if(k===n) sc.lineTo(X(V)+stub,Y(lvl(n)));
+    sc.stroke();
+  }
+  sc.globalAlpha=1; sc.lineCap="butt";
+  /* serie «1 × V mL»: 100 % hasta x = V y ahí cae a 100·f1 */
+  sc.strokeStyle=COLORS.blue; sc.lineWidth=bigRun?3.6:2; sc.setLineDash([6,4]);
+  sc.beginPath(); sc.moveTo(X(0),Y(1)); sc.lineTo(X(V),Y(1)); sc.lineTo(X(V),Y(f1)); sc.stroke();
+  sc.setLineDash([]);
+  sc.lineWidth=2; seg(X(V),Y(f1),X(V)+stub,Y(f1));
+  /* marcas al pie de cada escalón */
+  for(let k=1;k<=n;k++){
+    const pend=running && k>cur, now=running && k===cur;
+    sc.globalAlpha=pend?0.3:1;
+    sc.beginPath(); sc.arc(X(k*V/n),Y(lvl(k)),now?4.6:3,0,7);
+    sc.fillStyle=COLORS.accent; sc.fill(); sc.lineWidth=1.2; sc.strokeStyle="#fff"; sc.stroke();
+  }
+  sc.globalAlpha=1;
+  sc.beginPath(); sc.arc(X(V),Y(f1),3.4,0,7); sc.fillStyle="#fff"; sc.fill();
+  sc.lineWidth=2; sc.strokeStyle=COLORS.blue; sc.stroke();
+
+  /* rótulo de cada escalón: sobre su peldaño (o debajo si arriba no cabe), sin encimar otros rótulos.
+     Todos con los mismos decimales: los más que quepan. Los que redondean a cero se rotulan una sola vez. */
+  sc.font="700 10.5px system-ui, sans-serif";
+  function layoutLabels(dec){
+    const placed=[]; let ok=true, zeroShown=false;
+    const hits=a=>placed.some(b=>a.x0<b.x1+4 && a.x1>b.x0-4 && a.y0<b.y1 && a.y1>b.y0);   // 4 px de aire entre vecinos
+    for(let k=1;k<n;k++){
+      const xa=X(k*V/n), xb=X((k+1)*V/n), yk=Y(lvl(k));
+      const t=fmtPct(100*lvl(k),dec), w=sc.measureText(t).width, zero=t.charAt(0)==="<";
+      if(zero && zeroShown) continue;
+      const A={k,t,x0:xa+5,x1:xa+5+w,y0:yk-16,y1:yk-3,al:"left",bl:"alphabetic",tx:xa+5,ty:yk-5};     // encima del peldaño
+      const B={k,t,x0:xb-5-w,x1:xb-5,y0:yk+4,y1:yk+17,al:"right",bl:"top",tx:xb-5,ty:yk+6};           // debajo del peldaño
+      if(A.y0>=Y(1)+4 && A.x1<=X(V)-4 && !hits(A)){ placed.push(A); if(zero) zeroShown=true; }
+      else if(B.y1<=y1-2 && B.x0>=x0+3 && !hits(B)){ placed.push(B); if(zero) zeroShown=true; }
+      else if(!zero) ok=false;
+    }
+    return {ok,placed};
+  }
+  let lab=null;
+  for(const dec of [2,1,0]){ lab=layoutLabels(dec); if(lab.ok) break; }
+  sc.fillStyle=COLORS.accent;
+  for(const L of lab.placed){
+    sc.globalAlpha=(running && L.k>cur)?0.4:1;
+    sc.textAlign=L.al; sc.textBaseline=L.bl; haloText(sc,L.t,L.tx,L.ty);
+  }
+  sc.globalAlpha=1;
+  /* valores finales, a la derecha de x = V */
+  sc.font="700 11px system-ui, sans-serif"; sc.textAlign="left"; sc.textBaseline="middle";
+  let yA=Y(f1), yB=Y(lvl(n));
+  if(n>1 && yB-yA<13){ const m=(yA+yB)/2; yA=m-6.5; yB=m+6.5; }
+  if(yB>y1){ yA-=yB-y1; yB=y1; }
+  if(n>1){ sc.fillStyle=COLORS.blueDeep; haloText(sc, fmtPct(100*f1,2)+"%", X(V)+stub+4, yA); }
+  sc.globalAlpha=(running && cur<n)?0.4:1;
+  sc.fillStyle=COLORS.accent; haloText(sc, fmtPct(100*lvl(n),2)+"%", X(V)+stub+4, n>1?yB:yA);
+  sc.globalAlpha=1;
+}
+/* pie de la escalera */
+function stairCaption(){
+  if(state.challenge && !state.challenge.revealed)
+    return "Oculta mientras el reto esté activo: primero marca tu predicción en la gráfica de % recuperado.";
+  const n=state.n, inv=1+state.KD*state.V/(n*Vac), inv1=1+state.KD*state.V/Vac;
+  const isInt=x=>Math.abs(x-Math.round(x))<1e-9, sig3=x=>String(+x.toPrecision(3));
+  const frac=isInt(inv) && isInt(inv1) && Math.pow(inv,n)<1e7;
+  if(n===1) return "Con n = 1 las dos estrategias coinciden: queda "
+    +(isInt(inv1)?"1/"+Math.round(inv1):sig3(1/inv1))+" del soluto en el agua.";
+  const q=Math.pow(1/inv,n);
+  const a=frac?"(1/"+Math.round(inv)+")"+supN(n):(1/inv).toFixed(3)+supN(n);
+  const b=frac?" = 1/"+Math.round(Math.pow(inv,n)):(q<1e-4?" < 0.0001":" = "+sig3(q));
+  const c=frac?"1/"+Math.round(inv1):sig3(1/inv1);
+  return "Cada porción se lleva la misma fracción de lo que queda en el agua: "+a+b+" es menos que "+c+".";
+}
+
+/* ================= gráfica % vs n ================= */
+const cvN=$("cvN"), nx=cvN.getContext("2d");
+let NW=700, NH=230, NDPR=1;
+new ResizeObserver(()=>{ [NW,NH,NDPR]=fitCanvas(cvN); }).observe(cvN);
+const NM={l:46,r:16,t:20,b:36};
+
+function drawN(){
+  const X=n=>NM.l+(n-1)/7*(NW-NM.l-NM.r);
+  const Y=p=>NM.t+(1-p)*(NH-NM.t-NM.b);
+  nx.setTransform(NDPR,0,0,NDPR,0,0);
+  nx.clearRect(0,0,NW,NH);
+  nx.font="10px system-ui, sans-serif";
+  nx.strokeStyle=COLORS.grid; nx.lineWidth=1;
+  nx.fillStyle=COLORS.muted; nx.textAlign="right"; nx.textBaseline="middle";
+  for(let p=0;p<=1.001;p+=0.25){
+    nx.beginPath(); nx.moveTo(NM.l,Y(p)); nx.lineTo(NW-NM.r,Y(p)); nx.stroke();
+    nx.fillText((100*p).toFixed(0)+"%", NM.l-6, Y(p));
+  }
+  nx.textAlign="center"; nx.textBaseline="top";
+  for(let n=1;n<=8;n++){ nx.fillText(n, X(n), NH-NM.b+6); }
+  nx.strokeStyle=COLORS.axis; nx.lineWidth=1.2;
+  nx.beginPath(); nx.moveTo(NM.l,NM.t); nx.lineTo(NM.l,NH-NM.b); nx.lineTo(NW-NM.r,NH-NM.b); nx.stroke();
+  nx.fillStyle=COLORS.ink2; nx.font="600 10.5px system-ui, sans-serif";
+  nx.textAlign="left"; nx.textBaseline="alphabetic";
+  nx.fillText("porciones n (mismo disolvente total)", NM.l, NH-7);
+  const hide=state.challenge && !state.challenge.revealed;
+  const guessed=state.challenge && state.challenge.guess!=null;
+  /* límite n→∞ */
+  const lim=pInf(state.KD,state.V);
+  nx.strokeStyle=COLORS.ink; nx.setLineDash([6,4]); nx.lineWidth=1.3;
+  nx.beginPath(); nx.moveTo(NM.l,Y(lim)); nx.lineTo(NW-NM.r,Y(lim)); nx.stroke(); nx.setLineDash([]);
+  nx.fillStyle=COLORS.ink2; nx.font="700 10px system-ui, sans-serif";
+  nx.textAlign="right"; nx.textBaseline="bottom";
+  nx.fillText("límite n→∞ = "+pc1(lim)+"%", NW-NM.r-12, Y(lim)-3);
+  /* curva % vs n */
+  if(!hide){
+    nx.strokeStyle=COLORS.accent; nx.lineWidth=2.2;
+    nx.beginPath();
+    for(let n=1;n<=8;n++){ const x=X(n), y=Y(pN(state.KD,state.V,n)); n===1?nx.moveTo(x,y):nx.lineTo(x,y); }
+    nx.stroke();
+    for(let n=1;n<=8;n++){
+      nx.beginPath(); nx.arc(X(n),Y(pN(state.KD,state.V,n)), n===state.n?5.5:3.5, 0, 7);
+      nx.fillStyle=n===state.n?COLORS.accent:"#fff"; nx.fill();
+      nx.lineWidth=1.8; nx.strokeStyle=COLORS.accent; nx.stroke();
+    }
+    /* anotación que enseña: debajo de la curva, donde nunca hay trazo (la curva solo sube hacia la derecha) */
+    if(!guessed){
+      nx.fillStyle=COLORS.accent; nx.font="700 10px system-ui, sans-serif";
+      nx.textAlign="left"; nx.textBaseline="top";
+      nx.fillText("muchas pequeñas > una grande", X(1)+10, Y(pN(state.KD,state.V,1))+13);
+    }
+  } else {
+    nx.fillStyle=COLORS.muted; nx.font="700 11px system-ui, sans-serif";
+    nx.textAlign="center"; nx.textBaseline="middle";
+    fillLines(nx, wrapText(nx,"🎯 curva oculta: toca la gráfica a la altura del % que predices para n = "+state.n, NW-NM.l-NM.r-16),
+      (NM.l+NW-NM.r)/2, (Y(0.5)+Y(0.25))/2, 15);
+  }
+  /* predicción y resultado */
+  if(guessed){
+    const g=state.challenge.guess, real=pN(state.KD,state.V,state.n);
+    nx.strokeStyle=COLORS.violet; nx.setLineDash([4,3]); nx.lineWidth=1.6;
+    nx.beginPath(); nx.moveTo(NM.l,Y(g)); nx.lineTo(NW-NM.r,Y(g)); nx.stroke(); nx.setLineDash([]);
+    nx.fillStyle=COLORS.violet; nx.font="700 10px system-ui, sans-serif";
+    const tg="tu predicción: "+(100*g).toFixed(0)+"%", tw=nx.measureText(tg).width;
+    const tr="real: "+pc2(real)+"% · error: "+(100*Math.abs(g-real)).toFixed(2)+" pts";
+    /* el rótulo de la predicción va en la esquina de su línea donde no pisa la curva, el rótulo del límite ni el resultado */
+    const xL=NM.l+5, xR=NW-NM.r-6, yBot=NH-NM.b;
+    const yr=(Y(g)>yBot-24)?Y(g)-6:yBot-7;                                          // «real: …» nunca sobre la línea de la predicción
+    const boxes=[[xR-6-110,Y(lim)-16,xR,Y(lim)-2],[xR-175,yr-13,xR,yr+1]];          // límite n→∞ · «real: …»
+    const clash=(xa,ya)=>{ const xb=xa+tw, yb=ya+12;
+      if(ya<2 || yb>yBot-2) return true;
+      if(boxes.some(b=>xa<b[2] && xb>b[0] && ya<b[3] && yb>b[1])) return true;
+      for(let q=1;q<=8;q+=0.125){ const a=Math.floor(q), b=Math.min(8,a+1), fr=q-a;
+        const px=X(q), py=Y(pN(state.KD,state.V,a))*(1-fr)+Y(pN(state.KD,state.V,b))*fr;
+        if(px>xa-7 && px<xb+7 && py>ya-7 && py<yb+7) return true; }
+      return false; };
+    const opts=[[xL,Y(g)-15,"left","bottom",Y(g)-3],[xR-tw,Y(g)+4,"right","top",Y(g)+4],
+                [xR-tw,Y(g)-15,"right","bottom",Y(g)-3],[xL,Y(g)+4,"left","top",Y(g)+4]];
+    const o=opts.find(c=>!clash(c[0],c[1]))||opts[0];
+    nx.textAlign=o[2]; nx.textBaseline=o[3]; haloText(nx,tg,o[2]==="left"?xL:xR,o[4]);
+    nx.fillStyle=COLORS.accent; nx.font="700 10.5px system-ui, sans-serif";
+    nx.textAlign="right"; nx.textBaseline="bottom";
+    haloText(nx,tr, xR, yr);
+  }
+}
+/* «click» y no «pointerdown»: en pantalla táctil, empezar a desplazar la página sobre la gráfica no cuenta como respuesta */
+cvN.addEventListener("click",ev=>{
+  if(!(state.challenge && !state.challenge.revealed)) return;
+  const r=cvN.getBoundingClientRect();
+  const py=ev.clientY-r.top-cvN.clientTop;
+  if(py<NM.t||py>NH-NM.b) return;
+  challengeGuess(Math.max(0,Math.min(1, 1-(py-NM.t)/(NH-NM.t-NM.b))));
+});
+
+/* ================= lecturas ================= */
+function updateReadouts(){
+  const hide=state.challenge && !state.challenge.revealed;
+  const f=fPor(state.KD,state.V,state.n);
+  setTxt($("rF"), f.toFixed(3));
+  setTxt($("rPn"), hide?"?":pc2(pN(state.KD,state.V,state.n))+" %");
+  setTxt($("rP1"), hide?"?":pc2(pN(state.KD,state.V,1))+" %");
+  setTxt($("rPinf"), pc1(pInf(state.KD,state.V))+" %");
+  setTxt($("rGan"), hide?"?":"+"+(100*(pN(state.KD,state.V,state.n)-pN(state.KD,state.V,1))).toFixed(2)+" pts");
+  setTxt($("rEt"), state.duel? ("duelo · "+(state.duel.R.done?"fin":state.duel.R.stage+"/"+state.duel.R.n)) : state.seq? (state.seq.stage+"/"+state.n+" · "+state.seq.phase) : "—");
+  setTxt($("capS"), stairCaption());
+}
+function syncLabels(){
+  setTxt($("vKD"), state.KD.toFixed(1));
+  setTxt($("vV"), state.V+" mL");
+  setTxt($("vN"), state.n+" × "+fmtV(state.V/state.n)+" mL");
+}
+/* pista del reto 3: K_D mínimo para la meta con el disolvente del deslizador, y si la estrategia actual la alcanza */
+function updateHints(){
+  const need=Math.log(1/(1-META)), arg=Math.round(1/(1-META));     // ln 20
+  const kmin=Vac/state.V*need, lim=pInf(state.KD,state.V), meta=(100*META).toFixed(0)+" %";
+  setTxt($("h3ln"), need.toFixed(1));
+  let s="Con los deslizadores de ahora (V = "+state.V+" mL): K<sub>D</sub> mínimo = ("+Vac+"/"+state.V
+    +")·ln "+arg+" = <b>"+kmin.toFixed(2)+"</b>. Tu K<sub>D</sub> = "+state.KD.toFixed(1)+" da un límite de <b>"+pc1(lim)+" %</b>: ";
+  if(lim<=META) s+="ningún n llega a "+meta+".";
+  else {
+    let nmin=0;
+    for(let n=1;n<=5000;n++){ if(pN(state.KD,state.V,n)>=META){ nmin=n; break; } }
+    s+=!nmin?meta+" solo se alcanza con más de 5000 porciones."
+      :meta+" se alcanza desde n = "+nmin+(nmin>8?", fuera del deslizador (máximo 8).":".");
+  }
+  const el=$("h3live"); if(el._h!==s){ el._h=s; el.innerHTML=s; }
+}
+
+/* ================= narración ================= */
+function narrate(kind){
+  if(state.challenge){ if(!state.challenge.revealed) return; endChallenge(); }
+  const el=$("narr"); el.className="narr";
+  const f=fPor(state.KD,state.V,state.n);
+  if(kind==="params"){
+    el.innerHTML="K<sub>D</sub> = <b>"+state.KD.toFixed(1)+"</b>, "+state.V+" mL en <b>"
+      +(state.n===1?"1 porción":state.n+" porciones")+"</b> → cada sacudida deja en agua f = "+Vac+"/("+Vac+"+"+state.KD.toFixed(1)
+      +"·"+fmtV(state.V/state.n)+") = <b>"+f.toFixed(3)+"</b>; encadenando: queda f"
+      +supN(state.n)+" = <b>"+fmtPct(100*Math.pow(f,state.n),2)+" %</b> → recuperas <b>"
+      +pc2(pN(state.KD,state.V,state.n))+" %</b>.";
+  } else if(kind==="run"){
+    el.innerHTML="Extrayendo con <b>"+state.n+" × "+fmtV(state.V/state.n)
+      +" mL</b>: mira cada sacudida repartir (K<sub>D</sub>) y cada drenado cosechar.";
+  } else if(kind==="duelo"){
+    el.innerHTML="⚔️ <b>Duelo:</b> a la izquierda, todo el disolvente de un golpe (1 × "+state.V
+      +" mL); a la derecha, tus <b>"+state.n+" × "+fmtV(state.V/state.n)+" mL</b>. Mismo disolvente total — que gane el mejor.";
+  } else if(kind==="duelo-end"){
+    const pL=100*state.duel.L.rec, pR=100*state.duel.R.rec;
+    el.innerHTML="<span class=\'eq\'>⚔️ Veredicto:</span> 1 grande → <b>"+pL.toFixed(2)
+      +" %</b> · "+state.duel.R.n+" pequeñas → <b>"+pR.toFixed(2)+" %</b> — ganan las pequeñas por <b>+"
+      +(pR-pL).toFixed(2)+" pts</b> con el mismo disolvente. Esa es la moraleja del embudo.";
+  } else if(kind==="end"){
+    const gan=100*(state.rec-pN(state.KD,state.V,1));
+    el.innerHTML="<span class='eq'>Secuencia terminada:</span> recuperaste <b>"
+      +pc2(state.rec)+" %</b>"
+      +(state.n>1?" — una sola extracción habría dado "+pc2(pN(state.KD,state.V,1))
+      +" % (<b>"+(gan>=0?"+":"")+gan.toFixed(2)+" pts</b> por fraccionar)":"")
+      +". El techo con este disolvente: "+pc1(pInf(state.KD,state.V))+" %.";
+  }
+}
+
+/* ================= reto ================= */
+function challengePrompt(){
+  const el=$("narr"); el.className="narr reto";
+  el.innerHTML="🎯 <b>Predicción:</b> con K<sub>D</sub> = "+state.KD.toFixed(1)+", "+state.V
+    +" mL en <b>"+(state.n===1?"1 porción":state.n+" porciones")
+    +"</b>, ¿qué % recuperas? Toca la gráfica «% recuperado vs número de porciones» a esa altura.";
+}
+function challengeStart(){
+  resetRun();                                  // un embudo a medio correr delataría la respuesta
+  state.challenge={guess:null, revealed:false};
+  $("bChallenge").textContent="✕ Salir del reto";
+  challengePrompt();
+  ensureVisible(cvN,90);
+}
+function challengeGuess(g){
+  g=Math.round(g*100)/100;                     // % entero: la predicción mostrada es la que se compara
+  state.challenge.guess=g; state.challenge.revealed=true;
+  const real=pN(state.KD,state.V,state.n), err=Math.abs(g-real);
+  const v=err<0.04?'<span class="eq">¡Excelente!</span>':err<0.10?'<span class="dn">Muy cerca.</span>':'Revisa la fórmula.';
+  const el=$("narr"); el.className="narr reto"+(err<0.10?" ok":"");
+  el.innerHTML="🎯 Tu predicción: <b>"+(100*g).toFixed(0)+" %</b> · Real: <b>"+pc2(real)
+    +" %</b> (1 − f"+supN(state.n)+" con f = "+fPor(state.KD,state.V,state.n).toFixed(3)
+    +") · Error: <b>"+(100*err).toFixed(2)+" pts</b>. "+v+" Corre la secuencia para verlo.";
+  $("bChallenge").textContent="🎯 Otra vez";
+}
+function endChallenge(){ state.challenge=null; $("bChallenge").textContent="🎯 Reto: predice el %"; }
+$("bChallenge").addEventListener("click",()=>{
+  if(state.challenge && !state.challenge.revealed){ endChallenge(); narrate("params"); }
+  else challengeStart();
+});
+
+/* ================= controles ================= */
+/* K_D en escala logarítmica, ajustado al decimal que se muestra: el valor usado es el valor leído
+   (así K_D = 2.0, 4.0 y 50 se alcanzan exactos desde el deslizador) */
+const snapKD=k=>k<10?Math.round(k*10)/10:Math.round(k);
+function onParam(){
+  syncLabels();
+  if(state.seq||state.duel||state.rec>0) resetRun();           // el embudo ya no corresponde a los controles
+  if(state.challenge){
+    if(state.challenge.revealed){ endChallenge(); narrate("params"); }
+    else challengePrompt();
+  }
+  updateHints();
+}
+$("sKD").addEventListener("input",e=>{ state.KD=snapKD(Math.pow(10,+e.target.value)); onParam(); });
+$("sKD").addEventListener("change",()=>narrate("params"));
+$("sV").addEventListener("input",e=>{ state.V=+e.target.value; onParam(); });
+$("sV").addEventListener("change",()=>narrate("params"));
+$("sN").addEventListener("input",e=>{ state.n=+e.target.value; onParam(); });
+$("sN").addEventListener("change",()=>narrate("params"));
+$("bRun").addEventListener("click",startSeq);
+$("bDuel").addEventListener("click",startDuel);
+$("bReset").addEventListener("click",()=>{ resetRun(); narrate("params"); });
+
+/* ================= atribución protegida ================= */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML='<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  stepSeq(dt);
+  stepDuel(dt);
+  drawF(dt);
+  drawS();
+  drawN();
+  updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+syncLabels();
+narrate("params");
+updateReadouts();
+updateHints();
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("sKD").closest(".row"), $("sV").closest(".row"), $("sN").closest(".row"), $("actRow") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  La relación cinética ↔ equilibrio — K = k_f/k_r
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401 (Termodinámica del Equilibrio
+  Químico). Se permite su uso en el aula citando al autor. Prohibido
+  redistribuir este archivo sin la atribución visible del autor.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>La relación cinética ↔ equilibrio · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#506e96;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(41,39,34,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em}
+  #rxn{font-size:17px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
+  .plot-caption{font-size:12px;color:var(--muted);margin:0 0 8px}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(80,110,150,.07);
+    border:1px solid rgba(80,110,150,.3);border-left:3px solid var(--accent);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  canvas{display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface)}
+  #cvE{width:100%;height:195px}
+  #cvRun{width:100%;height:330px;cursor:crosshair;touch-action:manipulation}
+  /* teléfono: un renglón más al pie para que «tiempo (s)» no pise la marca de agua */
+  @media (max-width:560px){#cvRun{height:350px}}
+  #mol{width:100%;height:90px;cursor:default}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:8px 0 2px}
+  .lg{display:inline-flex;align-items:center;gap:6px}
+  .lg .sw{display:inline-block;width:18px;border-top-width:3px;border-top-style:solid}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(41,39,34,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(41,39,34,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  .pill{display:flex;gap:9px;align-items:center;font-size:13px;font-weight:650;color:var(--ink);cursor:pointer;
+    background:rgba(188,70,54,.07);border:1.5px solid rgba(188,70,54,.4);border-radius:10px;padding:9px 12px;margin-bottom:13px}
+  .pill input{accent-color:var(--terra);width:16px;height:16px}
+  .pill .p-sub{display:block;font-size:11px;color:var(--muted);font-weight:500}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f2eee4}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em;font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .stat.hi{border-left-color:var(--accent);background:rgba(80,110,150,.06)}
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:1fr}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain li::marker{color:var(--muted)}
+  .explain b{color:var(--ink)}
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(245,241,232,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(41,39,34,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+
+  /* --- Ajuste táctil (teléfono o puntero grueso): blancos de toque ≥ 40 px --- */
+  @media (pointer:coarse),(max-width:720px){
+    .btn{min-height:42px}
+    details.pista summary{padding:12px 0}
+    .topnav a{display:inline-block;padding:11px 0;white-space:nowrap}
+    .topnav .tn-course{text-align:right}
+    input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+    input[type=range]::-moz-range-thumb{width:19px;height:19px}
+  }
+  .narr{scroll-margin-top:10px}
+
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidades 1 y 4 — cierre del curso</p>
+    <h1>La relación K = k<sub>f</sub>/k<sub>r</sub></h1>
+    <p class="sub">La afirmación es que un <b>catalizador</b> que baja ambas barreras da <em>más producto</em>
+      en el reactor. Aquí está el laboratorio para comprobarlo: mira las dos rapideces perseguirse
+      hasta igualarse (¡sin llegar a cero!), descubre que K = k<sub>f</sub>/k<sub>r</sub>, y comprueba
+      qué puede — y qué no puede — hacer un catalizador.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ======== panel principal (protagonista) ======== -->
+    <section class="card hero">
+      <p id="rxn">A ⇌ B &nbsp;·&nbsp; ΔH° = −20 kJ/mol · ΔS° = −40 J/(mol·K)</p>
+      <p class="plot-caption">Reacción elemental reversible: v<sub>f</sub> = k<sub>f</sub>[A] y
+        v<sub>r</sub> = k<sub>r</sub>[B], con E<sub>a,f</sub> = 50 kJ/mol y
+        E<sub>a,r</sub> = E<sub>a,f</sub> − ΔH° = 70 kJ/mol (la misma reacción de los simuladores 1 y 6).</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Pulsa «Arrancar desde A puro» y mira v<sub>f</sub> y v<sub>r</sub> perseguirse hasta igualarse.</li>
+          <li>Pulsa «Fijar corrida», activa el «super-catalizador» y vuelve a arrancar: compara.</li>
+          <li>Arranca «desde B puro»: el mismo equilibrio te espera del otro lado.</li>
+          <li>Sube T y mira la relación con Van't Hoff: k<sub>f</sub> y k<sub>r</sub> crecen distinto → K cambia.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr" aria-live="polite">Pulsa «Arrancar desde A puro» y observa la persecución de las dos rapideces.</div>
+
+      <div class="sec-head">El diagrama de energía: una sola colina, dos barreras
+        <span class="s-sub">E<sub>a,f</sub> − E<sub>a,r</sub> = ΔH° · el catalizador baja LA MISMA cima para ambos sentidos</span></div>
+      <canvas id="cvE" aria-label="Diagrama de energía contra coordenada de reacción con las barreras de activación directa e inversa"></canvas>
+
+      <div class="sec-head">La corrida: concentraciones y rapideces contra el tiempo
+        <span class="s-sub">arriba: [A] y [B] · abajo: v<sub>f</sub> y v<sub>r</sub> (escala log) — se igualan, no se apagan</span></div>
+      <div class="legend">
+        <span class="lg"><span class="sw" style="border-color:#2a78d6"></span>[A]</span>
+        <span class="lg"><span class="sw" style="border-color:#1baf7a"></span>[B]</span>
+        <span class="lg"><span class="sw" style="border-color:#1c5cab;border-top-style:dashed"></span><span>v<sub>f</sub> (directa)</span></span>
+        <span class="lg"><span class="sw" style="border-color:#c93636;border-top-style:dashed"></span><span>v<sub>r</sub> (inversa)</span></span>
+        <span class="lg" id="lg-pin" hidden><span class="sw" style="border-color:#918b7c;border-top-style:dotted"></span><span id="pin-label"></span></span>
+      </div>
+      <canvas id="cvRun" aria-label="Curvas de concentración y de rapidez directa e inversa contra el tiempo"></canvas>
+
+      <div class="sec-head">Vista molecular
+        <span class="s-sub">en la meseta el tráfico A→B y B→A sigue — con catalizador, mucho más rápido y con el mismo saldo</span></div>
+      <canvas id="mol" aria-label="Vista molecular animada: las moléculas siguen interconvirtiéndose en el equilibrio"></canvas>
+
+      <p class="modelnote">Modelo: paso elemental A ⇌ B de primer orden en ambos sentidos (1 mol/L total);
+        k = A·e^(−Eₐ/RT) con A<sub>f</sub>/A<sub>r</sub> = e^(ΔS°/R); el «super-catalizador» baja ambas
+        barreras 12 kJ/mol. La frecuencia de intercambios de la vista molecular es proporcional a la
+        v<sub>f</sub> real. P° = 1 bar; R = 8.314 J/(mol·K).</p>
+    </section>
+
+    <!-- ======== controles ======== -->
+    <aside class="card">
+      <h2>Controles</h2>
+      <div class="row">
+        <label class="top" for="sT">Temperatura <span class="val" id="vT">298 K</span></label>
+        <input type="range" id="sT" min="260" max="400" step="1" value="298">
+      </div>
+
+      <label class="pill" title="Multiplica kf y kr por el MISMO factor — esa es la clave">
+        <input type="checkbox" id="tCat">
+        <span>💊 Activar el «super-catalizador»
+          <span class="p-sub">baja ambas barreras 12 kJ/mol → k<sub>f</sub> y k<sub>r</sub> ×<span id="catFactor">127</span></span>
+        </span>
+      </label>
+
+      <div class="btns">
+        <button class="btn btn-primary" id="bRunA">▶ Arrancar desde A puro</button>
+        <button class="btn" id="bRunB">▶ desde B puro</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bPin" title="Congela las curvas actuales como fantasma para comparar la siguiente corrida">Fijar corrida</button>
+        <button class="btn" id="bChallenge" title="Predice dónde quedará [B] final con el catalizador">🎯 Reto: ¿sube [B]∞?</button>
+      </div>
+
+      <h2>Lecturas</h2>
+      <div class="stats">
+        <div class="stat" title="Constante de rapidez directa: kf = Af·e^(−Ea,f/RT)"><div class="k">k<sub>f</sub> (s⁻¹)</div><div class="v" id="rKf">—</div></div>
+        <div class="stat" title="Constante de rapidez inversa: kr = Ar·e^(−Ea,r/RT)"><div class="k">k<sub>r</sub> (s⁻¹)</div><div class="v" id="rKr">—</div></div>
+        <div class="stat hi" title="La constante de equilibrio obtenida desde la cinética"><div class="k">K = k<sub>f</sub>/k<sub>r</sub></div><div class="v" id="rKcin">—</div></div>
+        <div class="stat hi" title="La misma K DESDE la termodinámica: e^(−ΔG°/RT)"><div class="k">K termodinámica</div><div class="v" id="rKterm">—</div></div>
+        <div class="stat" title="Concentración de B en el equilibrio: K/(1+K)"><div class="k">[B]<sub>eq</sub> (M)</div><div class="v" id="rBeq">—</div></div>
+        <div class="stat" title="Tiempo característico de relajación: 1/(kf+kr)"><div class="k">τ = 1/(k<sub>f</sub>+k<sub>r</sub>)</div><div class="v" id="rTau">—</div></div>
+        <div class="stat" title="Rapidez directa ahora mismo: kf·[A]"><div class="k">v<sub>f</sub> ahora (M/s)</div><div class="v" id="rVf">—</div></div>
+        <div class="stat" title="Rapidez inversa ahora mismo: kr·[B]"><div class="k">v<sub>r</sub> ahora (M/s)</div><div class="v" id="rVr">—</div></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ======== explicación ======== -->
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li><b>El equilibrio nace de la cinética:</b> al avanzar la reacción, v<sub>f</sub> = k<sub>f</sub>[A]
+            cae y v<sub>r</sub> = k<sub>r</sub>[B] sube, hasta que se igualan. Ahí <b>nada se detiene</b>:
+            las dos rapideces siguen corriendo, iguales — equilibrio <em>dinámico</em>.</li>
+        <li><b>La relación:</b> en la meseta, k<sub>f</sub>[A]<sub>eq</sub> = k<sub>r</sub>[B]<sub>eq</sub>,
+            así que [B]<sub>eq</sub>/[A]<sub>eq</sub> = k<sub>f</sub>/k<sub>r</sub> = K. Las dos lecturas
+            resaltadas muestran el mismo número por dos caminos independientes.</li>
+        <li><b>Una sola colina, dos barreras:</b> E<sub>a,f</sub> y E<sub>a,r</sub> comparten la cima, y su
+            diferencia es exactamente ΔH°. Por eso T mueve a k<sub>f</sub> y k<sub>r</sub> con fuerzas
+            distintas → K cambia con T (Van't Hoff, visto desde la cinética).</li>
+        <li><b>El catalizador baja la misma cima</b> para ambos sentidos: multiplica k<sub>f</sub> y
+            k<sub>r</sub> por el <em>mismo</em> factor. El cociente K no se mueve ni un pelo: llegas al
+            mismo equilibrio, solo que antes.</li>
+        <li><b>La afirmación, refutada:</b> un catalizador no aumenta el producto de equilibrio: acelera
+            de rendimiento. Lo que sí logra: alcanzar el equilibrio en segundos en vez de horas —
+            valiosísimo, pero es otra promesa.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>Comprueba la afirmación:</b> corre sin catalizador, pulsa «Fijar corrida», activa la
+            píldora y corre de nuevo. ¿[B]∞ subió?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>No: las dos corridas terminan en el mismo nivel (K/(1+K) ≈ 0.963 M a 298 K). El
+               catalizador multiplicó k<sub>f</sub> y k<sub>r</sub> por el mismo factor, así que
+               K = k<sub>f</sub>/k<sub>r</sub> quedó intacta. Solo cambió el tiempo de llegada.</p>
+          </details></li>
+        <li><b>La misma meseta desde ambos lados:</b> arranca desde A puro y luego desde B puro.
+            ¿A dónde llega cada corrida?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Al mismo punto: [B]<sub>eq</sub> ≈ 0.963 M. El equilibrio no recuerda de dónde
+               veniste — es el único estado donde v<sub>f</sub> = v<sub>r</sub>. Llegar desde ambos
+               lados es la prueba experimental clásica de que es un equilibrio verdadero.</p>
+          </details></li>
+        <li><b>¿Se detuvo algo?</b> Con la corrida en su meseta, mira v<sub>f</sub> y v<sub>r</sub>
+            en las lecturas, y la vista molecular. ¿El sistema está quieto?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>v<sub>f</sub> = v<sub>r</sub> ≈ 5×10⁻⁴ M/s: distintas de cero. Las moléculas siguen
+               interconvirtiéndose (destellos), solo que los dos sentidos se cancelan. Y con el
+               catalizador el tráfico es ~127 veces más intenso… con el mismo saldo.</p>
+          </details></li>
+        <li><b>La relación con Van't Hoff:</b> sube T de 298 a 380 K y mira k<sub>f</sub>, k<sub>r</sub>
+            y K. ¿Quién creció más y por qué K bajó?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>k<sub>r</sub> creció más porque su barrera es mayor (E<sub>a,r</sub> = 70 &gt;
+               E<sub>a,f</sub> = 50 kJ/mol) — Arrhenius premia a las barreras altas cuando sube T.
+               Como ΔH° = E<sub>a,f</sub> − E<sub>a,r</sub> &lt; 0 (exotérmica), K = k<sub>f</sub>/k<sub>r</sub>
+               cae: exactamente lo que Van't Hoff predice desde la termodinámica.</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ======== créditos (protegidos) ======== -->
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución del autor fue ocultada o eliminada. Recarga la página para restaurarla
+      y seguir usando el simulador.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+/* ================= constantes del modelo ================= */
+const R=8.314;
+const dH=-20e3, dS=-40;            // misma reacción A⇌B de los sims 1 y 6
+const EaF=50e3;                    // barrera directa (J/mol)
+const EaR=EaF-dH;                  // 70 kJ/mol: Ea,f − Ea,r = ΔH°
+const Ar=1e9;                      // factor preexponencial inverso (s⁻¹)
+const Af=Ar*Math.exp(dS/R);        // Af/Ar = e^(ΔS°/R) → K cinética ≡ K termodinámica
+const CAT_DROP=12e3;               // el catalizador baja ambas barreras 12 kJ/mol
+const COLORS={
+  ink:"#292722", ink2:"#565248", muted:"#918b7c", grid:"#e4ddcc", axis:"#d8cfb9",
+  surface:"#fcfcfb", blue:"#2a78d6", blueDeep:"#1c5cab", aqua:"#1baf7a",
+  aquaDeep:"#0e7a54", redText:"#c93636", violet:"#4a3aa7", yellow:"#eda100", accent:"#506e96"
+};
+const SPECIES_STYLE=[{bg:"#2a78d6",fg:"#fff"},{bg:"#1baf7a",fg:"#053022"}];
+const RXN={especies:[
+  {html:"A",nu:-1,vis:{r:4.6}},
+  {html:"B",nu:1,vis:{r:4.6}}
+]};
+
+/* ================= estado ================= */
+const state={ T:298, cat:false, A:1, B:0, t:0, running:false, tEnd:60, challenge:null, pin:null };
+const $=id=>document.getElementById(id);
+const HIST={t:[],A:[],vf:[],vr:[]};
+
+function kf(){ return Af*Math.exp(-(EaF-(state.cat?CAT_DROP:0))/(R*state.T)); }
+function kr(){ return Ar*Math.exp(-(EaR-(state.cat?CAT_DROP:0))/(R*state.T)); }
+function Kcin(){ return kf()/kr(); }
+function Kterm(){ return Math.exp(-(dH-state.T*dS)/(R*state.T)); }
+function Beq(){ const K=Kcin(); return K/(1+K); }
+function catFactor(){ return Math.exp(CAT_DROP/(R*state.T)); }
+function vf(){ return kf()*state.A; }
+function vr(){ return kr()*state.B; }
+
+/* ================= corrida ================= */
+function startRun(desde){
+  if(state.challenge && !state.challenge.revealed) return;
+  state.A = desde==="A" ? 1 : 0;
+  state.B = 1-state.A;
+  state.t = 0;
+  state.tEnd = 9/(kf()+kr());
+  HIST.t.length=0; HIST.A.length=0; HIST.vf.length=0; HIST.vr.length=0;
+  pushHist();
+  state.running=true;
+  narrate("run", desde);
+}
+function pushHist(){
+  HIST.t.push(state.t); HIST.A.push(state.A);
+  HIST.vf.push(vf()); HIST.vr.push(vr());
+  if(HIST.t.length>1500){                    // adelgazar para memoria
+    for(const k of ["t","A","vf","vr"]) HIST[k]=HIST[k].filter((_,i)=>i%2===0 || i===HIST[k].length-1);
+  }
+}
+function stepRun(dtReal){
+  if(!state.running) return;
+  const dtSim=dtReal*state.tEnd/8;           // toda corrida dura ~8 s reales
+  const kT=kf()+kr();
+  const beq=Beq();
+  /* paso exponencial exacto: incondicionalmente estable */
+  const f=Math.exp(-kT*dtSim);
+  state.B = beq + (state.B-beq)*f;
+  state.A = 1-state.B;
+  state.t += dtSim;
+  pushHist();
+  if(state.t>=state.tEnd){
+    state.running=false;
+    /* no pisar el veredicto del reto con el mensaje de meseta */
+    if(!(state.challenge && state.challenge.revealed)) narrate("end");
+  }
+}
+
+/* ================= diagrama de energía ================= */
+const cvE=$("cvE"), ex=cvE.getContext("2d");
+let EW=700, EH=195, EDPR=1;
+/* el lienzo toma su caja de contenido real (ancho y alto CSS) y se redibuja en el acto */
+new ResizeObserver(es=>{ const cr=es[0].contentRect; EW=Math.max(200,cr.width); EH=cr.height||195; EDPR=window.devicePixelRatio||1; cvE.width=Math.round(EW*EDPR); cvE.height=Math.round(EH*EDPR); drawE(); }).observe(cvE);
+function drawE(){
+  const narrow=EW<430;                         // teléfono: rótulos recolocados o en dos renglones
+  const M={l:narrow?30:46,r:14,t:14,b:24};
+  const ymin=-32e3, ymax=62e3;
+  const X=x=>M.l+x*(EW-M.l-M.r);
+  const Y=e=>M.t+(ymax-e)/(ymax-ymin)*(EH-M.t-M.b);
+  ex.setTransform(EDPR,0,0,EDPR,0,0);
+  ex.clearRect(0,0,EW,EH);
+  ex.font="10px system-ui, sans-serif";
+  /* marco */
+  ex.strokeStyle=COLORS.axis; ex.lineWidth=1.2;
+  ex.beginPath(); ex.moveTo(M.l,M.t); ex.lineTo(M.l,EH-M.b); ex.lineTo(EW-M.r,EH-M.b); ex.stroke();
+  ex.fillStyle=COLORS.ink2; ex.font="600 10.5px system-ui, sans-serif";
+  ex.textAlign="left"; ex.textBaseline="alphabetic";
+  ex.fillText("coordenada de reacción", M.l, EH-8);
+  ex.save(); ex.translate(13,(M.t+EH-M.b)/2); ex.rotate(-Math.PI/2);
+  ex.textAlign="center"; ex.fillText("energía (kJ/mol)",0,0); ex.restore();
+  /* curva de energía: mesetas + colina (coseno suave) */
+  function perfil(peak,col,dash){
+    ex.strokeStyle=col; ex.lineWidth=2.4; ex.setLineDash(dash||[]);
+    ex.beginPath();
+    for(let i=0;i<=240;i++){
+      const x=i/240; let e;
+      if(x<0.14) e=0;
+      else if(x<0.5) e=0+(peak-0)*(0.5-0.5*Math.cos(Math.PI*(x-0.14)/0.36));
+      else if(x<0.86) e=dH+(peak-dH)*(0.5+0.5*Math.cos(Math.PI*(x-0.5)/0.36));
+      else e=dH;
+      const px=X(x), py=Y(e);
+      i?ex.lineTo(px,py):ex.moveTo(px,py);
+    }
+    ex.stroke(); ex.setLineDash([]);
+  }
+  if(state.cat) perfil(EaF, "rgba(145,139,124,.6)", [6,4]);       // sin catalizador (referencia)
+  perfil(state.cat?EaF-CAT_DROP:EaF, state.cat?COLORS.aquaDeep:COLORS.accent);
+  const peak=state.cat?EaF-CAT_DROP:EaF;
+  /* rótulo de un renglón; si no cabe en maxW se parte en dos por « = » */
+  function rotulo(txt,x,y,maxW){
+    if(ex.measureText(txt).width<=maxW){ ex.fillText(txt,x,y); return; }
+    const k=txt.indexOf(" = ");
+    ex.fillText(txt.slice(0,k+2),x,y-6); ex.fillText(txt.slice(k+3),x,y+6);
+  }
+  /* flechas de barreras: el rótulo va del lado libre de la colina, a la altura eLbl (fuera de las curvas) */
+  function flecha(x,e1,e2,col,lbl,lado,eLbl){
+    ex.strokeStyle=col; ex.fillStyle=col; ex.lineWidth=1.6;
+    ex.beginPath(); ex.moveTo(X(x),Y(e1)); ex.lineTo(X(x),Y(e2)); ex.stroke();
+    for(const [ea,dir] of [[e1,1],[e2,-1]]){
+      ex.beginPath();
+      ex.moveTo(X(x),Y(ea)); ex.lineTo(X(x)-3.5,Y(ea)+4*dir); ex.lineTo(X(x)+3.5,Y(ea)+4*dir);
+      ex.closePath(); ex.fill();
+    }
+    ex.font="700 10px system-ui, sans-serif"; ex.textAlign=lado; ex.textBaseline="middle";
+    if(lado==="right") rotulo(lbl, X(x)-6, Y(eLbl), X(x)-6-(M.l+4));      // texto a la izquierda de la flecha
+    else rotulo(lbl, X(x)+6, Y(eLbl), EW-M.r-2-(X(x)+6));                 // texto a la derecha de la flecha
+  }
+  flecha(0.30, 0, peak, COLORS.blueDeep, "Ea,f = "+((peak)/1000).toFixed(0)+" kJ", "right", 0.72*peak);
+  flecha(0.70, dH, peak, COLORS.redText, "Ea,r = "+((peak-dH)/1000).toFixed(0)+" kJ", "left", dH+0.62*(peak-dH));
+  /* ΔH°: en la franja entre el nivel de A (punteado) y la meseta de B */
+  ex.strokeStyle=COLORS.muted; ex.setLineDash([3,3]); ex.lineWidth=1;
+  ex.beginPath(); ex.moveTo(X(0.86),Y(0)); ex.lineTo(X(0.985),Y(0)); ex.stroke(); ex.setLineDash([]);
+  ex.fillStyle=COLORS.ink2; ex.font="700 10px system-ui, sans-serif"; ex.textAlign="right"; ex.textBaseline="top";
+  if(narrow){ ex.fillText("ΔH° =", EW-M.r-2, Y(0)+4); ex.fillText("−20 kJ", EW-M.r-2, Y(0)+16); }
+  else ex.fillText("ΔH° = −20 kJ", EW-M.r-2, Y(0)+4);
+  ex.font="600 10px system-ui, sans-serif"; ex.textAlign="left"; ex.textBaseline="bottom";
+  ex.fillText("A", X(0.06), Y(0)-4);
+  if(narrow){ ex.textBaseline="top"; ex.fillText("B", X(0.93), Y(dH)+5); }  // bajo su meseta: arriba va ΔH°
+  else ex.fillText("B", X(0.93), Y(dH)-4);
+  if(state.cat){
+    /* encima de la cima de referencia (sin catalizador), para no cruzar ninguna curva */
+    ex.fillStyle=COLORS.aquaDeep; ex.font="700 10px system-ui, sans-serif"; ex.textAlign="center"; ex.textBaseline="bottom";
+    const tc="con catalizador: la MISMA cima baja para ambos", yc=Y(EaF)-6;
+    if(ex.measureText(tc).width<=EW-M.l-M.r-8) ex.fillText(tc, X(0.5), yc);
+    else{ ex.fillText("con catalizador: la MISMA cima", X(0.5), yc-12); ex.fillText("baja para ambos", X(0.5), yc); }
+  }
+}
+
+/* ================= gráfica de la corrida ================= */
+const cvR=$("cvRun"), rx=cvR.getContext("2d");
+let RW=700, RH=330, RDPR=1;
+new ResizeObserver(es=>{ const cr=es[0].contentRect; RW=Math.max(220,cr.width); RH=cr.height||330; RDPR=window.devicePixelRatio||1; cvR.width=Math.round(RW*RDPR); cvR.height=Math.round(RH*RDPR); drawRun(); }).observe(cvR);
+const RM={l:52,r:14};
+const PA={top:12,bot:190}, PB={top:216,bot:300};
+
+function drawRun(){
+  const twoRows=RH>338;        // lienzo alto (teléfono): «tiempo (s)» y la marca de agua en renglones distintos
+  const xmax=Math.max(state.tEnd, state.pin?state.pin.tEnd:0)*1.02;
+  const X=t=>RM.l+t/xmax*(RW-RM.l-RM.r);
+  const YA=c=>PA.top+(1-c/1.05)*(PA.bot-PA.top);
+  /* escala log del panel de rapideces */
+  let vlo=Infinity, vhi=-Infinity;
+  const scan=(arr)=>{ for(const v of arr){ if(v>1e-12){ if(v<vlo)vlo=v; if(v>vhi)vhi=v; } } };
+  scan(HIST.vf); scan(HIST.vr);
+  if(state.pin){ scan(state.pin.vf); scan(state.pin.vr); }
+  if(!isFinite(vlo)){ vlo=1e-5; vhi=1e-1; }
+  const Llo=Math.log10(vlo)-0.25, Lhi=Math.log10(vhi)+0.25;
+  const YB=v=>PB.top+(Lhi-Math.log10(Math.max(v,Math.pow(10,Llo))))/(Lhi-Llo)*(PB.bot-PB.top);
+  rx.setTransform(RDPR,0,0,RDPR,0,0);
+  rx.clearRect(0,0,RW,RH);
+  rx.font="10px system-ui, sans-serif";
+  /* rejillas */
+  rx.strokeStyle=COLORS.grid; rx.lineWidth=1;
+  rx.fillStyle=COLORS.muted; rx.textAlign="right"; rx.textBaseline="middle";
+  for(let c=0;c<=1.001;c+=0.25){
+    rx.beginPath(); rx.moveTo(RM.l,YA(c)); rx.lineTo(RW-RM.r,YA(c)); rx.stroke();
+    rx.fillText(c.toFixed(2), RM.l-6, YA(c));
+  }
+  for(let L=Math.ceil(Llo);L<=Lhi;L++){
+    rx.beginPath(); rx.moveTo(RM.l,YB(Math.pow(10,L))); rx.lineTo(RW-RM.r,YB(Math.pow(10,L))); rx.stroke();
+    rx.fillText("10"+supNum(L), RM.l-6, YB(Math.pow(10,L)));
+  }
+  rx.strokeStyle=COLORS.axis; rx.lineWidth=1.2;
+  rx.strokeRect(RM.l,PA.top,RW-RM.l-RM.r,PA.bot-PA.top);
+  rx.strokeRect(RM.l,PB.top,RW-RM.l-RM.r,PB.bot-PB.top);
+  rx.fillStyle=COLORS.ink2; rx.font="600 10.5px system-ui, sans-serif";
+  rx.save(); rx.translate(12,(PA.top+PA.bot)/2); rx.rotate(-Math.PI/2);
+  rx.textAlign="center"; rx.fillText("concentración (M)",0,0); rx.restore();
+  rx.save(); rx.translate(12,(PB.top+PB.bot)/2); rx.rotate(-Math.PI/2);
+  rx.textAlign="center"; rx.fillText("v (M/s)",0,0); rx.restore();
+  rx.textAlign="left"; rx.textBaseline="alphabetic";
+  rx.fillText("tiempo (s)", RM.l, twoRows? PB.bot+28 : RH-6);
+  /* ticks de tiempo */
+  rx.fillStyle=COLORS.muted; rx.font="10px system-ui, sans-serif"; rx.textAlign="center"; rx.textBaseline="top";
+  const stp=niceStep(xmax/5);
+  for(let t=0;t<=xmax;t+=stp) rx.fillText(fmtT(t), X(t), PB.bot+4);
+
+  const hide=state.challenge && !state.challenge.revealed;
+  /* si la línea de la predicción del reto cruzaría el rótulo de [B]eq, este va bajo su línea */
+  const gPred=(state.challenge && state.challenge.guess!=null)? state.challenge.guess : null;
+  const eqAbajo=gPred!=null && gPred>Beq()+0.006 && gPred<Beq()+0.078;
+  /* niveles de equilibrio */
+  if(!hide){
+    const be=Beq();
+    rx.strokeStyle=COLORS.aqua; rx.setLineDash([5,4]); rx.lineWidth=1.3;
+    rx.beginPath(); rx.moveTo(RM.l,YA(be)); rx.lineTo(RW-RM.r,YA(be)); rx.stroke();
+    rx.setLineDash([]);
+    rx.fillStyle=COLORS.aquaDeep; rx.font="600 10px system-ui, sans-serif";
+    rx.textAlign="right"; rx.textBaseline=eqAbajo?"top":"bottom";
+    rx.fillText("[B]eq = "+be.toFixed(3), RW-RM.r-4, eqAbajo? YA(be)+3 : YA(be)-2);
+  }
+  /* fantasma (corrida fijada) */
+  if(state.pin){
+    rx.save(); rx.setLineDash([2,4]); rx.lineWidth=1.8;
+    line(state.pin.t, state.pin.A, X, YA, "rgba(145,139,124,.8)");
+    line(state.pin.t, state.pin.A.map(a=>1-a), X, YA, "rgba(145,139,124,.55)");
+    rx.restore();
+  }
+  /* curvas actuales */
+  line(HIST.t, HIST.A, X, YA, COLORS.blue, 2.4);
+  line(HIST.t, HIST.A.map(a=>1-a), X, YA, COLORS.aqua, 2.4);
+  /* rapideces (log) */
+  rx.save(); rx.setLineDash([6,4]);
+  line(HIST.t, HIST.vf, X, YB, COLORS.blueDeep, 2);
+  line(HIST.t, HIST.vr, X, YB, COLORS.redText, 2);
+  rx.restore();
+  /* anotación del equilibrio dinámico */
+  if(!state.running && HIST.t.length>10 && !hide){
+    const txt="vf = vr ≠ 0 → equilibrio dinámico";
+    rx.fillStyle=COLORS.aquaDeep; rx.font="700 10px system-ui, sans-serif";
+    const xr=RW-RM.r-4, maxW=RW-RM.l-RM.r-8, yv=YB(HIST.vf[HIST.vf.length-1]);
+    /* en lienzos estrechos el rótulo alcanzaría la curva de rapidez que aún desciende hacia
+       la meseta: ahí se escribe debajo de la meseta, donde no hay curva */
+    const abajo = xr-Math.min(maxW,rx.measureText(txt).width) < X(0.55*state.tEnd) && yv+18<=PB.bot;
+    rx.textAlign="right"; rx.textBaseline=abajo?"top":"bottom";
+    rx.fillText(txt, xr, abajo? yv+6 : yv-6, maxW);
+  }
+  /* reto: predicción de [B]∞ */
+  if(state.challenge && state.challenge.guess!=null){
+    const g=state.challenge.guess;
+    rx.strokeStyle=COLORS.violet; rx.setLineDash([4,3]); rx.lineWidth=1.6;
+    rx.beginPath(); rx.moveTo(RM.l,YA(g)); rx.lineTo(RW-RM.r,YA(g)); rx.stroke(); rx.setLineDash([]);
+    /* rótulo: a la derecha (donde las curvas ya van en meseta) y fuera de las mesetas de B
+       (y de su rótulo) y de A: encima de su línea —subido si la meseta de A queda justo ahí—
+       o debajo; si no hay hueco, a la izquierda como antes. Así no pisa el cruce de las curvas. */
+    const be=Beq(), zA=[1-be-0.012, 1-be+0.012], zB=eqAbajo? [be-0.078, be+0.012] : [be-0.012, be+0.078];
+    const choca=(lo,z)=>lo+0.061>z[0] && lo<z[1];            // el texto ocupa ~0.061 M de alto
+    let lo=g+0.010, pos=["left", YA(g)-2, "bottom"];
+    if(choca(lo,zA) && g<zA[1]) lo=zA[1]+0.010;
+    if(!choca(lo,zB) && !choca(lo,zA)) pos=["right", YA(lo-0.010)-2, "bottom"];
+    else if(g-0.071>=0 && !choca(g-0.071,zB) && !choca(g-0.071,zA)) pos=["right", YA(g)+3, "top"];
+    rx.fillStyle=COLORS.violet; rx.font="700 10px system-ui, sans-serif";
+    rx.textAlign=pos[0]; rx.textBaseline=pos[2];
+    rx.fillText("tu predicción: "+g.toFixed(2), pos[0]==="right"? RW-RM.r-4 : RM.l+4, pos[1]);
+  }
+  /* marca de agua (atribución del autor) */
+  const c=_cd();
+  rx.font="10.5px system-ui, sans-serif"; rx.fillStyle="rgba(145,139,124,.9)";
+  rx.textAlign="right"; rx.textBaseline="alphabetic";
+  const wmx=twoRows? RW-6 : RW-RM.r-4;         // ancho máximo: nunca se recorta por la izquierda
+  rx.fillText(c?("© "+c.y+" "+c.n+" · @"+c.ig.split("/").pop()):"atribución requerida", wmx, RH-6, wmx-4);
+
+  function line(ts,vals,Xf,Yf,col,wd){
+    rx.strokeStyle=col; rx.lineWidth=wd||1.8;
+    rx.beginPath(); let st=false;
+    for(let i=0;i<ts.length;i++){
+      const y=Yf(vals[i]);
+      if(!isFinite(y)){ st=false; continue; }
+      const x=Xf(ts[i]);
+      st?rx.lineTo(x,y):rx.moveTo(x,y); st=true;
+    }
+    rx.stroke();
+  }
+}
+function supNum(n){
+  const SUP={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return String(n).split("").map(c=>SUP[c]||"").join("");
+}
+function niceStep(raw){
+  let s=Math.pow(10,Math.floor(Math.log10(raw)));
+  const e=raw/s; if(e>=5)s*=5; else if(e>=2)s*=2;
+  return s;
+}
+function fmtT(t){ return t<10? t.toFixed(1): t<1000? t.toFixed(0) : (t/1000).toFixed(1)+"k"; }
+
+/* «click» (ratón o toque breve), no «pointerdown»: al deslizar la página con el dedo sobre
+   el lienzo no se registra una predicción por accidente */
+cvR.addEventListener("click",ev=>{
+  if(!(state.challenge && !state.challenge.revealed)) return;
+  const r=cvR.getBoundingClientRect();
+  const py=ev.clientY-r.top-cvR.clientTop;
+  if(py<PA.top||py>PA.bot) return;
+  const g=Math.max(0,Math.min(1, (1-(py-PA.top)/(PA.bot-PA.top))*1.05 ));
+  challengeGuess(Math.min(1,g));
+});
+
+/* ================= lecturas ================= */
+function fmtSci(x){
+  if(!isFinite(x)||x===0) return "0";
+  if(Math.abs(x)>=0.01 && Math.abs(x)<1000) return Number(x.toPrecision(3)).toString();
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  return (x/10**e).toFixed(2)+"×10"+supNum(e);
+}
+function updateReadouts(){
+  const hide=state.challenge && !state.challenge.revealed;
+  $("rKf").textContent=fmtSci(kf());
+  $("rKr").textContent=fmtSci(kr());
+  $("rKcin").textContent=fmtSci(Kcin());
+  $("rKterm").textContent=fmtSci(Kterm());
+  $("rBeq").textContent=hide?"?":Beq().toFixed(3);
+  $("rTau").textContent=fmtT(1/(kf()+kr()))+" s";
+  $("rVf").textContent=fmtSci(vf());
+  $("rVr").textContent=fmtSci(vr());
+  $("catFactor").textContent=Math.round(catFactor());
+}
+
+/* ================= narración causal ================= */
+function narrate(kind,extra){
+  if(state.challenge){ if(!state.challenge.revealed) return; endChallenge(); }
+  const el=$("narr"); el.className="narr";
+  if(kind==="T"){
+    el.innerHTML="T = <b>"+Math.round(state.T)+" K</b> → k<sub>f</sub> = <b>"+fmtSci(kf())
+      +"</b> y k<sub>r</sub> = <b>"+fmtSci(kr())+"</b> s⁻¹. Como E<sub>a,r</sub> (70) &gt; E<sub>a,f</sub> (50), "
+      +"k<sub>r</sub> responde más fuerte a T → K = k<sub>f</sub>/k<sub>r</sub> = <b>"+fmtSci(Kcin())
+      +"</b> (compárala con la K termodinámica de al lado: idénticas).";
+  } else if(kind==="cat"){
+    if(state.cat) el.innerHTML="<span class='eq'>💊 Catalizador activo.</span> Ambas barreras bajaron 12 kJ → "
+      +"k<sub>f</sub> y k<sub>r</sub> se multiplicaron por <b>×"+Math.round(catFactor())
+      +"</b>… las dos. K = k<sub>f</sub>/k<sub>r</sub> = <b>"+fmtSci(Kcin())+"</b>: <b>intacta</b>. "
+      +"τ cayó a <b>"+fmtT(1/(kf()+kr()))+" s</b>: misma meseta, alcanzada antes.";
+    else el.innerHTML="Catalizador retirado: k<sub>f</sub> y k<sub>r</sub> vuelven a su valor — y K sigue siendo <b>"
+      +fmtSci(Kcin())+"</b>, como siempre.";
+  } else if(kind==="run"){
+    el.innerHTML="Corriendo desde <b>"+(extra==="A"?"A puro":"B puro")+"</b>"+(state.cat?" con 💊":"")
+      +": mira a v<sub>f</sub> y v<sub>r</sub> perseguirse en el panel de abajo. τ = <b>"+fmtT(1/(kf()+kr()))+" s</b>.";
+  } else if(kind==="end"){
+    el.innerHTML="<span class='eq'>Meseta alcanzada:</span> [B]<sub>∞</sub> = <b>"+state.B.toFixed(3)
+      +"</b> M y v<sub>f</sub> = v<sub>r</sub> = <b>"+fmtSci(vf())+"</b> M/s — iguales pero <b>no cero</b>: "
+      +"el tráfico molecular continúa (míralo abajo). K = [B]/[A] = <b>"+(state.B/Math.max(state.A,1e-12)).toFixed(1)
+      +"</b> = k<sub>f</sub>/k<sub>r</sub>. La relación queda verificada.";
+  } else if(kind==="pin"){
+    el.innerHTML="Corrida fijada como fantasma (<b>"+extra+"</b>). Cambia lo que quieras y vuelve a arrancar: "
+      +"compara la meseta y el tiempo hasta alcanzarla.";
+  }
+}
+
+/* ================= reto: ¿sube [B]∞? ================= */
+function challengeStart(){
+  state.challenge={guess:null, revealed:false};
+  $("bChallenge").textContent="✕ Salir del reto";
+  const el=$("narr"); el.className="narr reto";
+  el.innerHTML="🎯 <b>La afirmación: con el 💊 catalizador activo, [B]∞ sube.</b> "
+    +"Haz clic en el panel de concentraciones a la altura donde TÚ crees que quedará [B]∞ con el catalizador activo.";
+}
+function challengeGuess(g){
+  state.challenge.guess=g; state.challenge.revealed=true;
+  const real=Beq();                          // ¡idéntica con o sin catalizador!
+  const err=Math.abs(g-real);
+  const v=err<0.05?'<span class="eq">¡Excelente!</span>':err<0.12?'<span class="dn">Muy cerca.</span>':'Revisa el porqué.';
+  $("tCat").checked=true; state.cat=true;
+  startRunSilent("A");
+  const el=$("narr"); el.className="narr reto"+(err<0.12?" ok":"");
+  el.innerHTML="🎯 Tu predicción: <b>"+g.toFixed(2)+"</b> M · Valor real con catalizador: <b>"+real.toFixed(3)
+    +"</b> M (la misma que sin él) · Error: <b>"+err.toFixed(2)+"</b>. "+v
+    +" El catalizador multiplicó ambas k por ×"+Math.round(catFactor())
+    +": K intacta, [B]∞ intacta. <b>La afirmación queda refutada.</b>";
+  $("bChallenge").textContent="🎯 Otra vez";
+}
+function startRunSilent(desde){
+  state.A = desde==="A" ? 1 : 0;
+  state.B = 1-state.A;
+  state.t = 0;
+  state.tEnd = 9/(kf()+kr());
+  HIST.t.length=0; HIST.A.length=0; HIST.vf.length=0; HIST.vr.length=0;
+  pushHist();
+  state.running=true;
+}
+function endChallenge(){ state.challenge=null; $("bChallenge").textContent="🎯 Reto: ¿sube [B]∞?"; }
+/* teléfono: la consigna del reto se escribe en la narración, muy arriba del botón → se trae a la vista */
+const MQ_MOVIL=window.matchMedia("(max-width:720px)");
+function verNarr(){
+  if(!MQ_MOVIL.matches) return;
+  const suave=!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("narr").scrollIntoView({behavior:suave?"smooth":"auto", block:"start"});
+}
+$("bChallenge").addEventListener("click",()=>{
+  if(state.challenge && !state.challenge.revealed) endChallenge();
+  else { challengeStart(); verNarr(); }
+});
+
+/* ================= controles ================= */
+$("sT").addEventListener("input",e=>{ state.T=+e.target.value; $("vT").textContent=Math.round(state.T)+" K"; });
+$("sT").addEventListener("change",()=>narrate("T"));
+$("tCat").addEventListener("change",e=>{ state.cat=e.target.checked; narrate("cat"); });
+$("bRunA").addEventListener("click",()=>startRun("A"));
+$("bRunB").addEventListener("click",()=>startRun("B"));
+$("bPin").addEventListener("click",()=>{
+  if(HIST.t.length<3) return;
+  const lbl=(state.cat?"con 💊":"sin catalizador")+" · "+Math.round(state.T)+" K";
+  state.pin={t:HIST.t.slice(), A:HIST.A.slice(), vf:HIST.vf.slice(), vr:HIST.vr.slice(), tEnd:state.tEnd};
+  $("pin-label").textContent="fantasma: "+lbl;
+  $("lg-pin").hidden=false;
+  narrate("pin",lbl);
+});
+
+/* ================= vista molecular (tráfico real) ================= */
+const molCv=$("mol"), mctx=molCv.getContext("2d");
+let molW=600, molH=90, molDPR=1;
+const MOLS=[]; const F=70;
+new ResizeObserver(es=>{ const cr=es[0].contentRect, w0=molW, h0=molH;
+  molW=Math.max(160,cr.width); molH=cr.height||90; molDPR=window.devicePixelRatio||1; molCv.width=Math.round(molW*molDPR); molCv.height=Math.round(molH*molDPR);
+  /* las posiciones se reescalan al nuevo recuadro (no se amontonan en el borde derecho) */
+  for(const m of MOLS){ m.x=Math.min(Math.max(m.x*molW/w0,8),molW-8); m.y=Math.min(Math.max(m.y*molH/h0,8),molH-8); }
+  drawMol(0); }).observe(molCv);
+function spawnMol(sp,x,y,flash){
+  const ang=Math.random()*6.283, spd=15+Math.random()*24;
+  MOLS.push({sp,
+    x:(x==null?8+Math.random()*(molW-16):Math.min(Math.max(x+(Math.random()-0.5)*12,8),molW-8)),
+    y:(y==null?8+Math.random()*(molH-16):Math.min(Math.max(y+(Math.random()-0.5)*12,8),molH-8)),
+    vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, flash:flash?1:0});
+}
+function countSp(sp){ let c=0; for(const m of MOLS) if(m.sp===sp) c++; return c; }
+function convertOne(from,to){
+  for(let i=0;i<MOLS.length;i++) if(MOLS[i].sp===from){ MOLS[i].sp=to; MOLS[i].flash=1; return true; }
+  return false;
+}
+function molReset(){
+  MOLS.length=0;
+  const tA=Math.round(state.A*F);
+  for(let j=0;j<tA;j++) spawnMol(0,null,null,false);
+  for(let j=0;j<F-tA;j++) spawnMol(1,null,null,false);
+}
+function molSync(dt){
+  const tA=Math.round(state.A*F);
+  let d=tA-countSp(0), g=0;
+  while(d<0 && g++<30){ convertOne(0,1); d++; }
+  while(d>0 && g++<30){ convertOne(1,0); d--; }
+  /* tráfico en equilibrio ∝ vf real: con catalizador, mismo saldo pero ~×127 más intercambios */
+  const rate=Math.min(9, 60*vf());
+  if(Math.random()<dt*rate){ if(convertOne(0,1)) convertOne(1,0); }
+}
+function drawMol(dt){
+  molSync(dt);
+  mctx.setTransform(molDPR,0,0,molDPR,0,0);
+  mctx.clearRect(0,0,molW,molH);
+  for(const m of MOLS){
+    const st=SPECIES_STYLE[m.sp], r=4.6;
+    m.x+=m.vx*dt; m.y+=m.vy*dt;
+    if(m.x<8){m.x=8;m.vx=Math.abs(m.vx);} if(m.x>molW-8){m.x=molW-8;m.vx=-Math.abs(m.vx);}
+    if(m.y<8){m.y=8;m.vy=Math.abs(m.vy);} if(m.y>molH-8){m.y=molH-8;m.vy=-Math.abs(m.vy);}
+    if(m.flash>0){
+      m.flash=Math.max(0,m.flash-dt*2.2);
+      mctx.beginPath(); mctx.arc(m.x,m.y,r+2+(1-m.flash)*9,0,7);
+      mctx.strokeStyle="rgba(237,161,0,"+(m.flash*0.55).toFixed(3)+")";
+      mctx.lineWidth=2; mctx.stroke();
+    }
+    mctx.beginPath(); mctx.arc(m.x,m.y,r,0,7);
+    mctx.fillStyle=st.bg; mctx.fill();
+    mctx.lineWidth=1.2; mctx.strokeStyle="rgba(255,255,255,.9)"; mctx.stroke();
+  }
+}
+
+/* ================= atribución protegida =================
+   La identidad del autor viaja codificada y se verifica en vivo:
+   si la barra de créditos se elimina o se altera, se reconstruye;
+   si está oculta y no puede verse, el simulador se pausa. */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML =
+    '<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  stepRun(dt);
+  drawE();
+  drawRun();
+  drawMol(dt);
+  updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+state.tEnd=9/(kf()+kr());
+molReset();
+updateReadouts();
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("sT").closest(".row"), $("tCat").closest(".pill"), $("bRunA").closest(".btns") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+</script>
+</body>
+</html>

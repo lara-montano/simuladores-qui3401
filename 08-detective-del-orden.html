@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  El detective del orden de reacción — Leyes integradas (U4)
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401. Se permite su uso en el aula
+  citando al autor. Prohibido redistribuir sin la atribución visible.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>El detective del orden · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#2b5a3e;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{background:var(--page);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);background-size:22px 22px}
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(41,39,34,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px}
+  #rxn{font-size:17px;font-weight:800;margin:0 0 2px;letter-spacing:-.01em}
+  .plot-caption{font-size:12px;color:var(--muted);margin:0 0 8px}
+  .narr{font-size:13px;line-height:1.45;color:var(--ink2);background:rgba(43,90,62,.07);
+    border:1px solid rgba(43,90,62,.3);border-left:3px solid var(--accent);border-radius:9px;
+    padding:8px 12px;margin:2px 0 10px;min-height:20px}
+  .narr b{color:var(--ink)} .narr .up{color:var(--red-text);font-weight:700} .narr .dn{color:var(--blue-deep);font-weight:700}
+  .narr .eq{color:var(--aqua-deep);font-weight:700}
+  .narr.reto{border-color:rgba(237,161,0,.55);border-left-color:var(--yellow);background:rgba(237,161,0,.08)}
+  .narr.reto.ok{border-color:rgba(27,175,122,.5);border-left-color:var(--aqua);background:rgba(27,175,122,.08)}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  details.pista table{border-collapse:collapse;font-size:12px;margin:6px 0 2px}
+  details.pista td,details.pista th{border:1px solid var(--grid);padding:3px 6px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+  /* la tabla de mediciones se desplaza dentro de su tarjeta cuando no cabe (nunca desborda la página) */
+  #tabla{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;padding-bottom:4px}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  .panels{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  @media (max-width:760px){.panels{grid-template-columns:minmax(0,1fr)}}
+  .panel h3{font-size:12.5px;margin:0 0 5px;color:var(--ink2);text-align:center;font-weight:700}
+  .panel h3 .frm{color:var(--muted);font-weight:500}
+  canvas{display:block;border:1.5px solid var(--grid);border-radius:8px;background:var(--surface)}
+  .panel canvas{width:100%;height:195px;cursor:pointer;touch-action:manipulation;transition:border-color .15s, box-shadow .15s}
+  /* solo con puntero que «flota»: en táctil el :hover se queda pegado tras el toque y parecería una selección */
+  @media (hover:hover){.panel canvas:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(43,90,62,.18)}}
+  .panel canvas.win{border-color:var(--aqua-deep);border-width:2.5px}
+  .panel canvas.lose{border-color:var(--red-text);border-width:2.5px}
+  /* teléfono: paneles apilados y algo más bajos, para que quepan más a la vez sobre el muelle */
+  @media (max-width:760px){.panel canvas{height:170px}}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  select{width:100%;font:inherit;font-size:13.5px;font-weight:600;padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink)}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 12px;border-radius:8px;font:inherit;font-size:13px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f2eee4}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .btns .btn{flex:1 1 auto}
+  .ph-row{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+  .ph-row h2{margin:0;flex:1}
+  .score{font-weight:800;font-size:12px;color:var(--accent);background:rgba(43,90,62,.08);border:1px solid rgba(43,90,62,.25);padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:1fr}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain b{color:var(--ink)}
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(245,241,232,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(41,39,34,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+
+  /* --- Ajuste táctil (teléfono o puntero grueso): blancos de toque ≥ 40 px --- */
+  @media (pointer:coarse),(max-width:720px){
+    .btn{min-height:42px}
+    select{min-height:44px;font-size:16px}   /* 16 px: iOS no amplía la página al abrir el selector */
+    details.pista summary{padding:12px 0}
+    .topnav a{display:inline-block;padding:11px 0;white-space:nowrap}
+    .topnav .tn-course{text-align:right}
+  }
+  .narr{scroll-margin-top:10px}
+
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 4</p>
+    <h1>El detective del orden</h1>
+    <p class="sub">El laboratorio te entrega mediciones de [A] contra t — <b>con el orden de
+      reacción oculto</b>. Tu trabajo de detective: probar las tres linealizaciones de las leyes
+      integradas y encontrar cuál da la recta. R² es tu lupa; las unidades de k, tu coartada;
+      las vidas medias, tu segunda opinión.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+    <section class="card hero">
+      <p id="rxn">A → productos · v = k[A]ⁿ · ¿n?</p>
+      <p class="plot-caption">Cada panel transforma las MISMAS mediciones según una ley integrada.
+        Solo el orden verdadero produce una recta. Haz clic sobre el panel que creas correcto.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>Pulsa «Nuevo caso»: recibes ~13 mediciones con el orden oculto.</li>
+          <li>Examina los tres paneles: ¿cuál se ve recto? Compara los R².</li>
+          <li>¿Dudas? Pide la pista de vidas medias: constantes → 1, se acortan → 0, se alargan → 2.</li>
+          <li>Haz clic en tu veredicto y revisa k, sus unidades y el patrón de t½.</li>
+        </ol>
+      </details>
+      <div class="narr" id="narr" aria-live="polite">Pulsa «🔍 Nuevo caso» para recibir tu primer expediente.</div>
+
+      <div class="panels">
+        <div class="panel"><h3>¿Orden 0? <span class="frm">[A] vs t</span></h3><canvas id="cv0" aria-label="Datos de concentración contra tiempo con ajuste lineal para orden cero"></canvas></div>
+        <div class="panel"><h3>¿Orden 1? <span class="frm">ln[A] vs t</span></h3><canvas id="cv1" aria-label="Logaritmo natural de la concentración contra tiempo con ajuste lineal para orden uno"></canvas></div>
+        <div class="panel"><h3>¿Orden 2? <span class="frm">1/[A] vs t</span></h3><canvas id="cv2" aria-label="Inverso de la concentración contra tiempo con ajuste lineal para orden dos"></canvas></div>
+      </div>
+
+      <details class="pista" id="datos" style="margin-top:10px"><summary>Ver la tabla de mediciones</summary>
+        <div id="tabla"></div>
+      </details>
+
+      <p class="modelnote">Casos sintéticos: A → productos con v = k[A]ⁿ exacta (n = 0, 1 o 2) +
+        ruido gaussiano multiplicativo σ; mediciones hasta ~75 % de conversión. Cada R² se calcula
+        sobre la transformación de su modelo. Unidades: [k] = M^(1−n)·s⁻¹, como en clase.</p>
+    </section>
+
+    <aside class="card">
+      <div class="ph-row"><h2>El expediente</h2><span class="score" id="score" hidden>0/0</span></div>
+      <div class="row">
+        <label class="top" for="selRuido">Ruido experimental σ</label>
+        <select id="selRuido">
+          <option value="0">Sin ruido (ideal)</option>
+          <option value="0.02" selected>σ = 2 % (realista)</option>
+          <option value="0.06">σ = 6 % (equipo viejo)</option>
+        </select>
+      </div>
+      <div class="btns">
+        <button class="btn btn-primary" id="bNew">🔍 Nuevo caso</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bV0">Orden 0</button>
+        <button class="btn" id="bV1">Orden 1</button>
+        <button class="btn" id="bV2">Orden 2</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bHint" title="Marca en el panel de [A] los cruces por A0/2 y A0/4">💡 Pista: vidas medias</button>
+      </div>
+
+      <h2>Lecturas</h2>
+      <div class="stats">
+        <div class="stat" title="Concentración inicial medida"><div class="k">[A]₀ (M)</div><div class="v" id="rA0">—</div></div>
+        <div class="stat" title="Número de mediciones del expediente"><div class="k">Mediciones</div><div class="v" id="rN">—</div></div>
+        <div class="stat" title="El orden verdadero (oculto hasta tu veredicto)"><div class="k">Orden n</div><div class="v" id="rOrd">?</div></div>
+        <div class="stat" title="Constante de rapidez extraída de la pendiente ganadora"><div class="k">k (de la pendiente)</div><div class="v" id="rK">?</div></div>
+        <div class="stat" title="Las unidades delatan el orden: M^(1−n)·s⁻¹"><div class="k">Unidades de k</div><div class="v" id="rUk">?</div></div>
+        <div class="stat" title="Comportamiento de las vidas medias sucesivas"><div class="k">Patrón de t½</div><div class="v" id="rT12">?</div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li><b>Las tres leyes integradas:</b> orden 0: [A] = [A]₀ − kt · orden 1:
+            ln[A] = ln[A]₀ − kt · orden 2: 1/[A] = 1/[A]₀ + kt. Cada una es una recta
+            <em>en su propia transformación</em> — esa es la estrategia de linealizar.</li>
+        <li><b>La pendiente ES k</b> (con su signo): −k en órdenes 0 y 1, +k en orden 2. Y las
+            unidades de k cambian con el orden: [k] = M^(1−n)·s⁻¹ — una coartada infalible.</li>
+        <li><b>R² es la lupa, no el juez:</b> con ruido y ventanas cortas, dos transformaciones
+            pueden parecer rectas. El laboratorio serio mide hasta ≥ 75 % de conversión y usa
+            las vidas medias como segunda opinión.</li>
+        <li><b>Vidas medias sucesivas:</b> constantes → orden 1; se acortan a la mitad → orden 0;
+            se duplican → orden 2.</li>
+        <li><b>El orden es experimental:</b> no se lee de la ecuación balanceada. Solo en pasos
+            elementales coincide con la molecularidad.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>Racha de detective:</b> resuelve 3 casos seguidos con σ = 6 % sin fallar.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Con ruido alto, R² solo no basta: compara también las vidas medias (pista 💡).
+               Constantes → 1; se acortan → 0; se alargan → 2. Dos pruebas independientes
+               valen más que una.</p>
+          </details></li>
+        <li><b>La coartada de las unidades:</b> tras revelar, verifica que las unidades de k
+            delatan el orden sin mirar la gráfica.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>[k] = M^(1−n)·s⁻¹: M·s⁻¹ → orden 0; s⁻¹ → orden 1; M⁻¹·s⁻¹ → orden 2. En un
+               examen, revisar unidades atrapa la mitad de los errores.</p>
+          </details></li>
+        <li><b>¿El ruido engaña?</b> Genera varios casos con σ = 6 % y compara los R² de los
+            tres paneles. ¿Qué tan cerca quedan a veces?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>A conversión baja, toda curva se parece a una recta (¡Taylor!). Por eso los datos
+               llegan hasta 75 % de conversión: la curvatura que distingue órdenes vive en los
+               tiempos largos.</p>
+          </details></li>
+        <li><b>Orden ≠ coeficiente:</b> ¿por qué no puedes leer n de la ecuación balanceada?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Porque el orden refleja el <em>mecanismo</em>, no la estequiometría global. Solo un
+               paso elemental tiene orden = molecularidad — el frame «molecularidad vs orden»
+               de la Unidad 4.</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución fue ocultada o eliminada. Recarga la página para restaurarla.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+const COLORS={ink:"#292722",ink2:"#565248",muted:"#918b7c",grid:"#e4ddcc",axis:"#d8cfb9",
+  surface:"#fcfcfb",blue:"#2a78d6",blueDeep:"#1c5cab",aqua:"#1baf7a",aquaDeep:"#0e7a54",
+  redText:"#c93636",accent:"#2b5a3e"};
+const UNITS=["M·s⁻¹","s⁻¹","M⁻¹·s⁻¹"];
+const T12TXT=["se acortan (½ cada vez) → 0","constantes → 1","se duplican → 2"];
+
+/* ================= estado y caso ================= */
+const state={caso:null, count:0, hits:0, sigma:0.02};
+const $=id=>document.getElementById(id);
+
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(6.2832*v); }
+
+function Aexact(n,A0,k,t){
+  if(n===0) return Math.max(A0-k*t,1e-6);
+  if(n===1) return A0*Math.exp(-k*t);
+  return 1/(1/A0+k*t);
+}
+function genCase(forceN){
+  const n = forceN!=null? forceN : Math.floor(Math.random()*3);
+  const A0 = 0.8+Math.random()*1.2;
+  const Tw = 60+Math.random()*120;              // ventana: llega a ~25 % de A0
+  let k;
+  if(n===0) k=0.75*A0/Tw;
+  else if(n===1) k=Math.log(4)/Tw;
+  else k=3/(A0*Tw);
+  const N=13, Tmax=Tw*1.08, data=[];
+  for(let i=0;i<N;i++){
+    const t=Tmax*i/(N-1);
+    const A=Math.max(Aexact(n,A0,k,t)*(1+state.sigma*gauss()), 0.01*A0);
+    data.push({t,A});
+  }
+  /* ajustes por mínimos cuadrados en cada transformación */
+  const fits=[0,1,2].map(m=>{
+    const xs=data.map(d=>d.t);
+    const ys=data.map(d=> m===0? d.A : m===1? Math.log(d.A) : 1/d.A);
+    return lsq(xs,ys);
+  });
+  state.caso={n,A0,k,Tw,Tmax,data,fits,revealed:false,chosen:null,hint:false};
+  state.count++;
+}
+function lsq(x,y){
+  const N=x.length;
+  let sx=0,sy=0,sxx=0,sxy=0,syy=0;
+  for(let i=0;i<N;i++){ sx+=x[i];sy+=y[i];sxx+=x[i]*x[i];sxy+=x[i]*y[i];syy+=y[i]*y[i]; }
+  const m=(N*sxy-sx*sy)/(N*sxx-sx*sx);
+  const b=(sy-m*sx)/N;
+  let ssr=0,sst=0,ym=sy/N;
+  for(let i=0;i<N;i++){ const f=m*x[i]+b; ssr+=(y[i]-f)*(y[i]-f); sst+=(y[i]-ym)*(y[i]-ym); }
+  return {m,b,r2: sst>0? 1-ssr/sst : 1};
+}
+/* vidas medias por interpolación de las mediciones */
+function t12FromData(){
+  const c=state.caso, A0=c.data[0].A;
+  const cross=(target)=>{
+    for(let i=1;i<c.data.length;i++){
+      if(c.data[i].A<=target && c.data[i-1].A>target){
+        const f=(c.data[i-1].A-target)/(c.data[i-1].A-c.data[i].A);
+        return c.data[i-1].t+f*(c.data[i].t-c.data[i-1].t);
+      }
+    }
+    return null;
+  };
+  const t1=cross(A0/2), t2=cross(A0/4);
+  return {t1, t2: (t1!=null&&t2!=null)? t2-t1 : null};
+}
+
+/* ================= paneles ================= */
+const CVS=[0,1,2].map(i=>{
+  const cv=$("cv"+i), ctx=cv.getContext("2d");
+  const st={cv,ctx,W:340,H:195,DPR:1};
+  /* el lienzo toma su caja de contenido real (ancho y alto CSS) y se redibuja en el acto */
+  new ResizeObserver(es=>{ const cr=es[0].contentRect;
+    st.W=Math.max(180,cr.width); st.H=cr.height||195; st.DPR=window.devicePixelRatio||1;
+    cv.width=Math.round(st.W*st.DPR); cv.height=Math.round(st.H*st.DPR); drawPanel(i); }).observe(cv);
+  cv.addEventListener("click",()=>{ if(verdict(i)) verNarr(); });
+  return st;
+});
+
+function drawPanel(i){
+  const s=CVS[i], ctx=s.ctx, c=state.caso;
+  ctx.setTransform(s.DPR,0,0,s.DPR,0,0);
+  ctx.clearRect(0,0,s.W,s.H);
+  if(!c){ return; }
+  /* márgenes: arriba, el renglón de R² (y debajo los de la pista); abajo, «t (s)» y la marca
+     de agua en renglones distintos */
+  const M={l:40,r:10,t:18,b:30};
+  const xs=c.data.map(d=>d.t);
+  const ys=c.data.map(d=> i===0? d.A : i===1? Math.log(d.A) : 1/d.A);
+  let ymin=Math.min(...ys), ymax=Math.max(...ys);
+  const pad=(ymax-ymin)*0.12+1e-9; ymin-=pad; ymax+=pad;
+  const X=t=>M.l+t/c.Tmax*(s.W-M.l-M.r);
+  const Y=v=>M.t+(ymax-v)/(ymax-ymin)*(s.H-M.t-M.b);
+  ctx.font="10px system-ui, sans-serif";
+  /* marco */
+  ctx.strokeStyle=COLORS.axis; ctx.lineWidth=1.1;
+  ctx.beginPath(); ctx.moveTo(M.l,M.t); ctx.lineTo(M.l,s.H-M.b); ctx.lineTo(s.W-M.r,s.H-M.b); ctx.stroke();
+  ctx.fillStyle=COLORS.muted; ctx.textAlign="center"; ctx.textBaseline="top";
+  ctx.fillText("t (s)", (M.l+s.W-M.r)/2, s.H-M.b+4);
+  ctx.textAlign="right"; ctx.textBaseline="middle";
+  ctx.fillText(ymax.toFixed(i===2?1:2), M.l-4, Y(ymax-pad));
+  ctx.fillText(ymin.toFixed(i===2?1:2), M.l-4, Y(ymin+pad));
+  /* recta ajustada */
+  const f=c.fits[i];
+  ctx.strokeStyle="rgba(43,90,62,.55)"; ctx.lineWidth=1.8; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(X(0),Y(f.b)); ctx.lineTo(X(c.Tmax),Y(f.m*c.Tmax+f.b)); ctx.stroke();
+  ctx.setLineDash([]);
+  /* puntos */
+  for(let j=0;j<c.data.length;j++){
+    ctx.beginPath(); ctx.arc(X(xs[j]),Y(ys[j]),3.6,0,7);
+    ctx.fillStyle=COLORS.blue; ctx.fill();
+    ctx.lineWidth=1.3; ctx.strokeStyle="#fff"; ctx.stroke();
+  }
+  /* pista de vidas medias: solo en el panel [A] */
+  if(i===0 && c.hint){
+    const A0m=c.data[0].A, h=t12FromData();
+    ctx.strokeStyle="rgba(237,161,0,.75)"; ctx.setLineDash([4,3]); ctx.lineWidth=1.3;
+    for(const lv of [A0m/2,A0m/4]){
+      ctx.beginPath(); ctx.moveTo(M.l,Y(lv)); ctx.lineTo(s.W-M.r,Y(lv)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    ctx.fillStyle="#8a5e00"; ctx.font="700 10px system-ui, sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="bottom";
+    ctx.fillText("A₀/2", M.l+3, Y(A0m/2)-2);
+    ctx.fillText("A₀/4", M.l+3, Y(A0m/4)-2);
+    if(h.t1!=null){
+      /* rótulos de las vidas medias: centrados en su cruce pero sujetos al recuadro y bajo el
+         renglón de R²; si se estorban entre sí, el segundo baja un renglón */
+      ctx.textAlign="center"; ctx.textBaseline="top";
+      const lo=M.l+2, hi=s.W-M.r-2;
+      const t1="1.ª t½ ≈ "+h.t1.toFixed(0)+" s", w1=ctx.measureText(t1).width;
+      const x1=Math.min(Math.max(X(h.t1),lo+w1/2),hi-w1/2);
+      ctx.fillText(t1, x1, M.t-1);
+      if(h.t2!=null){
+        const t2="2.ª ≈ "+h.t2.toFixed(0)+" s", w2=ctx.measureText(t2).width;
+        const x2=Math.min(Math.max(X(h.t1+h.t2),lo+w2/2),hi-w2/2);
+        ctx.fillText(t2, x2, (x2-w2/2 < x1+w1/2+6)? M.t+12 : M.t-1);
+      }
+    }
+  }
+  /* R² */
+  ctx.fillStyle = c.revealed ? (i===c.n? COLORS.aquaDeep : COLORS.redText) : COLORS.ink2;
+  ctx.font="700 11px system-ui, sans-serif"; ctx.textAlign="right"; ctx.textBaseline="top";
+  ctx.fillText("R² = "+f.r2.toFixed(4), s.W-M.r-4, 4);
+  if(c.revealed && i===c.n){
+    ctx.fillStyle=COLORS.aquaDeep; ctx.textAlign="left";
+    ctx.fillText("✓ recta", M.l+4, 4);
+  }
+  /* marca de agua (solo panel izquierdo) */
+  if(i===0){
+    const cd=_cd();
+    ctx.font="10px system-ui, sans-serif"; ctx.fillStyle="rgba(145,139,124,.85)";
+    ctx.textAlign="right"; ctx.textBaseline="alphabetic";
+    ctx.fillText(cd?("© "+cd.y+" "+cd.n):"atribución requerida", s.W-M.r-2, s.H-4, s.W-M.r-6);
+  }
+}
+function drawAll(){ for(let i=0;i<3;i++) drawPanel(i); }
+
+/* ================= flujo del juego ================= */
+function newCase(){
+  state.sigma=parseFloat($("selRuido").value);
+  genCase();
+  for(const s of CVS) s.cv.classList.remove("win","lose");
+  updateAll();
+  const c=state.caso;
+  const el=$("narr"); el.className="narr";
+  el.innerHTML="<b>Caso #"+state.count+":</b> "+c.data.length+" mediciones, [A]₀ ≈ "
+    +c.data[0].A.toFixed(2)+" M, ruido σ = "+(100*state.sigma).toFixed(0)
+    +" %. Examina las tres linealizaciones y dicta tu veredicto (clic en un panel).";
+  buildTabla();
+}
+function verdict(i){
+  const c=state.caso;
+  if(!c || c.revealed) return false;
+  c.revealed=true; c.chosen=i;
+  const ok = i===c.n;
+  if(ok) state.hits++;
+  CVS[c.n].cv.classList.add("win");
+  if(!ok) CVS[i].cv.classList.add("lose");
+  const f=c.fits[c.n];
+  const kest=Math.abs(f.m);
+  const el=$("narr"); el.className="narr reto"+(ok?" ok":"");
+  el.innerHTML=(ok?'<span class="eq">✓ Caso resuelto.</span> ':'<span class="up">✗ Veredicto equivocado.</span> ')
+    +"El orden verdadero es <b>"+c.n+"</b>: la recta vive en <b>"
+    +(c.n===0?"[A] vs t":c.n===1?"ln[A] vs t":"1/[A] vs t")+"</b> (R² = "+f.r2.toFixed(4)
+    +"). De su pendiente: k = <b>"+kest.toPrecision(3)+" "+UNITS[c.n]+"</b> (real: "
+    +c.k.toPrecision(3)+"). Las t½ sucesivas <b>"+T12TXT[c.n]+"</b>.";
+  updateAll();
+  return true;
+}
+/* teléfono: el resultado de cada acción se explica en la narración (encima de los paneles);
+   tras una acción del usuario se trae a la vista, con los paneles debajo */
+const MQ_MOVIL=window.matchMedia("(max-width:720px)");
+function verNarr(){
+  if(!MQ_MOVIL.matches) return;
+  const suave=!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  $("narr").scrollIntoView({behavior:suave?"smooth":"auto", block:"start"});
+}
+function updateAll(){
+  const c=state.caso;
+  $("score").hidden = state.count===0;
+  $("score").textContent=state.hits+"/"+state.count+" casos";
+  if(!c){ drawAll(); return; }
+  $("rA0").textContent=c.data[0].A.toFixed(2);
+  $("rN").textContent=c.data.length;
+  if(c.revealed){
+    $("rOrd").textContent=c.n;
+    $("rK").textContent=Math.abs(c.fits[c.n].m).toPrecision(3);
+    $("rUk").textContent=UNITS[c.n];
+    $("rT12").textContent=T12TXT[c.n].split(" → ")[0];
+  } else {
+    $("rOrd").textContent="?"; $("rK").textContent="?";
+    $("rUk").textContent="?"; $("rT12").textContent="?";
+  }
+  drawAll();
+}
+function buildTabla(){
+  const c=state.caso;
+  let h='<table><tr><th>t (s)</th>';
+  for(const d of c.data) h+='<td>'+d.t.toFixed(0)+'</td>';
+  h+='</tr><tr><th>[A] (M)</th>';
+  for(const d of c.data) h+='<td>'+d.A.toFixed(3)+'</td>';
+  h+='</tr></table>';
+  $("tabla").innerHTML=h;
+}
+$("bNew").addEventListener("click",()=>{ newCase(); verNarr(); });
+$("bV0").addEventListener("click",()=>{ if(verdict(0)) verNarr(); });
+$("bV1").addEventListener("click",()=>{ if(verdict(1)) verNarr(); });
+$("bV2").addEventListener("click",()=>{ if(verdict(2)) verNarr(); });
+$("bHint").addEventListener("click",()=>{
+  const c=state.caso; if(!c) return;
+  c.hint=true;
+  const h=t12FromData();
+  const el=$("narr"); el.className="narr";
+  el.innerHTML="💡 <b>Vidas medias</b> (interpoladas de tus mediciones): 1.ª t½ ≈ <b>"
+    +(h.t1!=null?h.t1.toFixed(0)+" s":"fuera de ventana")+"</b>"
+    +(h.t2!=null?" · 2.ª ≈ <b>"+h.t2.toFixed(0)+" s</b>":"")
+    +". Constantes → orden 1 · se acortan → orden 0 · se alargan → orden 2.";
+  drawAll();
+  verNarr();
+});
+$("selRuido").addEventListener("change",()=>{ if(!state.caso || state.caso.revealed) return;
+  const el=$("narr"); el.className="narr";
+  el.innerHTML="El ruido aplica a partir del <b>próximo caso</b> («Nuevo caso»)."; });
+
+/* ================= atribución protegida ================= */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML='<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ligero (solo redibujo) ================= */
+function frame(){ drawAll(); requestAnimationFrame(frame); }
+
+/* ================= arranque ================= */
+newCase();
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("selRuido").closest(".row"), $("bNew").closest(".btns"), $("bHint").closest(".btns") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+</script>
+</body>
+</html>

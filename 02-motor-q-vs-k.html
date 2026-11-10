@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- ================================================================
+  El motor de la reacción: Q contra K — Simulador de perturbaciones
+  © 2026 Dr. Oscar Daniel Lara Montaño — Universidad Anáhuac Querétaro
+  Instagram: https://www.instagram.com/profe.daniellara
+  Google Scholar: https://scholar.google.com/citations?user=ifG2_hwAAAAJ
+  Material docente del curso QUI3401 (Termodinámica del Equilibrio
+  Químico). Se permite su uso en el aula citando al autor. Prohibido
+  redistribuir este archivo sin la atribución visible del autor.
+================================================================ -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="author" content="Oscar Daniel Lara Montaño">
+<meta name="copyright" content="© 2026 Oscar Daniel Lara Montaño">
+<title>El motor de la reacción: Q vs K · QUI3401</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f5f1e8; --surface:#fcfcfb; --card:#fffdf7;
+    --ink:#292722; --ink2:#565248; --muted:#918b7c;
+    --grid:#e4ddcc; --axis:#d8cfb9; --border:rgba(41,39,34,.10);
+    --navy:#1e3a5f; --terra:#bc4636; --line-2:#d8cfb9;
+    --serif:Georgia,"Palatino Linotype",Palatino,"Book Antiqua",serif;
+    --accent:#bc4636;
+    --blue:#2a78d6; --blue-deep:#1c5cab; --aqua:#1baf7a; --aqua-deep:#0e7a54;
+    --yellow:#eda100; --violet:#4a3aa7; --red:#e34948; --red-text:#c93636;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.45; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(41,39,34,.03) 1px, transparent 0);
+    background-size:22px 22px;
+  }
+  .page{max-width:1120px;margin:0 auto;padding:22px 20px 10px}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding-bottom:11px;border-bottom:1px solid var(--line-2)}
+  .topnav a{color:var(--accent);font-weight:700;font-size:13px;text-decoration:none}
+  .topnav a:hover{text-decoration:underline}
+  .topnav .tn-course{font-family:var(--serif);color:var(--muted);font-size:14px}
+  .eyebrow{display:inline-flex;align-items:center;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;background:rgba(41,39,34,.04);border:1px solid var(--line-2);padding:3px 11px;border-radius:999px;margin:0 0 10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(25px,3.6vw,34px);margin:0 0 12px;letter-spacing:-.01em;color:var(--navy);position:relative;padding-bottom:10px}
+  h1::after{content:"";position:absolute;left:0;bottom:0;width:74px;height:4px;border-radius:2px;background:var(--accent)}
+  .sub{color:var(--ink2);font-size:14.5px;max-width:74ch;margin:0 0 6px}
+  .byline{font-size:13px;color:var(--ink2);margin:0 0 16px}
+  .byline a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  .byline strong{color:var(--ink)}
+  .grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start}
+  @media (max-width:960px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(11,11,11,.05)}
+  .card.hero{border-top:3px solid var(--accent);box-shadow:0 4px 18px rgba(41,39,34,.09)}
+  .card h2{font-size:14px;margin:0 0 10px;letter-spacing:.01em}
+  #rxn{font-size:15.5px;font-weight:700;margin:0 0 2px}
+  .plot-caption{font-size:12px;color:var(--muted);margin:0 0 8px}
+  details.pista{margin-top:6px;font-size:12.5px}
+  details.pista summary{cursor:pointer;color:var(--blue-deep);font-weight:650;font-size:12px;user-select:none}
+  details.pista p{margin:5px 0 2px;padding:8px 11px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;color:var(--ink2)}
+  .howto ol{margin:6px 0 2px;padding-left:18px;font-size:12.5px;color:var(--ink2)}
+  .howto li{margin-bottom:4px}
+  /* ---------- reactor ---------- */
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;font-weight:650;color:var(--ink2);margin:12px 0 6px;flex-wrap:wrap}
+  .sec-head .s-sub{font-weight:500;font-size:11.5px;color:var(--muted)}
+  #box{width:100%;height:150px;display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface)}
+  .comp-legend{display:flex;gap:6px 16px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--ink2)}
+  .comp-legend .item{display:inline-flex;align-items:center;gap:6px}
+  .comp-legend .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  #trend{width:100%;height:310px;display:block;border:1px solid var(--grid);border-radius:8px;background:var(--surface);cursor:crosshair;
+    touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  .modelnote{font-size:11.5px;color:var(--muted);margin-top:10px}
+  /* ---------- controles ---------- */
+  .row{margin-bottom:13px}
+  .row label.top{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--ink2);margin-bottom:3px;font-weight:600}
+  .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);font-size:13px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;margin:8px 0 2px;background:linear-gradient(90deg,var(--blue),var(--aqua));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--blue);box-shadow:0 1px 4px rgba(11,11,11,.3);cursor:pointer}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--blue),var(--aqua))}
+  select{width:100%;font:inherit;font-size:13.5px;font-weight:600;padding:7px 8px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink)}
+  .nota{font-size:11.5px;color:var(--muted);margin-top:5px;min-height:15px}
+  .btn{border:1px solid var(--border);background:#fff;color:var(--ink);padding:7px 10px;border-radius:8px;font:inherit;font-size:12.5px;font-weight:650;cursor:pointer}
+  .btn:hover{background:#f4f3f0}
+  .btn-primary{background:linear-gradient(180deg,var(--blue),var(--blue-deep));border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(42,120,214,.35)}
+  .btn-primary:hover{filter:brightness(1.08)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .btns .btn{flex:1 1 auto}
+  .prow{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+  .prow-item{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--grid);border-radius:8px;padding:5px 8px}
+  .prow-item .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+  .prow-item .pname{font-size:13px;font-weight:650;flex:1 1 auto}
+  .prow-item .mini{border:1px solid var(--border);background:#fff;border-radius:6px;font:inherit;font-size:13px;font-weight:700;width:34px;height:26px;cursor:pointer;color:var(--ink2)}
+  .prow-item .mini:hover{background:#f4f3f0}
+  /* ---------- lecturas ---------- */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--surface);border:1px solid var(--grid);border-left:3px solid var(--axis);border-radius:8px;padding:6px 9px 7px}
+  .stat .k{font-size:10.5px;color:var(--muted);letter-spacing:.02em;font-weight:650}
+  .stat .v{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:1px}
+  .gauge-wrap{margin-top:12px}
+  .gauge-top{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .gauge{position:relative;height:12px;border-radius:6px;background:linear-gradient(90deg,rgba(42,120,214,.28),#f0efec 50%,rgba(227,73,72,.28));border:1px solid var(--grid)}
+  .gauge .mid{position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;background:var(--axis);transform:translateX(-50%)}
+  .gauge .needle{position:absolute;top:-4px;bottom:-4px;width:4px;border-radius:2px;background:var(--ink);transform:translateX(-50%);transition:left .12s linear}
+  .gauge-cap{font-size:12px;color:var(--ink2);margin-top:5px;font-weight:600;min-height:16px}
+  /* ---------- bitácora ---------- */
+  .log{margin-top:6px;max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink2)}
+  .log .ev{display:flex;gap:7px;align-items:baseline;background:var(--surface);border:1px solid var(--grid);border-radius:7px;padding:5px 8px}
+  .log .ev .n{flex:0 0 auto;font-weight:800;color:var(--blue-deep)}
+  /* ---------- predicción / barra P / extras ---------- */
+  .ph-row{display:flex;align-items:baseline;gap:10px;margin:0 0 8px}
+  .ph-row h2{margin:0;flex:1}
+  .predtog{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer;font-weight:600}
+  .predtog input{accent-color:var(--blue);width:14px;height:14px}
+  .score{font-weight:800;font-size:12px;color:var(--blue-deep);background:rgba(42,120,214,.08);border:1px solid rgba(42,120,214,.2);padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .predbox{background:rgba(42,120,214,.06);border:1px solid rgba(42,120,214,.28);border-radius:9px;padding:9px 11px;margin-bottom:10px}
+  .predbox p{font-size:12.5px;margin:0 0 7px;color:var(--ink2)}
+  .predbox b{color:var(--ink)}
+  .pbar-outer{border:1px solid var(--grid);border-radius:7px;padding:2px;background:var(--surface)}
+  .pbar{display:flex;height:22px;gap:2px}
+  .pbar .seg{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:650;overflow:hidden;white-space:nowrap;min-width:0}
+  /* ---------- explicación ---------- */
+  .explain{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-top:14px}
+  @media (max-width:960px){.explain{grid-template-columns:1fr}}
+  .explain ul,.explain ol{margin:0;padding-left:19px;font-size:13.5px;color:var(--ink2)}
+  .explain li{margin-bottom:7px}
+  .explain li::marker{color:var(--muted)}
+  .explain b{color:var(--ink)}
+  /* ---------- créditos ---------- */
+  #cred-bar{margin-top:18px;padding:13px 4px 6px;border-top:1px solid var(--grid);display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;font-size:13px;color:var(--ink2)}
+  #cred-bar strong{color:var(--ink)}
+  #cred-bar a{color:var(--blue-deep);text-decoration:underline;text-underline-offset:2px}
+  #cred-bar .note{font-size:11px;color:var(--muted);flex-basis:100%}
+  #lock-overlay{position:fixed;inset:0;background:rgba(249,249,247,.97);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+  #lock-overlay[hidden]{display:none}
+  .lock-card{max-width:540px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px 26px;box-shadow:0 12px 40px rgba(11,11,11,.18);font-size:14px;color:var(--ink2)}
+  .lock-card h2{margin:0 0 8px;font-size:17px;color:var(--ink)}
+  .lock-card a{color:var(--blue-deep)}
+  /* --- Ajuste táctil (teléfono / puntero grueso): blancos de al menos 40 px --- */
+  @media (max-width:720px),(pointer:coarse){
+    .btn{min-height:40px}
+    select{min-height:40px}
+    .prow-item .mini{width:44px;height:40px;font-size:16px}
+    .predtog{min-height:40px}
+    .predtog input{width:20px;height:20px;flex:0 0 auto}
+    .ph-row{flex-wrap:wrap;align-items:center}
+    details.pista summary{padding:12px 0}
+    .topnav a{display:inline-flex;align-items:center;min-height:40px}
+    input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+    input[type=range]::-moz-range-thumb{width:19px;height:19px}
+  }
+  /* --- Muelle móvil (≤ 720 px): los controles principales siguen a la vista --- */
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fffdf7;
+    border-top:1px solid var(--line-2);box-shadow:0 -6px 20px rgba(41,39,34,.13);
+    padding:0 14px calc(8px + env(safe-area-inset-bottom,0px))}
+  .dock-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;
+    border:0;background:none;font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--accent);padding:6px 0;cursor:pointer}
+  .dock.closed .dock-body{display:none}
+  .dock.closed .dock-chev{transform:rotate(180deg)}
+  .dock-body .row{margin-bottom:6px}
+  .dock-body .btns{margin-bottom:6px}
+  .dock-body input[type=range]{margin:10px 0 6px}
+  body.has-dock .page{padding-bottom:calc(var(--dock-h,0px) + 14px)}
+  @media (min-width:721px){.dock{display:none !important}}
+  /* modo predicción dentro del muelle: mientras la pregunta está abierta solo se ve la pregunta */
+  .dock-body .predbox{margin-bottom:6px}
+  .dock-body.asking > :not(#predbox){display:none}
+  /* acabado común 10-nov-2026 */
+  .btn-primary:hover{background:linear-gradient(180deg,var(--blue),var(--blue-deep))}
+  @media (hover:none){.btn:not(.btn-primary):hover{background:#fff} .btn-primary:hover{filter:none}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+
+  <nav class="topnav">
+    <a href="index.html">← Índice de simuladores</a>
+    <span class="tn-course">Equilibrio Químico · QUI3401</span>
+  </nav>
+
+  <header>
+    <p class="eyebrow">QUI3401 · Termodinámica del Equilibrio Químico · Unidad 2</p>
+    <h1>El motor de la reacción: Q contra K</h1>
+    <p class="sub">Un sistema gaseoso vive en equilibrio dentro de un cilindro con pistón.
+      Perturba: inyecta o retira especies, comprime, expande, agrega gas inerte a V o a P
+      constante, cambia T — y observa cómo Q corre de regreso hacia K. Incluye la
+      <em>trampa del inerte</em> y la <em>paradoja de la presión</em> de los Retos.</p>
+    <p class="byline">Por <strong>Dr. Oscar Daniel Lara Montaño</strong> ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram @profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a></p>
+  </header>
+
+  <div class="grid">
+
+    <!-- ======== reactor + tendencias (protagonista) ======== -->
+    <section class="card hero">
+      <p id="rxn">N₂O₄ ⇌ 2 NO₂</p>
+      <p class="plot-caption">Sistema real a T y V: presiones parciales p<sub>i</sub> = n<sub>i</sub>RT/V.
+        Cada botón de la derecha es una perturbación numerada que queda registrada abajo.</p>
+      <details class="pista howto"><summary>¿Cómo usarlo? (30 segundos)</summary>
+        <ol>
+          <li>El sistema arranca en equilibrio: la aguja está en Q = K y ln(Q/K) = 0.</li>
+          <li>Aplica una perturbación (botones de la derecha) y mira el salto de Q… y el regreso.</li>
+          <li>Compara «+ inerte (V cte)» contra «+ inerte (P cte)»: uno no hace nada.</li>
+          <li>Activa el modo <b>predicción</b> e introduce el resultado antes de cada botón.</li>
+          <li>Lee la historia completa en las gráficas de tendencia, como ingeniero de proceso.</li>
+        </ol>
+      </details>
+
+      <div class="sec-head">Reactor (el ancho del cilindro es proporcional a V)
+        <span class="s-sub">los átomos se conservan · destello = reacción · gris = inerte</span></div>
+      <canvas id="box" aria-label="Cilindro con pistón que muestra las moléculas del sistema; su ancho es proporcional al volumen"></canvas>
+      <div class="comp-legend" id="comp-legend"></div>
+
+      <div class="sec-head" style="margin-top:10px">Presiones parciales apiladas
+        <span class="s-sub" id="pbar-scale"></span></div>
+      <div class="pbar-outer"><div class="pbar" id="pbar"
+        title="Escala fija: el ancho de cada rebanada es proporcional a su presión parcial. Agrega inerte a V constante y observa que las rebanadas de la reacción no cambian."></div></div>
+
+      <div class="sec-head">Tendencias (últimos 30 s)
+        <span class="s-sub">arriba: presiones parciales · abajo: ln(Q/K) — cero significa equilibrio</span></div>
+      <canvas id="trend" aria-label="Gráficas de tendencia: presiones parciales y logaritmo de Q entre K contra el tiempo"></canvas>
+
+      <p class="modelnote">Gases ideales; ΔH° y ΔS° constantes (aprox. de tablas estándar); P° = 1 bar.
+        La relajación (dξ/dt ∝ −ln(Q/K)) es fenomenológica: ilustra la dirección del cambio, no una ley cinética medida.</p>
+    </section>
+
+    <!-- ======== controles ======== -->
+    <aside class="card">
+      <h2>Controles</h2>
+
+      <div class="row">
+        <label class="top" for="preset">Reacción</label>
+        <select id="preset">
+          <option value="n2o4" selected>N₂O₄ ⇌ 2 NO₂</option>
+          <option value="pcl5">PCl₅ ⇌ PCl₃ + Cl₂</option>
+          <option value="nh3">N₂ + 3 H₂ ⇌ 2 NH₃</option>
+        </select>
+        <p class="nota" id="preset-nota"></p>
+      </div>
+
+      <div class="row">
+        <label class="top" for="sT">Temperatura <span class="val" id="vT">298 K</span></label>
+        <input type="range" id="sT" min="260" max="400" step="1" value="298">
+      </div>
+
+      <div class="ph-row">
+        <h2>Perturbaciones</h2>
+        <label class="predtog" title="Introduce el resultado antes de aplicar cada perturbación"><input type="checkbox" id="tPred"> predicción</label>
+        <span class="score" id="score" hidden>0/0</span>
+      </div>
+      <div id="predbox" class="predbox" hidden>
+        <p id="pred-q"></p>
+        <div class="btns" style="margin-bottom:0">
+          <button class="btn" data-c="1">→ avanza</button>
+          <button class="btn" data-c="-1">← retrocede</button>
+          <button class="btn" data-c="0">sin efecto</button>
+          <button class="btn" data-c="x">cancelar</button>
+        </div>
+      </div>
+      <div class="prow" id="prow"></div>
+      <div class="btns">
+        <button class="btn" id="bComp" title="V se reduce a la mitad; todas las presiones parciales se duplican al instante">Comprimir ×½</button>
+        <button class="btn" id="bExp" title="V se duplica; todas las presiones parciales caen a la mitad al instante">Expandir ×2</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bInV" title="Se agrega gas inerte manteniendo el volumen: las presiones parciales no cambian">+ inerte (V cte)</button>
+        <button class="btn" id="bInP" title="Se agrega gas inerte manteniendo la presión total: el volumen crece y diluye">+ inerte (P cte)</button>
+      </div>
+      <div class="btns">
+        <button class="btn btn-primary" id="bReset">Reiniciar al equilibrio inicial</button>
+      </div>
+      <div class="btns">
+        <button class="btn" id="bPause" title="Congela la química para discutir; las moléculas siguen agitándose">⏸ Pausa</button>
+        <label class="predtog" style="flex:1;justify-content:center" title="La relajación corre a un cuarto de velocidad"><input type="checkbox" id="tSlow"> cámara lenta ×¼</label>
+      </div>
+
+      <h2>Lecturas</h2>
+      <div class="stats">
+        <div class="stat" title="K = exp(−ΔG°/RT): solo depende de T"><div class="k">K (a esta T)</div><div class="v" id="rK">—</div></div>
+        <div class="stat" title="Q con las presiones parciales actuales"><div class="k">Q (ahora)</div><div class="v" id="rQ">—</div></div>
+        <div class="stat" title="P total = n·RT/V"><div class="k">P total (bar)</div><div class="v" id="rP">—</div></div>
+        <div class="stat" title="Volumen del recipiente"><div class="k">V (L)</div><div class="v" id="rV">—</div></div>
+        <div class="stat" title="Moles totales, inerte incluido"><div class="k">n total (mol)</div><div class="v" id="rN">—</div></div>
+        <div class="stat" title="Moles de gas inerte (argón)"><div class="k">n inerte (mol)</div><div class="v" id="rI">—</div></div>
+      </div>
+
+      <div class="gauge-wrap">
+        <div class="gauge-top"><span>Q ≪ K</span><span>Q = K</span><span>Q ≫ K</span></div>
+        <div class="gauge"><div class="mid"></div><div class="needle" id="needle" style="left:50%"></div></div>
+        <p class="gauge-cap" id="gcap" aria-live="polite"></p>
+      </div>
+      <p class="nota" id="record" hidden></p>
+
+      <h2 style="margin-top:14px">Bitácora</h2>
+      <div class="log" id="log"></div>
+    </aside>
+  </div>
+
+  <!-- ======== explicación ======== -->
+  <div class="explain">
+    <section class="card">
+      <h2>¿Qué estoy viendo?</h2>
+      <ul>
+        <li>El sistema vive en un cilindro a T y V: las lecturas son <b>presiones parciales
+            reales</b>, p<sub>i</sub> = n<sub>i</sub>RT/V, y P total = nRT/V.</li>
+        <li><b>El motor:</b> si Q &lt; K la reacción avanza (→); si Q &gt; K retrocede (←).
+            La gráfica inferior muestra ln(Q/K) regresando a cero tras cada perturbación.</li>
+        <li>Una perturbación cambia <b>Q al instante</b> (o K, si tocas T); la relajación
+            es el sistema restaurando Q = K. Le Chatelier es solo el resumen cualitativo
+            de esta aritmética.</li>
+        <li><b>Los dos inertes:</b> a V constante las p<sub>i</sub> no cambian → Q no cambia →
+            no pasa nada. A P constante el cilindro se expande, diluye las p<sub>i</sub> y
+            Q se multiplica por f<sup>Δν</sup> → sí hay desplazamiento.</li>
+        <li><b>Solo T cambia K.</b> Todo lo demás mueve Q, y el sistema persigue una K fija.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Retos rápidos</h2>
+      <ol>
+        <li><b>La trampa del inerte</b> (usa PCl₅): en equilibrio, pulsa «+ inerte (V cte)».
+            ¿Se movió la aguja? Ahora «+ inerte (P cte)». Explica la diferencia.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>A V constante las p<sub>i</sub> quedan intactas: Q sigue igual a K y no pasa
+               nada. A P constante el volumen crece un factor f &gt; 1, cada p<sub>i</sub> se
+               divide entre f y Q queda multiplicado por f<sup>−Δν</sup> = 1/f &lt; K:
+               la disociación avanza.</p>
+          </details></li>
+        <li><b>La paradoja de la presión</b> (usa N₂O₄): pulsa «Comprimir ×½» y mira el
+            salto de Q en la bitácora. ¿Subió o bajó justo al comprimir?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Todas las p se duplican, así que Q = p²(NO₂)/p(N₂O₄) se multiplica por
+               2<sup>Δν</sup> = 2: Q salta por <em>encima</em> de K y el sistema retrocede
+               hacia N₂O₄. "Comprimir favorece el lado con menos moles" es la consecuencia,
+               no la causa.</p>
+          </details></li>
+        <li><b>Ingeniero Haber</b> (usa N₂ + 3 H₂ ⇌ 2 NH₃): combina perturbaciones para
+            lograr la mayor p(NH₃) posible. ¿Qué botones ayudan y cuáles estorban?
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Ayudan: comprimir (Δν = −2), bajar T (exotérmica: K sube) e inyectar N₂ y H₂.
+               Estorban: expandir y el inerte a P constante (diluyen). El inerte a V constante
+               es neutro.</p>
+          </details></li>
+        <li><b>¿Quién puede cambiar K?</b> Prueba cada botón vigilando la lectura de K.
+          <details class="pista"><summary>Ver pista</summary>
+            <p>Solo la temperatura. K = exp(−ΔG°/RT) no sabe de volúmenes, inertes ni
+               inyecciones: eso solo mueve Q. La dependencia K(T) es Van't Hoff
+               (simulador 1).</p>
+          </details></li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ======== créditos (protegidos) ======== -->
+  <footer id="cred-bar">
+    <span>Desarrollado por <strong>Dr. Oscar Daniel Lara Montaño</strong> — Universidad Anáhuac Querétaro</span>
+    <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">Instagram: @profe.daniellara</a>
+    <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+    <span>© 2026</span>
+    <span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor;
+      no elimines esta atribución.</span>
+  </footer>
+</div>
+
+<div class="dock" id="dock" hidden>
+  <button type="button" class="dock-toggle" id="dockToggle" aria-expanded="true" aria-controls="dockBody"><span>Controles</span><span class="dock-chev" aria-hidden="true">▾</span></button>
+  <div class="dock-body" id="dockBody"></div>
+</div>
+
+<div id="lock-overlay" hidden>
+  <div class="lock-card">
+    <h2>Simulador en pausa</h2>
+    <p>Este recurso es material docente original de
+      <strong>Dr. Oscar Daniel Lara Montaño</strong> (Universidad Anáhuac Querétaro) ·
+      <a href="https://www.instagram.com/profe.daniellara" target="_blank" rel="noopener">@profe.daniellara</a> ·
+      <a href="https://scholar.google.com/citations?user=ifG2_hwAAAAJ" target="_blank" rel="noopener">Google Scholar</a>.</p>
+    <p>La atribución del autor fue ocultada o eliminada. Recarga la página para restaurarla
+      y seguir usando el simulador.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:16px">Este simulador necesita JavaScript.</p></noscript>
+
+<script>
+"use strict";
+/* © 2026 Oscar Daniel Lara Montaño — no eliminar la atribución. */
+
+/* ================= constantes ================= */
+const R  = 8.314462618;      // J/(mol·K)
+const Rb = 0.0831446;        // L·bar/(mol·K)
+const COLORS = {
+  ink:"#0b0b0b", ink2:"#52514e", muted:"#898781", grid:"#e1e0d9", axis:"#c3c2b7",
+  surface:"#fcfcfb", blue:"#2a78d6", blueDeep:"#1c5cab",
+  aqua:"#1baf7a", aquaDeep:"#0e7a54", red:"#e34948", redText:"#c93636"
+};
+const SPECIES_STYLE = [
+  {bg:"#2a78d6", fg:"#ffffff"},
+  {bg:"#1baf7a", fg:"#053022"},
+  {bg:"#eda100", fg:"#3d2a00"},
+];
+const INERT_STYLE = {bg:"#898781", fg:"#ffffff"};
+
+const PRESETS = {
+  n2o4:{
+    nombre:"N₂O₄ ⇌ 2 NO₂", F:40, V0:24.6, addStep:0.2, inertStep:0.5, rate:0.18,
+    especies:[
+      {html:"N₂O₄",nu:-1,n0:1,vis:{r:3.9,dimer:true}},
+      {html:"NO₂",nu:2,n0:0,vis:{r:3.9}}
+    ],
+    dH:57.2e3, dS:175.8, Tmin:260, Tmax:400, Tdef:298,
+    nota:"Endotérmica, Δν = +1. Comprimir dispara Q por encima de K: retrocede (la paradoja de la presión)."
+  },
+  pcl5:{
+    nombre:"PCl₅ ⇌ PCl₃ + Cl₂", F:40, V0:45, addStep:0.2, inertStep:0.5, rate:0.18,
+    especies:[
+      {html:"PCl₅",nu:-1,n0:1,vis:{r:5.4}},
+      {html:"PCl₃",nu:1,n0:0,vis:{r:4.5}},
+      {html:"Cl₂",nu:1,n0:0,vis:{r:3.3,dimer:true}}
+    ],
+    // dS ajustado para reproducir K = 1.6 a 523 K, el valor del Ejemplo 1 del curso
+    dH:87.9e3, dS:172.0, Tmin:420, Tmax:650, Tdef:523,
+    nota:"Δν = +1: el escenario clásico del inerte a V constante frente a P constante (Reto 2 del curso)."
+  },
+  nh3:{
+    nombre:"N₂ + 3 H₂ ⇌ 2 NH₃", F:18, V0:10, addStep:0.5, inertStep:1.0, rate:0.5,
+    especies:[
+      {html:"N₂",nu:-1,n0:1,vis:{r:3.8,dimer:true}},
+      {html:"H₂",nu:-3,n0:3,vis:{r:2.6,dimer:true}},
+      {html:"NH₃",nu:2,n0:0,vis:{r:4.6}}
+    ],
+    dH:-92.2e3, dS:-198.7, Tmin:550, Tmax:800, Tdef:700,
+    nota:"Haber–Bosch: exotérmica y Δν = −2 — aquí comprimir sí empuja hacia el producto."
+  }
+};
+
+/* ================= estado ================= */
+const state = {
+  presetId:"n2o4", T:298, V:24.6, n:[1,0], nInert:0, t:0
+};
+let K=1, lnK=0;
+const HIST = {t:[], p:[], lnqk:[]};   // p: array de arrays por especie (+ inerte al final)
+const EVENTS = [];                    // {t, num, txt}
+let evCount = 0;
+let sampleAcc = 0;
+let hoverT = null;
+let pending = null;            // perturbación en espera de predicción
+let predOK = 0, predTot = 0;   // marcador del modo predicción
+let paused = false;
+let Vdraw = 24.6;              // volumen dibujado (el pistón se anima hacia state.V)
+let pScaleMax = 1;             // escala fija de la barra de presiones
+let recMax = 0;                // récord p(NH₃) del reto Haber
+
+const pr = () => PRESETS[state.presetId];
+const $  = id => document.getElementById(id);
+
+/* ================= termodinámica ================= */
+function computeK(){
+  const p=pr();
+  K = Math.exp(-(p.dH - state.T*p.dS)/(R*state.T));
+  lnK = Math.log(K);
+}
+function pPar(i){ return state.n[i]*Rb*state.T/state.V; }
+function pTot(){
+  let nt=state.nInert;
+  for(const v of state.n) nt+=v;
+  return nt*Rb*state.T/state.V;
+}
+function nTot(){
+  let nt=state.nInert;
+  for(const v of state.n) nt+=v;
+  return nt;
+}
+function lnQ(){
+  const sp=pr().especies; let s=0;
+  for(let i=0;i<sp.length;i++) s += sp[i].nu*Math.log(Math.max(pPar(i),1e-12));
+  return s;
+}
+function lnQK(){ return lnQ()-lnK; }
+
+function equilibrate(){
+  /* lleva n[] al equilibrio para la T y V actuales, conservando elementos */
+  const sp=pr().especies;
+  let xlo=-Infinity, xhi=Infinity;
+  for(let i=0;i<sp.length;i++){
+    if(sp[i].nu<0) xhi=Math.min(xhi, state.n[i]/(-sp[i].nu));
+    if(sp[i].nu>0) xlo=Math.max(xlo, -state.n[i]/sp[i].nu);
+  }
+  const base=state.n.slice();
+  const f=x=>{
+    let s=0;
+    for(let i=0;i<sp.length;i++){
+      const ni=Math.max(base[i]+sp[i].nu*x, 1e-12);
+      s += sp[i].nu*Math.log(ni*Rb*state.T/state.V);
+    }
+    return s-lnK;
+  };
+  let lo=xlo+1e-9, hi=xhi-1e-9;
+  for(let i=0;i<70;i++){
+    const mid=(lo+hi)/2;
+    if(f(mid)<0) lo=mid; else hi=mid;
+  }
+  const xeq=(lo+hi)/2;
+  for(let i=0;i<sp.length;i++) state.n[i]=Math.max(base[i]+sp[i].nu*xeq,0);
+}
+
+/* dinámica de relajación */
+function stepChem(dt){
+  if(dt<=0) return;
+  const sp=pr().especies;
+  const s=Math.max(-4,Math.min(4,lnQK()));
+  if(Math.abs(s)<1e-4) return;
+  let dxi=-pr().rate*s*dt;
+  /* límite físico: ninguna n puede volverse negativa */
+  for(let i=0;i<sp.length;i++){
+    if(sp[i].nu*dxi<0){
+      const max=-state.n[i]/sp[i].nu*0.95;
+      if(Math.abs(dxi)>Math.abs(max)) dxi=max;
+    }
+  }
+  for(let i=0;i<sp.length;i++) state.n[i]=Math.max(state.n[i]+sp[i].nu*dxi,0);
+}
+
+/* ================= bitácora ================= */
+function logEvent(txt, extra, d0){
+  evCount++;
+  let dir;
+  if(d0!==undefined && d0!==null){
+    /* veredicto por el CAMBIO que causó esta perturbación (robusto aun a media relajación) */
+    const dd=lnQK()-d0;
+    dir = Math.abs(dd)<0.02 ? "sin efecto sobre Q"
+        : dd<0 ? "empuja hacia productos →" : "empuja hacia reactivos ←";
+  } else {
+    const d=lnQK();
+    dir = Math.abs(d)<0.02 ? "Q sigue = K: sin efecto"
+        : d<0 ? "Q < K: avanza →" : "Q > K: retrocede ←";
+  }
+  EVENTS.push({t:state.t, num:evCount});
+  const el=document.createElement("div");
+  el.className="ev";
+  el.innerHTML='<span class="n">'+evCount+'</span><span>'+txt+' — <b>'+dir+'</b>'+(extra||'')+'</span>';
+  const log=$("log");
+  log.insertBefore(el, log.firstChild);
+  while(log.childElementCount>10) log.removeChild(log.lastChild);
+}
+
+/* ---- modo predicción (predice–observa–explica) ---- */
+function updateScore(){
+  const sc=$("score");
+  sc.hidden = !($("tPred").checked || predTot>0);
+  sc.textContent = predOK+"/"+predTot+" aciertos";
+}
+/* muestra/oculta la pregunta; si está en el muelle móvil, este enseña solo la pregunta mientras dura */
+function syncAsk(){
+  const db=$("dockBody"), pb=$("predbox");
+  if(db) db.classList.toggle("asking", !pb.hidden && pb.parentNode===db);
+  window.dispatchEvent(new Event("resize"));      // el muelle vuelve a medir su alto
+}
+function setPred(show){ const pb=$("predbox"); if(pb.hidden!==!show) pb.hidden=!show; syncAsk(); }
+function doPerturb(nombre, exec){
+  if($("tPred").checked){
+    pending=exec;
+    $("pred-q").innerHTML="Perturbación elegida: <b>"+nombre+"</b>. Antes de aplicarla: ¿qué hará el sistema?";
+    setPred(true);
+  } else {
+    const d0=lnQK();
+    const txt=exec();
+    if(txt) logEvent(txt, null, d0);
+  }
+}
+document.querySelectorAll("#predbox .btn").forEach(b=>{
+  b.addEventListener("click",()=>{
+    const c=b.dataset.c;
+    setPred(false);
+    if(c==="x" || !pending){ pending=null; return; }
+    const exec=pending; pending=null;
+    const d0=lnQK();
+    const txt=exec();
+    if(!txt) return;
+    const dd=lnQK()-d0;
+    const actual = Math.abs(dd)<0.02 ? "0" : (dd<0 ? "1" : "-1");
+    predTot++;
+    const ok=(c===actual);
+    if(ok) predOK++;
+    logEvent(txt, ok
+      ? ' · <b style="color:#0e7a54">✔ predicción correcta</b>'
+      : ' · <b style="color:#c93636">✘ tu predicción falló</b>', d0);
+    updateScore();
+  });
+});
+
+/* ================= reactor (moléculas, átomos conservados) ================= */
+const boxCv=$("box"), bctx=boxCv.getContext("2d");
+let boxW=600, boxH=150, boxDPR=1;
+const MOLS=[];
+const INERT_SP=99;
+function sizeBox(){
+  const r=boxCv.getBoundingClientRect();
+  const w0=boxW;
+  boxW=Math.max(200,r.width); boxH=150;   // ancho CSS real
+  boxDPR=window.devicePixelRatio||1;
+  boxCv.width=Math.round(boxW*boxDPR); boxCv.height=Math.round(boxH*boxDPR);
+  const k=(boxW-16)/(w0-16);              // al cambiar el ancho las moléculas se reescalan con el cilindro
+  if(k!==1) for(const m of MOLS) m.x=8+(m.x-8)*k;
+}
+new ResizeObserver(sizeBox).observe(boxCv);
+
+function boxRect(){
+  const frac=Math.max(0.18,Math.min(1,(Vdraw/pr().V0)*0.62));
+  return {x:8, y:8, w:(boxW-16)*frac, h:boxH-16};
+}
+function visOf(sp){ return sp===INERT_SP ? {r:3} : pr().especies[sp].vis; }
+function styleOf(sp){ return sp===INERT_SP ? INERT_STYLE : (SPECIES_STYLE[sp]||SPECIES_STYLE[0]); }
+
+function spawnMol(sp,x,y,flash){
+  const b=boxRect(), ang=Math.random()*6.283, spd=16+Math.random()*26;
+  MOLS.push({sp,
+    x:(x==null ? b.x+6+Math.random()*(b.w-12) : Math.min(Math.max(x+(Math.random()-0.5)*12,b.x+6),b.x+b.w-6)),
+    y:(y==null ? b.y+6+Math.random()*(b.h-12) : Math.min(Math.max(y+(Math.random()-0.5)*12,b.y+6),b.y+b.h-6)),
+    vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd,
+    ang:Math.random()*6.283, flash:flash?1:0});
+}
+function pickMols(sp,k){
+  const idx=[];
+  for(let i=0;i<MOLS.length && idx.length<k;i++) if(MOLS[i].sp===sp) idx.push(i);
+  return idx.length===k?idx:null;
+}
+function eventDir(fwd){
+  const sp=pr().especies, eaten=[], made=[];
+  for(let i=0;i<sp.length;i++){
+    const nu=sp[i].nu;
+    if((fwd&&nu<0)||(!fwd&&nu>0)) eaten.push([i,Math.abs(nu)]);
+    if((fwd&&nu>0)||(!fwd&&nu<0)) made.push([i,Math.abs(nu)]);
+  }
+  let all=[];
+  for(const [i,k] of eaten){
+    const got=pickMols(i,k); if(!got) return false;
+    all=all.concat(got);
+  }
+  const sx=MOLS[all[0]].x, sy=MOLS[all[0]].y;
+  all.sort((a,b)=>b-a).forEach(i=>MOLS.splice(i,1));
+  for(const [i,k] of made) for(let j=0;j<k;j++) spawnMol(i,sx,sy,true);
+  return true;
+}
+function countSp(sp){ let c=0; for(const m of MOLS) if(m.sp===sp) c++; return c; }
+function molReset(){
+  MOLS.length=0;
+  const F=pr().F;
+  pr().especies.forEach((s,i)=>{
+    const t=Math.max(0,Math.round(state.n[i]*F));
+    for(let j=0;j<t;j++) spawnMol(i,null,null,false);
+  });
+  for(let j=0;j<Math.round(state.nInert*F);j++) spawnMol(INERT_SP,null,null,false);
+}
+function molSync(dt){
+  const sp=pr().especies, F=pr().F;
+  const pi=sp.findIndex(s=>s.nu>0);
+  const tP=Math.max(0,Math.round(state.n[pi]*F));
+  let dk=Math.round((tP-countSp(pi))/sp[pi].nu), guard=0;
+  while(dk>0 && guard++<40){ if(!eventDir(true)) break; dk--; }
+  while(dk<0 && guard++<40){ if(!eventDir(false)) break; dk++; }
+  /* inyecciones/retiros directos de reactivo limitante (sin evento de reacción) */
+  const ri=sp.findIndex(s=>s.nu<0);
+  let dR=Math.max(0,Math.round(state.n[ri]*F))-countSp(ri), g2=0;
+  while(dR>0 && g2++<60){ spawnMol(ri,null,null,true); dR--; }
+  while(dR<0 && g2++<60){ const got=pickMols(ri,1); if(!got) break; MOLS.splice(got[0],1); dR++; }
+  /* especies restantes (por si el redondeo dejó ±1) */
+  for(let i=0;i<sp.length;i++){
+    let d=Math.max(0,Math.round(state.n[i]*F))-countSp(i), g3=0;
+    while(d>0 && g3++<60){ spawnMol(i,null,null,false); d--; }
+    while(d<0 && g3++<60){ const got=pickMols(i,1); if(!got) break; MOLS.splice(got[0],1); d++; }
+  }
+  /* inerte */
+  let dI=Math.round(state.nInert*pr().F)-countSp(INERT_SP), g4=0;
+  while(dI>0 && g4++<80){ spawnMol(INERT_SP,null,null,true); dI--; }
+  while(dI<0 && g4++<80){ const got=pickMols(INERT_SP,1); if(!got) break; MOLS.splice(got[0],1); dI++; }
+  /* equilibrio dinámico visible */
+  if(Math.abs(lnQK())<0.05 && Math.random()<dt*1.4){
+    if(eventDir(true)) eventDir(false);
+  }
+}
+function drawBox(dt){
+  molSync(dt);
+  const b=boxRect(), spd=Math.sqrt(state.T/500);
+  bctx.setTransform(boxDPR,0,0,boxDPR,0,0);
+  bctx.clearRect(0,0,boxW,boxH);
+  /* zona fuera del pistón */
+  bctx.fillStyle="#f1f0ec";
+  bctx.fillRect(b.x+b.w,0,boxW-b.x-b.w,boxH);
+  /* cilindro */
+  bctx.fillStyle=COLORS.surface;
+  bctx.fillRect(b.x,b.y,b.w,b.h);
+  bctx.strokeStyle=COLORS.axis; bctx.lineWidth=1.5;
+  bctx.strokeRect(b.x,b.y,b.w,b.h);
+  /* pistón */
+  bctx.fillStyle=COLORS.axis;
+  bctx.fillRect(b.x+b.w-1,b.y-2,7,b.h+4);
+  bctx.fillStyle=COLORS.muted;
+  bctx.fillRect(b.x+b.w+6,b.y+b.h/2-3,Math.min(26,boxW-b.x-b.w-8),6);
+  /* moléculas */
+  for(const m of MOLS){
+    const vis=visOf(m.sp), st=styleOf(m.sp);
+    m.x+=m.vx*dt*spd; m.y+=m.vy*dt*spd; m.ang+=0.5*dt;
+    const mg=vis.r+3;
+    if(m.x<b.x+mg){m.x=b.x+mg;m.vx=Math.abs(m.vx);}
+    if(m.x>b.x+b.w-mg){m.x=b.x+b.w-mg;m.vx=-Math.abs(m.vx);}
+    if(m.y<b.y+mg){m.y=b.y+mg;m.vy=Math.abs(m.vy);}
+    if(m.y>b.y+b.h-mg){m.y=b.y+b.h-mg;m.vy=-Math.abs(m.vy);}
+    if(m.flash>0){
+      m.flash=Math.max(0,m.flash-dt*2.2);
+      bctx.beginPath(); bctx.arc(m.x,m.y,vis.r+2+(1-m.flash)*9,0,7);
+      bctx.strokeStyle="rgba(237,161,0,"+(m.flash*0.55).toFixed(3)+")";
+      bctx.lineWidth=2; bctx.stroke();
+    }
+    bctx.fillStyle=st.bg; bctx.strokeStyle="rgba(255,255,255,.9)"; bctx.lineWidth=1.2;
+    if(vis.dimer){
+      const dx=Math.cos(m.ang)*vis.r*0.62, dy=Math.sin(m.ang)*vis.r*0.62;
+      bctx.beginPath(); bctx.arc(m.x-dx,m.y-dy,vis.r*0.88,0,7); bctx.fill(); bctx.stroke();
+      bctx.beginPath(); bctx.arc(m.x+dx,m.y+dy,vis.r*0.88,0,7); bctx.fill(); bctx.stroke();
+    } else {
+      bctx.beginPath(); bctx.arc(m.x,m.y,vis.r,0,7); bctx.fill(); bctx.stroke();
+    }
+  }
+  /* etiqueta de volumen: junto al pistón, fuera del gas (dentro la tapaban las moléculas y,
+     con el cilindro comprimido, no cabía); si el cilindro ocupa todo el ancho, dentro sobre una placa */
+  bctx.font="10.5px system-ui, sans-serif";
+  bctx.textAlign="left"; bctx.textBaseline="top";
+  const vt="V = "+state.V.toFixed(1)+" L", vw=bctx.measureText(vt).width, vx=b.x+b.w+12;
+  if(vx+vw<=boxW-6){ bctx.fillStyle=COLORS.ink2; bctx.fillText(vt, vx, b.y+4); }
+  else{
+    bctx.fillStyle="rgba(252,252,251,.9)"; bctx.fillRect(b.x+2,b.y+2,vw+8,16);
+    bctx.fillStyle=COLORS.ink2; bctx.fillText(vt, b.x+6, b.y+4);
+  }
+}
+
+/* ================= tendencias ================= */
+const trCv=$("trend"), tctx=trCv.getContext("2d");
+let trW=600, trH=310, trDPR=1;
+const TM={l:46,r:14};                       // márgenes laterales (los comparten el trazo y el puntero)
+const TL={A:{top:12,bot:168}, B:{top:196,bot:282}, wm:null, stack:false, titleX:0};
+let trDirty=true, hoverUntil=0;
+new ResizeObserver(()=>{ trDirty=true; }).observe(trCv);
+/* geometría según el ancho CSS real. En ancho, «tiempo (s)» y la marca de agua comparten renglón;
+   en teléfono no caben: se apilan (y la marca se parte en dos si hace falta) y el lienzo crece lo justo */
+function layoutTrend(){
+  const r=trCv.getBoundingClientRect();
+  trW=Math.max(220,r.width);
+  trDPR=window.devicePixelRatio||1;
+  const c=_cd();
+  const full = c ? ("© "+c.y+" "+c.n+" · @"+c.ig.split("/").pop()) : "atribución requerida";
+  let font="10.5px system-ui, sans-serif", lines=[full], x=trW-TM.r-4;
+  tctx.font=font; let ww=tctx.measureText(full).width;
+  tctx.font="600 10.5px system-ui, sans-serif";
+  const tw=tctx.measureText("tiempo (s)").width;
+  let titleX=TM.l+(trW-TM.l-TM.r)/2;                     // centrado bajo el eje…
+  if(titleX+tw/2 > x-ww-12) titleX=x-ww-12-tw/2;         // …o corrido a la izquierda si lo alcanzaría la marca de agua
+  const stack = titleX-tw/2 < TM.l+20;                   // ni así cabe: se apilan
+  if(stack){
+    titleX=TM.l+(trW-TM.l-TM.r)/2;
+    x=trW-6;
+    if(ww>x-4){
+      font="10px system-ui, sans-serif"; tctx.font=font; ww=tctx.measureText(full).width;
+      if(c && ww>x-4) lines=["© "+c.y+" "+c.n, "@"+c.ig.split("/").pop()];
+    }
+  }
+  trH = TL.B.bot + (stack ? (lines.length>1 ? 56 : 44) : 28);
+  TL.wm={x,font,lines}; TL.stack=stack; TL.titleX=titleX;
+  if(trCv.style.height!==trH+"px") trCv.style.height=trH+"px";
+  const pw=Math.round(trW*trDPR), ph=Math.round(trH*trDPR);
+  if(trCv.width!==pw) trCv.width=pw;
+  if(trCv.height!==ph) trCv.height=ph;
+  trDirty=false;
+}
+
+const WINDOW=30;               // segundos visibles
+function sample(){
+  const sp=pr().especies;
+  const row=[];
+  for(let i=0;i<sp.length;i++) row.push(pPar(i));
+  row.push(state.nInert*Rb*state.T/state.V);
+  HIST.t.push(state.t); HIST.p.push(row); HIST.lnqk.push(Math.max(-6,Math.min(6,lnQK())));
+  const cut=state.t-WINDOW-2;
+  while(HIST.t.length && HIST.t[0]<cut){ HIST.t.shift(); HIST.p.shift(); HIST.lnqk.shift(); }
+  while(EVENTS.length && EVENTS[0].t<cut) EVENTS.shift();
+}
+function drawTrend(){
+  if(trDirty) layoutTrend();
+  if(hoverUntil && performance.now()>hoverUntil){ hoverT=null; hoverUntil=0; }
+  const sp=pr().especies;
+  const t1=Math.max(state.t,WINDOW), t0=t1-WINDOW;
+  const M=TM, A=TL.A, B=TL.B;
+  const X=t=>M.l+(t-t0)/(t1-t0)*(trW-M.l-M.r);
+  tctx.setTransform(trDPR,0,0,trDPR,0,0);
+  tctx.clearRect(0,0,trW,trH);
+  tctx.font="10px system-ui, sans-serif";
+
+  /* escala del panel A */
+  let pmax=0.1;
+  for(const row of HIST.p) for(const v of row) if(v>pmax) pmax=v;
+  pmax*=1.12;
+  const YA=v=>A.top+(1-v/pmax)*(A.bot-A.top);
+  /* escala del panel B (simétrica) */
+  let qmax=0.5;
+  for(const v of HIST.lnqk) if(Math.abs(v)>qmax) qmax=Math.abs(v);
+  qmax*=1.15;
+  const BP=15;                   // franjas de arriba y abajo del panel B: son de sus rótulos, el trazo no entra
+  const YB=v=>B.top+BP+(1-(v+qmax)/(2*qmax))*(B.bot-B.top-2*BP);
+
+  /* rejillas + ejes */
+  tctx.strokeStyle=COLORS.grid; tctx.lineWidth=1;
+  tctx.fillStyle=COLORS.muted; tctx.textAlign="right"; tctx.textBaseline="middle";
+  const stepA=pmax>4?Math.ceil(pmax/4):(pmax>1?1:0.25);
+  for(let v=0;v<=pmax;v+=stepA){
+    tctx.beginPath(); tctx.moveTo(M.l,YA(v)); tctx.lineTo(trW-M.r,YA(v)); tctx.stroke();
+    tctx.fillText(v.toFixed(stepA<1?2:0), M.l-6, YA(v));
+  }
+  tctx.beginPath(); tctx.moveTo(M.l,YB(0)); tctx.lineTo(trW-M.r,YB(0)); tctx.stroke();
+  tctx.fillText("0", M.l-6, YB(0));
+  tctx.fillText(qmax.toFixed(1), M.l-6, YB(qmax));
+  tctx.fillText("−"+qmax.toFixed(1), M.l-6, YB(-qmax));
+  /* anotaciones que enseñan: qué significa cada signo de ln(Q/K) */
+  tctx.font="700 10px system-ui, sans-serif"; tctx.textAlign="right";
+  tctx.textBaseline="top";    tctx.fillStyle="rgba(201,54,54,.72)";
+  tctx.fillText("Q > K → retrocede ←", trW-M.r-4, B.top+3);
+  tctx.textBaseline="bottom"; tctx.fillStyle="rgba(28,92,171,.72)";
+  tctx.fillText("Q < K → avanza →", trW-M.r-4, B.bot-3);
+  /* marcos */
+  tctx.strokeStyle=COLORS.axis; tctx.lineWidth=1.2;
+  tctx.strokeRect(M.l,A.top,trW-M.l-M.r,A.bot-A.top);
+  tctx.strokeRect(M.l,B.top,trW-M.l-M.r,B.bot-B.top);
+  /* títulos de eje */
+  tctx.fillStyle=COLORS.ink2; tctx.font="600 10.5px system-ui, sans-serif"; tctx.textBaseline="bottom";
+  tctx.save(); tctx.translate(12,(A.top+A.bot)/2); tctx.rotate(-Math.PI/2);
+  tctx.textAlign="center"; tctx.fillText("pᵢ (bar)",0,0); tctx.restore();
+  tctx.save(); tctx.translate(12,(B.top+B.bot)/2); tctx.rotate(-Math.PI/2);
+  tctx.textAlign="center"; tctx.fillText("ln(Q/K)",0,0); tctx.restore();
+  tctx.textAlign="center"; tctx.textBaseline="top";
+  tctx.fillText("tiempo (s)", TL.titleX, B.bot+(TL.stack?17:14));
+  /* ticks de tiempo cada 5 s */
+  tctx.fillStyle=COLORS.muted; tctx.font="10px system-ui, sans-serif";
+  for(let tt=Math.ceil(t0/5)*5; tt<=t1; tt+=5){
+    tctx.fillText(tt.toFixed(0), X(tt), B.bot+4);
+  }
+
+  /* marcadores de eventos (si dos caen casi juntos, el segundo baja un renglón para no taparse) */
+  let lastEvX=-1e9, evRow=0;
+  for(const ev of EVENTS){
+    if(ev.t<t0) continue;
+    const x=X(ev.t);
+    evRow = (x-lastEvX<15.5) ? (evRow+1)%3 : 0; lastEvX=x;
+    const cy=A.top-1+evRow*15;
+    tctx.strokeStyle="rgba(11,11,11,.25)"; tctx.setLineDash([3,3]); tctx.lineWidth=1;
+    tctx.beginPath(); tctx.moveTo(x,A.top); tctx.lineTo(x,B.bot); tctx.stroke();
+    tctx.setLineDash([]);
+    tctx.beginPath(); tctx.arc(x,cy,7,0,7);
+    tctx.fillStyle="#fff"; tctx.fill();
+    tctx.strokeStyle=COLORS.axis; tctx.stroke();
+    tctx.fillStyle=COLORS.ink2; tctx.font="700 10px system-ui, sans-serif";
+    tctx.textAlign="center"; tctx.textBaseline="middle";
+    tctx.fillText(String(ev.num), x, cy);
+  }
+
+  /* series del panel A */
+  const nser=sp.length+(state.nInert>1e-9?1:0);
+  for(let i=0;i<nser;i++){
+    const col = i<sp.length ? SPECIES_STYLE[i].bg : INERT_STYLE.bg;
+    tctx.strokeStyle=col; tctx.lineWidth=2;
+    tctx.beginPath();
+    let started=false;
+    for(let k=0;k<HIST.t.length;k++){
+      if(HIST.t[k]<t0) continue;
+      const x=X(HIST.t[k]), y=YA(HIST.p[k][i]);
+      started?tctx.lineTo(x,y):tctx.moveTo(x,y); started=true;
+    }
+    tctx.stroke();
+  }
+  /* etiquetas directas al final de cada serie. Las series que terminan casi juntas (p. ej. PCl₃ y Cl₂,
+     que coinciden) forman un grupo y sus rótulos se apilan sobre la línea más alta del grupo (o bajo la
+     más baja si arriba no hay sitio): así no se enciman entre sí ni con las líneas */
+  if(HIST.t.length){
+    const lastRow=HIST.p[HIST.p.length-1], items=[], LH=12;
+    for(let i=0;i<nser;i++) items.push({y:YA(lastRow[i]), txt:i<sp.length?sp[i].html:"inerte",
+                                        col:i<sp.length?SPECIES_STYLE[i].bg:INERT_STYLE.bg});
+    items.sort((a,b)=>a.y-b.y);
+    const groups=[];
+    for(const it of items){
+      const g=groups[groups.length-1];
+      if(g && it.y-g.yb<LH+6){ g.items.push(it); g.yb=it.y; } else groups.push({items:[it], yt:it.y, yb:it.y});
+    }
+    tctx.font="700 10px system-ui, sans-serif"; tctx.textAlign="right"; tctx.textBaseline="top";
+    tctx.lineJoin="round"; tctx.lineWidth=3; tctx.strokeStyle=COLORS.surface;
+    let occ = A.top + (lastEvX > trW-M.r-50 ? 7 : 0);      // hasta dónde está ocupado por arriba (marcador de evento, rótulos, líneas)
+    groups.forEach((g,gi)=>{
+      const h=g.items.length*LH, next=groups[gi+1];
+      const up=g.yt-3-h, dn=g.yb+4;
+      let top;
+      if(up>=occ+1) top=up;
+      else if(dn+h<=Math.min(A.bot-1, next?next.yt-3:Infinity)) top=dn;
+      else top=Math.max(occ+1, Math.min(up, A.bot-1-h));
+      g.items.forEach((it,j)=>{
+        tctx.strokeText(it.txt, trW-M.r-3, top+j*LH+1);
+        tctx.fillStyle=it.col; tctx.fillText(it.txt, trW-M.r-3, top+j*LH+1);
+      });
+      occ=Math.max(g.yb+2, top+h);
+    });
+  }
+  /* serie del panel B */
+  tctx.strokeStyle=COLORS.ink; tctx.lineWidth=2;
+  tctx.beginPath();
+  let st2=false;
+  for(let k=0;k<HIST.t.length;k++){
+    if(HIST.t[k]<t0) continue;
+    const x=X(HIST.t[k]), y=YB(HIST.lnqk[k]);
+    st2?tctx.lineTo(x,y):tctx.moveTo(x,y); st2=true;
+  }
+  tctx.stroke();
+
+  /* crosshair de hover */
+  if(hoverT!==null && HIST.t.length){
+    let k=HIST.t.length-1;
+    for(let i=0;i<HIST.t.length;i++) if(HIST.t[i]>=hoverT){ k=i; break; }
+    const x=X(HIST.t[k]);
+    if(x>=M.l && x<=trW-M.r){
+      tctx.strokeStyle="rgba(11,11,11,.25)"; tctx.lineWidth=1;
+      tctx.beginPath(); tctx.moveTo(x,A.top); tctx.lineTo(x,B.bot); tctx.stroke();
+      const lines=[ "t = "+HIST.t[k].toFixed(1)+" s" ];
+      for(let i=0;i<sp.length;i++) lines.push(sp[i].html+": "+HIST.p[k][i].toFixed(2)+" bar");
+      if(state.nInert>1e-9) lines.push("inerte: "+HIST.p[k][sp.length].toFixed(2)+" bar");
+      lines.push("ln(Q/K) = "+HIST.lnqk[k].toFixed(2));
+      tctx.font="10.5px system-ui, sans-serif";
+      const tw=Math.max(...lines.map(t=>tctx.measureText(t).width));
+      let bx=x+10; if(bx+tw+16>trW-M.r) bx=x-tw-26;
+      const bh=lines.length*14+10;
+      tctx.fillStyle="rgba(255,255,255,.96)"; tctx.strokeStyle=COLORS.grid;
+      tctx.beginPath(); tctx.rect(bx,A.top+6,tw+16,bh); tctx.fill(); tctx.stroke();
+      tctx.fillStyle=COLORS.ink2; tctx.textAlign="left"; tctx.textBaseline="top";
+      lines.forEach((t,i)=>tctx.fillText(t,bx+8,A.top+11+i*14));
+    }
+  }
+
+  /* marca de agua (parte de la atribución del autor) */
+  const wm=TL.wm;
+  tctx.font=wm.font; tctx.fillStyle="rgba(137,135,129,.9)";
+  tctx.textAlign="right"; tctx.textBaseline="alphabetic";
+  if(wm.lines.length>1){ tctx.fillText(wm.lines[0], wm.x, trH-16); tctx.fillText(wm.lines[1], wm.x, trH-4); }
+  else tctx.fillText(wm.lines[0], wm.x, trH-4);
+}
+/* lectura con cursor; en táctil, tocar o deslizar en horizontal muestra la lectura (unos segundos tras soltar) */
+function trendHover(ev){
+  const r=trCv.getBoundingClientRect();
+  const t1=Math.max(state.t,WINDOW), t0=t1-WINDOW;
+  hoverT=t0+(ev.clientX-r.left-TM.l)/(trW-TM.l-TM.r)*(t1-t0);
+  hoverUntil=0;
+}
+trCv.addEventListener("pointermove",trendHover);
+trCv.addEventListener("pointerdown",trendHover);
+trCv.addEventListener("pointerup",ev=>{ if(ev.pointerType==="touch") hoverUntil=performance.now()+4000; });
+trCv.addEventListener("pointerleave",ev=>{ if(ev.pointerType!=="touch") hoverT=null; });
+trCv.addEventListener("pointercancel",()=>{ hoverT=null; });
+
+/* ================= lecturas ================= */
+function fmtSci(x){
+  if(!isFinite(x)) return "—";
+  if(x===0) return "0";
+  if(x>=0.01 && x<1000) return Number(x.toPrecision(3)).toString();
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  const SUP={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+  return (x/10**e).toFixed(2)+"×10"+String(e).split("").map(ch=>SUP[ch]||"").join("");
+}
+function updateReadouts(){
+  $("rK").textContent=fmtSci(K);
+  $("rQ").textContent=fmtSci(Math.exp(lnQ()));
+  $("rP").textContent=pTot().toFixed(2);
+  $("rV").textContent=state.V.toFixed(1);
+  $("rN").textContent=nTot().toFixed(2);
+  $("rI").textContent=state.nInert.toFixed(2);
+  const d=lnQK();
+  const pct=50+50*Math.max(-1,Math.min(1,d/6));
+  $("needle").style.left=pct+"%";
+  const cap=$("gcap");
+  if(Math.abs(d)<0.02){ cap.textContent="Q = K → el sistema está en equilibrio."; cap.style.color=COLORS.aquaDeep; }
+  else if(d<0){ cap.textContent="Q < K → la reacción avanza (→) hacia productos."; cap.style.color=COLORS.blueDeep; }
+  else { cap.textContent="Q > K → la reacción retrocede (←) hacia reactivos."; cap.style.color=COLORS.redText; }
+  /* chips de presiones */
+  const sp=pr().especies, leg=$("comp-legend");
+  const want=sp.length+1;
+  if(leg.childElementCount!==want){
+    leg.innerHTML="";
+    for(let i=0;i<sp.length;i++){
+      const it=document.createElement("span"); it.className="item";
+      it.innerHTML='<span class="dot" style="background:'+SPECIES_STYLE[i].bg+'"></span><span></span>';
+      leg.appendChild(it);
+    }
+    const itI=document.createElement("span"); itI.className="item";
+    itI.innerHTML='<span class="dot" style="background:'+INERT_STYLE.bg+'"></span><span></span>';
+    leg.appendChild(itI);
+  }
+  for(let i=0;i<sp.length;i++){
+    leg.children[i].lastElementChild.textContent =
+      sp[i].html+" · p = "+pPar(i).toFixed(2)+" bar · n = "+state.n[i].toFixed(2)+" mol";
+  }
+  const itI=leg.children[sp.length];
+  itI.style.display = state.nInert>1e-9 ? "" : "none";
+  itI.lastElementChild.textContent="inerte · n = "+state.nInert.toFixed(2)+" mol";
+
+  /* barra de presiones apiladas a escala fija */
+  const ptot=pTot();
+  if(ptot>pScaleMax) pScaleMax=ptot*1.05;
+  const bar=$("pbar");
+  const wantSeg=sp.length+(state.nInert>1e-9?1:0);
+  if(bar.childElementCount!==wantSeg){
+    bar.innerHTML="";
+    for(let i=0;i<wantSeg;i++){
+      const s=document.createElement("div"); s.className="seg";
+      const stl=i<sp.length?SPECIES_STYLE[i]:INERT_STYLE;
+      s.style.background=stl.bg; s.style.color=stl.fg; s.style.flex="0 0 auto";
+      bar.appendChild(s);
+    }
+  }
+  for(let i=0;i<wantSeg;i++){
+    const v=i<sp.length?pPar(i):state.nInert*Rb*state.T/state.V;
+    const wpct=v/pScaleMax*100;
+    const s=bar.children[i];
+    s.style.width=wpct+"%";
+    s.textContent = wpct>=11 ? v.toFixed(2) : "";
+  }
+  $("pbar-scale").textContent="escala fija 0–"+pScaleMax.toFixed(1)+" bar · P total = "+ptot.toFixed(2)+" bar";
+
+  /* récord del reto Haber */
+  if(state.presetId==="nh3"){
+    recMax=Math.max(recMax,pPar(sp.length-1));
+    const rec=$("record");
+    rec.hidden=false;
+    rec.textContent="Récord del reto Haber: p(NH₃) máxima lograda = "+recMax.toFixed(2)+" bar";
+  }
+}
+
+/* ================= perturbaciones ================= */
+function buildSpeciesRows(){
+  const sp=pr().especies, cont=$("prow");
+  cont.innerHTML="";
+  sp.forEach((s,i)=>{
+    const row=document.createElement("div");
+    row.className="prow-item";
+    row.innerHTML='<span class="dot" style="background:'+SPECIES_STYLE[i].bg+'"></span>'
+      +'<span class="pname">'+s.html+'</span>'
+      +'<button class="mini" data-i="'+i+'" data-d="-1" title="Retirar '+pr().addStep+' mol">−</button>'
+      +'<button class="mini" data-i="'+i+'" data-d="1" title="Inyectar '+pr().addStep+' mol">+</button>';
+    cont.appendChild(row);
+  });
+  cont.querySelectorAll(".mini").forEach(b=>{
+    b.addEventListener("click",()=>{
+      const i=+b.dataset.i, d=+b.dataset.d, step=pr().addStep;
+      const nombre=(d>0?"inyectar ":"retirar ")+step.toFixed(1)+" mol de "+pr().especies[i].html;
+      doPerturb(nombre, ()=>{
+        const antes=state.n[i];
+        state.n[i]=Math.max(0, state.n[i]+d*step);
+        const delta=state.n[i]-antes;
+        if(Math.abs(delta)<1e-12) return null;
+        return (d>0?"+":"−")+Math.abs(delta).toFixed(1)+" mol de "+pr().especies[i].html;
+      });
+    });
+  });
+}
+$("bComp").addEventListener("click",()=>{
+  doPerturb("comprimir ×½", ()=>{
+    if(state.V<=pr().V0*0.126) return null;
+    state.V*=0.5;
+    return "Comprimir: V → "+state.V.toFixed(1)+" L (todas las pᵢ ×2)";
+  });
+});
+$("bExp").addEventListener("click",()=>{
+  doPerturb("expandir ×2", ()=>{
+    if(state.V>=pr().V0*7.9) return null;
+    state.V*=2;
+    return "Expandir: V → "+state.V.toFixed(1)+" L (todas las pᵢ ×½)";
+  });
+});
+$("bInV").addEventListener("click",()=>{
+  doPerturb("+ inerte a V constante", ()=>{
+    state.nInert+=pr().inertStep;
+    return "+"+pr().inertStep.toFixed(1)+" mol de inerte a V constante";
+  });
+});
+$("bInP").addEventListener("click",()=>{
+  doPerturb("+ inerte a P constante", ()=>{
+    const P0=pTot();
+    state.nInert+=pr().inertStep;
+    state.V=nTot()*Rb*state.T/P0;
+    return "+"+pr().inertStep.toFixed(1)+" mol de inerte a P constante (V → "+state.V.toFixed(1)+" L)";
+  });
+});
+$("bReset").addEventListener("click",()=>{ applyPreset(state.presetId); });
+$("bPause").addEventListener("click",()=>{
+  paused=!paused;
+  $("bPause").textContent = paused ? "▶ Reanudar" : "⏸ Pausa";
+});
+$("tPred").addEventListener("change",()=>{
+  if(!$("tPred").checked){ pending=null; setPred(false); }
+  updateScore();
+});
+
+$("sT").addEventListener("input",e=>{
+  state.T=+e.target.value;
+  $("vT").textContent=Math.round(state.T)+" K";
+  computeK();
+});
+$("sT").addEventListener("change",e=>{
+  logEvent("T → "+Math.round(state.T)+" K (K cambió a "+fmtSci(K)+")");
+});
+$("preset").addEventListener("change",e=>applyPreset(e.target.value));
+
+function applyPreset(id){
+  const p=PRESETS[id];
+  state.presetId=id;
+  state.T=p.Tdef; state.V=p.V0;
+  state.n=p.especies.map(s=>s.n0);
+  state.nInert=0; state.t=0;
+  HIST.t.length=0; HIST.p.length=0; HIST.lnqk.length=0;
+  EVENTS.length=0; evCount=0; $("log").innerHTML="";
+  $("sT").min=p.Tmin; $("sT").max=p.Tmax; $("sT").value=p.Tdef;
+  $("vT").textContent=p.Tdef+" K";
+  $("rxn").textContent=p.nombre;
+  $("preset-nota").textContent=p.nota;
+  computeK();
+  equilibrate();
+  buildSpeciesRows();
+  Vdraw=p.V0;                    // antes de sembrar: si no, tras comprimir las moléculas renacían amontonadas
+  molReset();
+  sampleAcc=0;
+  pending=null; setPred(false);
+  paused=false; $("bPause").textContent="⏸ Pausa";
+  Vdraw=p.V0;
+  pScaleMax=Math.max(0.5, pTot()*3.2);
+  recMax=0; $("record").hidden=true;
+}
+
+/* ================= atribución protegida =================
+   La identidad del autor viaja codificada y se verifica en vivo:
+   si la barra de créditos se elimina o se altera, se reconstruye;
+   si está oculta y no puede verse, el simulador se pausa. */
+const _P1="eyJuIjogIkRyLiBPc2NhciBEYW5pZWwgTGFyYSBNb250YVx1MDBmMW8iLCAidSI6ICJVbml2ZXJzaWRhZCBBblx1MDBlMWh1YWMgUXVlclx1MDBlOXRhcm8iLCAiaWciOiAiaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNvbS9wcm9mZS5kYW5pZWxsYXJhIiwgImdzIjogImh0dHBzOi8vc2Nob2xhci5nb29nbGUuY29tL2NpdGF0aW9ucz91c2VyPWlmRzJfaHdBQUFBSiIsICJ5IjogIjIwMjYifQ==";
+function _cd(){ try{ return JSON.parse(atob(_P1)); }catch(e){ return null; } }
+function buildCredits(){
+  const c=_cd(); if(!c) return;
+  const f=document.createElement("footer"); f.id="cred-bar";
+  f.innerHTML =
+    '<span>Desarrollado por <strong>'+c.n+'</strong> — '+c.u+'</span>'+
+    '<a href="'+c.ig+'" target="_blank" rel="noopener">Instagram: @'+c.ig.split("/").pop()+'</a>'+
+    '<a href="'+c.gs+'" target="_blank" rel="noopener">Google Scholar</a>'+
+    '<span>© '+c.y+'</span>'+
+    '<span class="note">Material docente del curso QUI3401. Se permite su uso citando al autor; no elimines esta atribución.</span>';
+  (document.getElementById("page")||document.body).appendChild(f);
+}
+function _credContentOK(el){
+  const c=_cd(); return !!c && !!el && el.textContent.includes(c.n);
+}
+function creditsOK(){
+  const el=document.getElementById("cred-bar");
+  if(!_credContentOK(el)) return false;
+  const r=el.getBoundingClientRect(), cs=getComputedStyle(el);
+  const minW=Math.min(120,(window.innerWidth||0)*0.5);
+  return r.height>8 && r.width>=minW && cs.display!=="none" &&
+         cs.visibility!=="hidden" && parseFloat(cs.opacity)>0.4;
+}
+let _enforcing=false;
+function enforceCredits(){
+  if(_enforcing) return; _enforcing=true;
+  try{
+    let el=document.getElementById("cred-bar");
+    /* reconstruir solo si falta o su contenido fue alterado; si solo está
+       oculta por CSS se conserva el nodo y se muestra el candado:
+       reconstruirla en cada pasada realimentaría al observador en bucle */
+    if(el && !_credContentOK(el)){ el.remove(); el=null; }
+    if(!el) buildCredits();
+    /* asignar solo si cambia: reescribir el atributo dispararía al observador en bucle */
+    const ok=creditsOK(), lock=document.getElementById("lock-overlay");
+    if(lock.hidden !== ok) lock.hidden = ok;
+  } finally { _enforcing=false; }
+}
+/* síncrono a propósito: requestAnimationFrame se suspende en pestañas ocultas */
+new MutationObserver(()=>enforceCredits())
+  .observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+setInterval(enforceCredits,1200);
+
+/* ================= bucle ================= */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  const dts = paused ? 0 : dt*($("tSlow").checked ? 0.25 : 1);
+  state.t+=dts;
+  stepChem(dts);
+  sampleAcc+=dts;
+  while(sampleAcc>=0.05){ sample(); sampleAcc-=0.05; }
+  Vdraw += (state.V-Vdraw)*Math.min(1,dt*9);
+  drawBox(dt);
+  drawTrend();
+  updateReadouts();
+  requestAnimationFrame(frame);
+}
+
+/* ================= arranque ================= */
+sizeBox();                       // ancho real del lienzo ANTES de sembrar las moléculas
+applyPreset("n2o4");
+enforceCredits();
+requestAnimationFrame(frame);
+
+/* Muelle móvil: en ≤ 720 px MUEVE las filas de los controles principales a la barra fija
+   inferior (el alumno ve la figura mientras mueve el control) y las devuelve en escritorio. */
+(function(){
+  const DOCK_ROWS = [ $("predbox"), $("sT").closest(".row"), $("bComp").closest(".btns"), $("bInV").closest(".btns") ];
+  const dock=document.getElementById("dock"), body=document.getElementById("dockBody"), tog=document.getElementById("dockToggle");
+  if(!dock||!DOCK_ROWS.length) return;
+  const mq=window.matchMedia("(max-width:720px)");
+  const homes=DOCK_ROWS.map(el=>{ const ph=document.createComment("dock-home"); el.parentNode.insertBefore(ph,el); return {el,ph}; });
+  const measure=()=>document.documentElement.style.setProperty("--dock-h",(dock.hidden?0:dock.offsetHeight)+"px");
+  function apply(){
+    if(mq.matches){ homes.forEach(h=>body.appendChild(h.el)); dock.hidden=false; document.body.classList.add("has-dock"); }
+    else{ homes.forEach(h=>h.ph.parentNode.insertBefore(h.el,h.ph.nextSibling)); dock.hidden=true; document.body.classList.remove("has-dock"); }
+    measure();
+  }
+  tog.addEventListener("click",()=>{ const c=dock.classList.toggle("closed"); tog.setAttribute("aria-expanded",String(!c)); measure(); });
+  if(mq.addEventListener) mq.addEventListener("change",apply); else mq.addListener(apply);
+  window.addEventListener("resize",measure);
+  apply();
+})();
+/* si el ancho cruza los 720 px con una pregunta de predicción abierta, el muelle se vuelve a sincronizar */
+(function(){
+  const mq=window.matchMedia("(max-width:720px)");
+  if(mq.addEventListener) mq.addEventListener("change",syncAsk); else mq.addListener(syncAsk);
+  syncAsk();
+})();
+</script>
+</body>
+</html>
